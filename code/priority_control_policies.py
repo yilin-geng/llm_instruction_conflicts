@@ -92,23 +92,96 @@ class ConflictPolicyEvaluator:
         self.policies = policies
         self.llm_call_fns = llm_call_fns
         
-    def evaluate_all(self, data_path: Path) -> Dict[str, List[PolicyEvaluation]]:
-        results = {}
+    def load_checkpoint(self, checkpoint_dir: Path) -> Dict[str, Dict[str, List[PolicyEvaluation]]]:
+        """Load evaluation checkpoint if exists."""
+        checkpoint = {}
+        checkpoint_file = checkpoint_dir / 'evaluation_checkpoint.json'
+        
+        if checkpoint_file.exists():
+            with open(checkpoint_file, 'r') as f:
+                # Load the basic data
+                checkpoint_data = json.load(f)
+                
+                # Reconstruct PolicyEvaluation objects
+                for llm_name, policy_data in checkpoint_data.items():
+                    checkpoint[llm_name] = {}
+                    for policy_name, evaluations in policy_data.items():
+                        checkpoint[llm_name][policy_name] = [
+                            PolicyEvaluation(**eval_dict) for eval_dict in evaluations
+                        ]
+        
+        return checkpoint
+    
+    def save_checkpoint(self, checkpoint_dir: Path, results: Dict[str, Dict[str, List[PolicyEvaluation]]]):
+        """Save current evaluation progress."""
+        checkpoint_dir.mkdir(exist_ok=True)
+        checkpoint_file = checkpoint_dir / 'evaluation_checkpoint.json'
+        
+        # Convert PolicyEvaluation objects to dictionaries
+        checkpoint_data = {
+            llm_name: {
+                policy_name: [asdict(eval_result) for eval_result in evaluations]
+                for policy_name, evaluations in policy_results.items()
+            }
+            for llm_name, policy_results in results.items()
+        }
+        
+        with open(checkpoint_file, 'w') as f:
+            json.dump(checkpoint_data, f)
+            
+    def evaluate_all(self, data_path: Path, checkpoint_dir: Path = None) -> Dict[str, List[PolicyEvaluation]]:
+        if checkpoint_dir is None:
+            checkpoint_dir = Path(data_path).parent / 'checkpoints'
+            
+        # Load checkpoint if exists
+        checkpoint = self.load_checkpoint(checkpoint_dir)
+        results = {llm_name: {} for llm_name in self.llm_call_fns.keys()}
         
         total_evaluations = len(self.policies) * len(self.llm_call_fns)
         logger.info(f"Starting evaluation of {len(self.policies)} policies with {len(self.llm_call_fns)} LLM models...")
         
-        with tqdm(total=total_evaluations, desc="Overall progress") as pbar:
-            for llm_name, llm_fn in self.llm_call_fns.items():
-                logger.info(f"Evaluating with {llm_name}...")
-                llm_results = []
-                for policy in self.policies:
-                    policy_results = policy.evaluate_all(data_path, llm_fn)
-                    llm_results.extend(policy_results)
-                    pbar.update(1)
-                results[llm_name] = llm_results
-                
-        return results
+        try:
+            with tqdm(total=total_evaluations, desc="Overall progress") as pbar:
+                for llm_name, llm_fn in self.llm_call_fns.items():
+                    logger.info(f"Evaluating with {llm_name}...")
+                    
+                    for policy in self.policies:
+                        # Skip if already evaluated in checkpoint
+                        if (llm_name in checkpoint and 
+                            policy.name in checkpoint[llm_name]):
+                            results[llm_name][policy.name] = checkpoint[llm_name][policy.name]
+                            pbar.update(1)
+                            continue
+                            
+                        try:
+                            policy_results = policy.evaluate_all(data_path, llm_fn)
+                            results[llm_name][policy.name] = policy_results
+                            
+                            # Save checkpoint after each policy evaluation
+                            self.save_checkpoint(checkpoint_dir, results)
+                            pbar.update(1)
+                            
+                        except Exception as e:
+                            logger.error(f"Error evaluating {policy.name} with {llm_name}: {e}")
+                            # Save checkpoint even if there's an error
+                            self.save_checkpoint(checkpoint_dir, results)
+                            raise
+                            
+        except Exception as e:
+            logger.error(f"Evaluation interrupted: {e}")
+            # Final checkpoint save on interruption
+            self.save_checkpoint(checkpoint_dir, results)
+            raise
+            
+        # Convert results to the expected format
+        final_results = {
+            llm_name: [eval_result 
+                      for policy_results in model_results.values() 
+                      for eval_result in policy_results]
+            for llm_name, model_results in results.items()
+        }
+        
+        return final_results
 
 def save_results(results: Dict[str, List[PolicyEvaluation]], output_dir: Path):
     """Save evaluation results to files."""

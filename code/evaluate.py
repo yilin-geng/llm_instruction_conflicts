@@ -39,52 +39,25 @@ def main():
     
     # paths
     data_path = root_dir / 'data' / 'conflicting_instructions.jsonl'
-    # data_path = root_dir / 'data' / 'conflicting_instructions_test.jsonl'
     output_dir = root_dir / 'results'
-    # output_dir.mkdir(exist_ok=True)
+    checkpoint_dir = output_dir / 'checkpoints'
     
+    # Create directories
+    output_dir.mkdir(exist_ok=True)
+    checkpoint_dir.mkdir(exist_ok=True)
 
     evaluator = ConflictPolicyEvaluator(policies, llm_call_fns)
 
     logger.info("Starting evaluation...")
-    results = evaluator.evaluate_all(data_path)
-    
-    save_results(results, output_dir)
-    logger.info(f"Results saved to {output_dir}")
-    
-    print_summary(results)
-
-def print_summary(results: Dict[str, List]):
-    """Print summary statistics for each LLM and policy combination."""
-    summary_path = root_dir / 'results' / 'result_summary.log'
-    
-    # file handler for the result summary
-    file_handler = logging.FileHandler(summary_path)
-    file_handler.setLevel(logging.INFO)
-    logger.addHandler(file_handler)
-    
-    for llm_name, evaluations in results.items():
-        logger.info(f"\nResults for {llm_name}:")
-        
-        policy_results = {}
-        for eval_result in evaluations:
-            if eval_result.policy_name not in policy_results:
-                policy_results[eval_result.policy_name] = []
-            policy_results[eval_result.policy_name].append(eval_result)
-        
-        for policy_name, policy_evals in policy_results.items():
-            avg_primary = sum(e.primary_constraint_met for e in policy_evals) / len(policy_evals)
-            avg_secondary = sum(e.secondary_constraint_met for e in policy_evals) / len(policy_evals)
-            avg_recognized = sum(e.conflict_recognized for e in policy_evals) / len(policy_evals)
-            avg_joint = sum(e.joint_satisfaction for e in policy_evals) / len(policy_evals)
-            
-            logger.info(f"\n{policy_name}:")
-            logger.info(f"  Primary constraint satisfaction: {avg_primary:.2%}")
-            logger.info(f"  Secondary constraint satisfaction: {avg_secondary:.2%}")
-            logger.info(f"  Conflict recognition rate: {avg_recognized:.2%}")
-            logger.info(f"  Joint satisfaction rate: {avg_joint:.2%}")
-    
-    logger.removeHandler(file_handler)
+    try:
+        results = evaluator.evaluate_all(data_path, checkpoint_dir)
+        save_results(results, output_dir)
+        logger.info(f"Results saved to {output_dir}")
+    except KeyboardInterrupt:
+        logger.info("Evaluation interrupted by user. Progress has been saved to checkpoint.")
+    except Exception as e:
+        logger.error(f"Evaluation failed: {e}")
+        logger.info("Partial progress has been saved to checkpoint.")
 
 if __name__ == "__main__":
     main() 
