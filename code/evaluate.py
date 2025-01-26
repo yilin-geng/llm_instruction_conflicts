@@ -2,16 +2,7 @@ import json
 import logging
 from pathlib import Path
 from typing import Dict, List
-from priority_control_policies import (
-    DefaultRolePolicy,
-    SpecifiedRolePolicy,
-    DefaultNoPolicy,
-    CommonSensePolicy,
-    ExplicitPriorityPolicy,
-    SpecialMarkerPolicy,
-    ConflictPolicyEvaluator,
-    save_results
-)
+from priority_control_policies import *
 from llm_api import get_completion_gpt4o, get_completion_llama3
 from conflicts_dict import INSTRUCTION_CONFLICTS
 
@@ -23,12 +14,13 @@ logging.basicConfig(level=logging.INFO)
 def main():
     # Initialize policies
     policies = [
-        DefaultRolePolicy("Default Role Policy"),
-        SpecifiedRolePolicy("Specified Role Policy"),
-        DefaultNoPolicy("Default No Policy"),
-        CommonSensePolicy("Common Sence Policy"),
-        ExplicitPriorityPolicy("Explicit Priorit Policy"),
-        SpecialMarkerPolicy("Special Marker Policy")
+        # DefaultRolePolicy("Default Role Policy"),
+        # SpecifiedRolePolicy("Specified Role Policy"),
+        # DefaultNoPolicy("Default No Policy"),
+        # CommonSensePolicy("Common Sence Policy"),
+        # ExplicitPriorityPolicy("Explicit Priorit Policy"),
+        # SpecialMarkerPolicy("Special Marker Policy")
+        SpecifiedRolePolicy2("Specified Role Policy 2")
     ]
     
     # Initialize LLM functions
@@ -39,7 +31,7 @@ def main():
     
     # paths
     data_path = root_dir / 'data' / 'conflicting_instructions.jsonl'
-    data_path = root_dir / 'data' / 'conflicting_instructions_test.jsonl' # test
+    # data_path = root_dir / 'data' / 'conflicting_instructions_test.jsonl' # test
     output_dir = root_dir / 'results'
     checkpoint_dir = output_dir / 'checkpoints'
     

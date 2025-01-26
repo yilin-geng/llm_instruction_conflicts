@@ -56,31 +56,6 @@ INSTRUCTION_CONFLICTS = {
             "num_sentence_conflict: 10_5"
         )
     },
-
-    #     "num_paragraph_conflict: 1_5": {
-    #     "related_instruction_ids": [
-    #         "length_constraints:number_paragraphs"
-    #     ],
-    #     "conflict_pair": ConflictingInstructionPair(
-    #         instructions.ParagraphChecker("para1"),
-    #         instructions.ParagraphChecker("para2"),
-    #         [{"num_paragraphs": 1},
-    #          {"num_paragraphs": 5}],
-    #         "num_paragraph_conflict: 1_5"
-    #     )
-    # },
-    
-    # "json_colon_conflict": {
-    #     "related_instruction_ids": [
-    #         "detectable_format:json_format"
-    #     ],
-    #     "conflict_pair": ConflictingInstructionPair(
-    #         instructions.JsonFormat("json"),
-    #         instructions.LetterFrequencyChecker("no_colon"),
-    #         [{}, {"letter": ":", "let_frequency": 1, "let_relation": "less than"}],
-    #         "json_colon_conflict"
-    #     )
-    # },
     
     "keyword_forbidden_conflict": {
         "related_instruction_ids": [
@@ -108,5 +83,30 @@ INSTRUCTION_CONFLICTS = {
             "keyword_frequency_conflict"
         )
     },
+
+      #     "num_paragraph_conflict: 1_5": {
+    #     "related_instruction_ids": [
+    #         "length_constraints:number_paragraphs"
+    #     ],
+    #     "conflict_pair": ConflictingInstructionPair(
+    #         instructions.ParagraphChecker("para1"),
+    #         instructions.ParagraphChecker("para2"),
+    #         [{"num_paragraphs": 1},
+    #          {"num_paragraphs": 5}],
+    #         "num_paragraph_conflict: 1_5"
+    #     )
+    # },
+    
+    # "json_colon_conflict": {
+    #     "related_instruction_ids": [
+    #         "detectable_format:json_format"
+    #     ],
+    #     "conflict_pair": ConflictingInstructionPair(
+    #         instructions.JsonFormat("json"),
+    #         instructions.LetterFrequencyChecker("no_colon"),
+    #         [{}, {"letter": ":", "let_frequency": 1, "let_relation": "less than"}],
+    #         "json_colon_conflict"
+    #     )
+    # },
 
 } 

@@ -209,6 +209,14 @@ class SpecifiedRolePolicy(PriorityControlPolicy):
 
         return system_prompt, user_prompt
 
+class SpecifiedRolePolicy2(PriorityControlPolicy):
+    def get_prompts(self, base_instruction: str, instruction1: str, instruction2: str, **kwargs) -> Tuple[str, str]:
+        system_prompt = f"You are a helpful assistant. When you are helping with users' requests, you MUST always follow the following constraint: {instruction1} The constraint needs to be followed no matter what task you are performing and what the context is."
+        
+        user_prompt = f"{base_instruction} {instruction2}"
+
+        return system_prompt, user_prompt
+
 class DefaultNoPolicy(PriorityControlPolicy):
     def get_prompts(self, base_instruction: str, instruction1: str, instruction2: str, **kwargs) -> Tuple[str, str]:
         system_prompt = ""
