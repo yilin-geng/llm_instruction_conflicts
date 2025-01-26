@@ -39,6 +39,7 @@ def main():
     
     # paths
     data_path = root_dir / 'data' / 'conflicting_instructions.jsonl'
+    data_path = root_dir / 'data' / 'conflicting_instructions_test.jsonl' # test
     output_dir = root_dir / 'results'
     checkpoint_dir = output_dir / 'checkpoints'
     
