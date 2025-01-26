@@ -6,6 +6,7 @@ from dataclasses import dataclass
 import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
+import argparse
 
 root_dir = Path(__file__).parent.parent
 logger = logging.getLogger(__name__)
@@ -22,16 +23,37 @@ class AnalysisResult:
     scenario_none_met: float           # Scenario 4
     scenario_both_met: float           # Scenario 5
 
-def load_results(results_dir: Path) -> Dict[str, List[dict]]:
-    """Load results from all jsonl files in the results directory."""
+def load_results(results_dir: Path, timestamp: str = None) -> Dict[str, List[dict]]:
+    """Load results from specified timestamp directory or all available results."""
     results = {}
-    for file_path in results_dir.glob('*_results.jsonl'):
-        model_name = file_path.stem.replace('_results', '')
-        results[model_name] = []
+    
+    if timestamp:
+        # Load specific timestamp results
+        timestamp_dir = results_dir / timestamp
+        if not timestamp_dir.exists():
+            raise ValueError(f"No results found for timestamp {timestamp}")
         
-        with open(file_path, 'r') as f:
-            for line in f:
-                results[model_name].append(json.loads(line))
+        for file_path in timestamp_dir.glob('*_results.jsonl'):
+            model_name = file_path.stem.replace('_results', '')
+            results[f"{model_name}_{timestamp}"] = []
+            
+            with open(file_path, 'r') as f:
+                for line in f:
+                    results[f"{model_name}_{timestamp}"].append(json.loads(line))
+    else:
+        # Load all timestamp directories
+        for timestamp_dir in sorted(results_dir.glob('*')):
+            if not timestamp_dir.is_dir():
+                continue
+                
+            timestamp = timestamp_dir.name
+            for file_path in timestamp_dir.glob('*_results.jsonl'):
+                model_name = file_path.stem.replace('_results', '')
+                results[f"{model_name}_{timestamp}"] = []
+                
+                with open(file_path, 'r') as f:
+                    for line in f:
+                        results[f"{model_name}_{timestamp}"].append(json.loads(line))
                 
     return results
 
@@ -86,10 +108,12 @@ def analyze_by_conflict_type(results: Dict[str, List[dict]]) -> pd.DataFrame:
     
     return pd.DataFrame(analysis_data)
 
-def plot_conflict_analysis(df: pd.DataFrame, output_dir: Path):
-    """Generate visualization plots for the analysis."""
+def plot_conflict_analysis(df: pd.DataFrame, output_dir: Path, timestamp: str = None):
+    """Generate visualization plots for the analysis with timestamp handling."""
     plots_dir = output_dir / 'plots'
-    plots_dir.mkdir(exist_ok=True)
+    if timestamp:
+        plots_dir = plots_dir / timestamp
+    plots_dir.mkdir(exist_ok=True, parents=True)
     
     scenario_cols = [
         'scenario_conflict_recognized',
@@ -155,15 +179,20 @@ def plot_conflict_analysis(df: pd.DataFrame, output_dir: Path):
     
     # Save figure
     plt.savefig(
-        plots_dir / 'scenario_distribution_pies.png',
+        plots_dir / f'scenario_distribution_pies_{timestamp or "all"}.png',
         bbox_inches='tight',
         dpi=300
     )
     plt.close()
 
-def generate_summary_report(df: pd.DataFrame, output_dir: Path):
-    """Generate a detailed summary report with instance examples."""
-    report_path = output_dir / 'analysis_report.md'
+def generate_summary_report(df: pd.DataFrame, output_dir: Path, timestamp: str = None):
+    """Generate a detailed summary report with timestamp handling."""
+    reports_dir = output_dir / 'reports'
+    if timestamp:
+        reports_dir = reports_dir / timestamp
+    reports_dir.mkdir(exist_ok=True, parents=True)
+    
+    report_path = reports_dir / f'analysis_report_{timestamp or "all"}.md'
     
     with open(report_path, 'w') as f:
         f.write('# Conflict Resolution Analysis Report\n\n')
@@ -226,16 +255,21 @@ def generate_summary_report(df: pd.DataFrame, output_dir: Path):
 
 def main():
     results_dir = root_dir / 'results'
-    results = load_results(results_dir)
+    
+    # Optional: Add argument parsing for timestamp
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--timestamp', help='Specific timestamp to analyze')
+    args = parser.parse_args()
+    
+    # Load results
+    results = load_results(results_dir, args.timestamp)
     
     # Perform analysis
     df = analyze_by_conflict_type(results)
     
-    # Generate visualizations
-    plot_conflict_analysis(df, results_dir)
-    
-    # Generate summary report
-    generate_summary_report(df, results_dir)
+    # Generate visualizations and reports
+    plot_conflict_analysis(df, results_dir, args.timestamp)
+    generate_summary_report(df, results_dir, args.timestamp)
     
     logger.info(f"Analysis complete. Results saved to {results_dir}")
 

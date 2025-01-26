@@ -60,5 +60,21 @@ def main():
         logger.error(f"Evaluation failed: {e}")
         logger.info("Partial progress has been saved to checkpoint.")
 
+def save_results(results: Dict[str, List[PolicyEvaluation]], output_dir: Path):
+    """Save evaluation results to files with timestamps."""
+    output_dir.mkdir(exist_ok=True)
+    
+    # Add timestamp to output directory
+    from datetime import datetime
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    timestamped_dir = output_dir / timestamp
+    timestamped_dir.mkdir(exist_ok=True)
+    
+    for llm_name, evaluations in results.items():
+        output_file = timestamped_dir / f"{llm_name}_results.jsonl"
+        with open(output_file, 'w') as f:
+            for eval_result in evaluations:
+                f.write(json.dumps(asdict(eval_result)) + '\n')
+
 if __name__ == "__main__":
     main() 
