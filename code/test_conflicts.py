@@ -3,11 +3,7 @@ from pathlib import Path
 import sys
 from unittest.mock import patch, MagicMock
 
-root_dir = Path(__file__).parent.parent
-sys.path.append(str(root_dir))
-
 from conflicts import ConflictingInstructionPair, ConflictEvaluation, check_conflict_recognition_llm
-from instruction_following_eval import instructions
 from conflicts_dict import INSTRUCTION_CONFLICTS
 
 class TestConflicts(unittest.TestCase):

@@ -1,8 +1,7 @@
 import sys
 from pathlib import Path
 root_dir = Path(__file__).parent.parent
-sys.path.append(str(root_dir))
-from instruction_following_eval import instructions
+import instructions
 from conflicts import ConflictingInstructionPair
 
 INSTRUCTION_CONFLICTS = {

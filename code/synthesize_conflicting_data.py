@@ -18,8 +18,7 @@ root_dir = Path(__file__).parent.parent
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 
-sys.path.append(str(root_dir))
-from instruction_following_eval import instructions
+import instructions
 from conflicts import ConflictingInstructionPair
 from conflicts_dict import INSTRUCTION_CONFLICTS
 
