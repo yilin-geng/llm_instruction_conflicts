@@ -735,9 +735,9 @@ class KeywordChecker(Instruction):
     return ["keywords"]
 
   def check_following(self, value):
-    """Check if the response contain the expected keywords."""
+    """Check if the response contains the expected keywords."""
     for keyword in self._keywords:
-      if not re.search(keyword, value, flags=re.IGNORECASE):
+      if not re.search(r'\b' + re.escape(keyword) + r'\b', value, flags=re.IGNORECASE):
         return False
     return True
 
@@ -1105,9 +1105,9 @@ class ForbiddenWords(Instruction):
     return ["forbidden_words"]
 
   def check_following(self, value):
-    """Check if the response does not contain the expected keywords."""
+    """Check if the response contains any forbidden words."""
     for word in self._forbidden_words:
-      if re.search(r"\b" + word + r"\b", value, flags=re.IGNORECASE):
+      if re.search(r'\b' + re.escape(word) + r'\b', value, flags=re.IGNORECASE):
         return False
     return True
 
