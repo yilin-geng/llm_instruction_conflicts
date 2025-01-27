@@ -32,8 +32,13 @@ def find_conflicts(instruction_id: str) -> List[str]:
             conflicts.append(conflict_name)
     return conflicts
 
-def generate_conflicting_data(base_instruction_file: Path) -> List[Dict]:
-    """Generate conflicting instruction pairs from base instructions."""
+def generate_conflicting_data(base_instruction_file: Path, flip_instructions: bool = False) -> List[Dict]:
+    """Generate conflicting instruction pairs from base instructions.
+    
+    Args:
+        base_instruction_file: Path to base instructions file
+        flip_instructions: If True, flip instruction1 and instruction2 in the output
+    """
     conflicting_data = []
     
     with open(base_instruction_file, 'r') as f:
@@ -55,12 +60,16 @@ def generate_conflicting_data(base_instruction_file: Path) -> List[Dict]:
                     # Get the conflicting instructions - these are already descriptions
                     inst1, inst2 = conflict_pair.get_instructions()
                     
+                    # Flip instructions if requested
+                    if flip_instructions:
+                        inst1, inst2 = inst2, inst1
+                    
                     # Create data point
                     data_point = {
                         'base_instruction': base_instruction,
                         'instruction1': inst1,  # Already a description string
                         'instruction2': inst2,  # Already a description string
-                        'kwargs': conflict_pair.kwargs,
+                        'kwargs': conflict_pair.kwargs if not flip_instructions else list(reversed(conflict_pair.kwargs)),
                         'conflict_name': conflict_name,
                         'original_instruction_id': inst_id
                     }
@@ -79,13 +88,15 @@ def save_conflicting_data(data: List[Dict], output_file: Path):
 def main():
     base_instruction_file = root_dir / 'data' / 'base_instructions.jsonl'
     output_file = root_dir / 'data' / 'conflicting_instructions.jsonl'
+    output_file_reversed = root_dir / 'data' / 'conflicting_instructions_reversed.jsonl'
     
     logger.info("Generating conflicting instructions...")
     if not base_instruction_file.exists():
         logger.error(f"Input file not found: {base_instruction_file}")
         return
         
-    conflicting_data = generate_conflicting_data(base_instruction_file)
+    # Generate normal conflicting data
+    conflicting_data = generate_conflicting_data(base_instruction_file, flip_instructions=False)
     
     if not conflicting_data:
         logger.warning("No conflicting instructions were generated!")
@@ -94,6 +105,11 @@ def main():
     logger.info(f"Generated {len(conflicting_data)} conflicting instruction pairs")
     save_conflicting_data(conflicting_data, output_file)
     logger.info(f"Saved conflicting instructions to {output_file}")
+    
+    # Generate reversed conflicting data
+    conflicting_data_reversed = generate_conflicting_data(base_instruction_file, flip_instructions=True)
+    save_conflicting_data(conflicting_data_reversed, output_file_reversed)
+    logger.info(f"Saved reversed conflicting instructions to {output_file_reversed}")
 
 if __name__ == "__main__":
     main()
