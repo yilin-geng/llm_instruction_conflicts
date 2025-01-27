@@ -4,7 +4,7 @@ __pycache__/
 *$py.class
 
 # API keys and sensitive files
-code/llm_api.py
+code/api_keys.py
 
 # C extensions
 *.so
