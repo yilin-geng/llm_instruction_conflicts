@@ -1,0 +1,30 @@
+1. Language Conflict (en_fr)
+This conflict requires the response to be in two different languages simultaneously.
+Example conflicting instructions:
+Instruction 1: "Your response should be in English."
+Instruction 2: "Your response should be in French."
+2. Case Conflict
+This conflict requires text to be in different letter cases simultaneously.
+Example conflicting instructions:
+Instruction 1: "Your entire response should be in capital letters."
+Instruction 2: "Your entire response should be in lowercase letters."
+3. Word Length Conflict (300_50)
+This conflict requires the response to have contradictory word count requirements.
+Example conflicting instructions:
+Instruction 1: "Your response should have at least 300 words."
+Instruction 2: "Your response should have less than 50 words."
+4. Number of Sentences Conflict (10_5)
+This conflict requires the response to have contradictory sentence count requirements.
+Example conflicting instructions:
+Instruction 1: "Your response should have at least 10 sentences."
+Instruction 2: "Your response should have less than 5 sentences."
+5. Keyword Forbidden Conflict
+This conflict requires both including and excluding the same keyword.
+Example conflicting instructions:
+Instruction 1: "Include keywords ['example'] in the response."
+Instruction 2: "Do not include keywords ['example'] in the response."
+6. Keyword Frequency Conflict
+This conflict requires contradictory frequencies of the same keyword.
+Example conflicting instructions:
+Instruction 1: "In your response, the word example should appear at least 10 times."
+Instruction 2: "In your response, the word example should appear less than 2 times."
