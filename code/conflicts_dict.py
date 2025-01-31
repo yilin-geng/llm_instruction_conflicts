@@ -64,8 +64,8 @@ INSTRUCTION_CONFLICTS = {
         "conflict_pair": ConflictingInstructionPair(
             instructions.KeywordChecker("keywords"), 
             instructions.ForbiddenWords("forbidden"),
-            [{"keywords": ["example"]}, 
-             {"forbidden_words": ["example"]}],
+            [{"keywords": ["awesome"]}, 
+             {"forbidden_words": ["awesome"]}],
             "keyword_forbidden_conflict"
         )
     },
@@ -77,8 +77,8 @@ INSTRUCTION_CONFLICTS = {
         "conflict_pair": ConflictingInstructionPair(
             instructions.KeywordFrequencyChecker("freq1"),
             instructions.KeywordFrequencyChecker("freq2"),
-            [{"keyword": "example", "frequency": 5, "relation": "at least"},
-             {"keyword": "example", "frequency": 2, "relation": "less than"}],
+            [{"keyword": "like", "frequency": 5, "relation": "at least"},
+             {"keyword": "like", "frequency": 2, "relation": "less than"}],
             "keyword_frequency_conflict"
         )
     },
