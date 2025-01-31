@@ -112,6 +112,10 @@ def analyze_by_conflict_type(results: Dict[str, List[dict]]) -> pd.DataFrame:
 
 def plot_conflict_analysis(df: pd.DataFrame, output_dir: Path, timestamp: str = None):
     """Generate visualization plots for the analysis with timestamp handling."""
+    # Validate that scenario_both_met is always 0
+    if not (df['scenario_both_met'] == 0).all():
+        raise ValueError("Invalid data: Found non-zero values in scenario_both_met")
+        
     plots_dir = output_dir / 'plots'
     if timestamp:
         plots_dir = plots_dir / timestamp
@@ -122,7 +126,6 @@ def plot_conflict_analysis(df: pd.DataFrame, output_dir: Path, timestamp: str = 
         'scenario_primary_only',
         'scenario_secondary_only',
         'scenario_none_met',
-        'scenario_both_met'
     ]
     
     # Mapping for prettier scenario names
@@ -131,7 +134,6 @@ def plot_conflict_analysis(df: pd.DataFrame, output_dir: Path, timestamp: str = 
         'scenario_primary_only': 'Primary\nOnly',
         'scenario_secondary_only': 'Secondary\nOnly',
         'scenario_none_met': 'None\nMet',
-        'scenario_both_met': 'Both\nMet'
     }
     
     # Calculate number of rows and columns for subplots
@@ -223,7 +225,7 @@ def generate_summary_report(df: pd.DataFrame, output_dir: Path, timestamp: str =
                 f.write(f'- Primary Constraint Only: {model_policy_data["scenario_primary_only"].mean():.2%}\n')
                 f.write(f'- Secondary Constraint Only: {model_policy_data["scenario_secondary_only"].mean():.2%}\n')
                 f.write(f'- No Constraints Met: {model_policy_data["scenario_none_met"].mean():.2%}\n')
-                f.write(f'- Both Constraints Met: {model_policy_data["scenario_both_met"].mean():.2%}\n\n')
+
 
                 # Add examples for each non-zero scenario
                 scenarios = {
@@ -231,7 +233,6 @@ def generate_summary_report(df: pd.DataFrame, output_dir: Path, timestamp: str =
                     'Primary Only': 'scenario_primary_only',
                     'Secondary Only': 'scenario_secondary_only',
                     'None Met': 'scenario_none_met',
-                    'Both Met': 'scenario_both_met'
                 }
 
                 for scenario_name, scenario_col in scenarios.items():
@@ -266,19 +267,6 @@ def compute_failure_rates(df: pd.DataFrame) -> pd.DataFrame:
     failure_rates['total_failure_rate'] = failure_rates['scenario_secondary_only'] + failure_rates['scenario_none_met']
     return failure_rates
 
-def compute_conflict_type_stats(df: pd.DataFrame) -> pd.DataFrame:
-    """Compute statistics for each conflict type, policy, and model combination."""
-    stats = df.groupby(['model_name', 'policy_name', 'conflict_name']).agg({
-        'scenario_conflict_recognized': 'mean',
-        'scenario_primary_only': 'mean',
-        'scenario_secondary_only': 'mean',
-        'scenario_none_met': 'mean',
-        'scenario_both_met': 'mean'
-    }).round(4)
-    
-    stats['failure_rate'] = stats['scenario_secondary_only'] + stats['scenario_none_met']
-    return stats
-
 def compute_success_rates(df: pd.DataFrame) -> pd.DataFrame:
     """Compute success rates (scenario_conflict_recognized + scenario_primary_only) for each policy and model."""
     success_rates = df.groupby(['model_name', 'policy_name']).agg({
@@ -288,6 +276,20 @@ def compute_success_rates(df: pd.DataFrame) -> pd.DataFrame:
     
     success_rates['total_success_rate'] = success_rates['scenario_conflict_recognized'] + success_rates['scenario_primary_only']
     return success_rates
+
+def compute_conflict_type_stats(df: pd.DataFrame) -> pd.DataFrame:
+    """Compute statistics for each conflict type, policy, and model combination."""
+    stats = df.groupby(['model_name', 'policy_name', 'conflict_name']).agg({
+        'scenario_conflict_recognized': 'mean',
+        'scenario_primary_only': 'mean',
+        'scenario_secondary_only': 'mean',
+        'scenario_none_met': 'mean',
+    }).round(4)
+    
+    stats['failure_rate'] = stats['scenario_secondary_only'] + stats['scenario_none_met']
+    return stats
+
+
 
 def generate_detailed_report(df: pd.DataFrame, output_dir: Path, timestamp: str = None):
     """Generate a detailed report including failure rates and success rates."""
@@ -340,14 +342,14 @@ def generate_detailed_report(df: pd.DataFrame, output_dir: Path, timestamp: str 
         
         for (model, policy), group in conflict_stats.groupby(['model_name', 'policy_name']):
             f.write(f"\n### {model} - {policy}\n\n")
-            f.write('| Conflict Type | Recognized | Primary | Secondary | None | Both | Failure Rate |\n')
-            f.write('|---------------|------------|---------|-----------|------|------|-------------|\n')
+            f.write('| Conflict Type | Recognized | Primary | Secondary | None | Failure Rate |\n')
+            f.write('|---------------|------------|---------|-----------|------|-------------|\n')
             
             for idx, row in group.iterrows():
                 conflict = idx[2]  # Get conflict name from multi-index
                 f.write(f"| {conflict} | {row['scenario_conflict_recognized']:.2%} | "
                        f"{row['scenario_primary_only']:.2%} | {row['scenario_secondary_only']:.2%} | "
-                       f"{row['scenario_none_met']:.2%} | {row['scenario_both_met']:.2%} | "
+                       f"{row['scenario_none_met']:.2%} | "
                        f"{row['failure_rate']:.2%} |\n")
 
 def main():
