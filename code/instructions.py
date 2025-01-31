@@ -781,7 +781,7 @@ class KeywordFrequencyChecker(Instruction):
       self._comparison_relation = relation
 
     self._description_pattern = (
-        "In your response, the word {keyword} should appear {relation} " +
+        "In your response, the word '{keyword}' should appear {relation} " +
         "{frequency} times.")
 
     return self._description_pattern.format(
