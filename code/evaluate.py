@@ -52,14 +52,22 @@ def main():
     logger.info("Starting evaluation...")
     try:
         results = evaluator.evaluate_all(data_path, checkpoint_dir)
-        save_results(policies, llm_call_fns, data_path, results, output_dir)
-        logger.info(f"Results saved to {output_dir}")
+        timestamp = save_results(policies, llm_call_fns, data_path, results, output_dir)
+        logger.info(f"Results saved to {output_dir} with timestamp {timestamp}.")
         
         # Delete checkpoint file after successful evaluation
         checkpoint_file = checkpoint_dir / 'evaluation_checkpoint.json'
         if checkpoint_file.exists():
             checkpoint_file.unlink()
             logger.info("Checkpoint file deleted after successful evaluation")
+            
+        # Add analysis step
+        logger.info("Starting analysis...")
+        from analyze import main as analyze_main
+        import sys
+        sys.argv = [sys.argv[0], '--timestamp', timestamp]  # Set timestamp argument
+        analyze_main()
+        logger.info("Analysis complete")
             
     except KeyboardInterrupt:
         logger.info("Evaluation interrupted by user. Progress has been saved to checkpoint.")
@@ -85,6 +93,7 @@ def save_results(policies, llm_call_fns, data_path, results: Dict[str, List[Poli
         with open(output_file, 'w') as f:
             for eval_result in evaluations:
                 f.write(json.dumps(asdict(eval_result)) + '\n')
+    return timestamp
 
 def save_experiment_log(policies, llm_call_fns, data_path, timestamp, timestamped_dir: Path):
     """Save experiment configuration to a log file."""

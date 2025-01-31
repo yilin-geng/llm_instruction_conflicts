@@ -101,8 +101,8 @@ def analyze_by_conflict_type(results: Dict[str, List[dict]]) -> pd.DataFrame:
                 'scenario_none_met': scenario_none_met,
                 'scenario_both_met': scenario_both_met,
                 'base_instruction': result['base_instruction'],
-                'instruction1': result['instruction1'],
-                'instruction2': result['instruction2'],
+                'constraint1': result['constraint1'],
+                'constraint2': result['constraint2'],
                 'response': result['response'],
                 'system_prompt': result['system_prompt'],
                 'user_prompt': result['user_prompt']
@@ -248,8 +248,8 @@ def generate_summary_report(df: pd.DataFrame, output_dir: Path, timestamp: str =
                         for _, example in examples.head(num_examples).iterrows():
                             f.write('```\n')
                             f.write(f'Base Instruction: {example["base_instruction"]}\n')
-                            f.write(f'Instruction 1: {example["instruction1"]}\n')
-                            f.write(f'Instruction 2: {example["instruction2"]}\n')
+                            f.write(f'Constraint 1: {example["constraint1"]}\n')
+                            f.write(f'Constraint 2: {example["constraint2"]}\n')
                             f.write(f'System Prompt: {example["system_prompt"]}\n')
                             f.write(f'User Prompt: {example["user_prompt"]}\n')
                             f.write(f'Response: {example["response"]}\n')

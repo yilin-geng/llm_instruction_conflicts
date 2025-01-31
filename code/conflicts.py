@@ -21,29 +21,29 @@ class ConflictEvaluation:
 class ConflictingInstructionPair:
    def __init__(
        self,
-       instruction1: instructions.Instruction,
-       instruction2: instructions.Instruction, 
+       constraint1: instructions.Instruction,
+       constraint2: instructions.Instruction, 
        conflicting_kwargs: Dict,
        name: str
    ):
-       self.inst1 = instruction1
-       self.inst2 = instruction2
+       self.constraint1 = constraint1
+       self.constraint2 = constraint2
        self.kwargs = conflicting_kwargs
        self.name = name
 
-   def get_instructions(self) -> Tuple[str, str]:
-       inst1 = self.inst1.build_description(**self.kwargs[0])
-       inst2 = self.inst2.build_description(**self.kwargs[1])
-       return inst1, inst2
+   def get_constraints(self) -> Tuple[str, str]:
+       constraint1 = self.constraint1.build_description(**self.kwargs[0])
+       constraint2 = self.constraint2.build_description(**self.kwargs[1])
+       return constraint1, constraint2
 
    def evaluate_response(self, response: str) -> ConflictEvaluation:
        # First build the descriptions with the kwargs
-       inst1 = self.inst1.build_description(**self.kwargs[0])
-       inst2 = self.inst2.build_description(**self.kwargs[1])
+       constraint1 = self.constraint1.build_description(**self.kwargs[0])
+       constraint2 = self.constraint2.build_description(**self.kwargs[1])
        
        # Then check following
-       met1 = self.inst1.check_following(response)
-       met2 = self.inst2.check_following(response)
+       met1 = self.constraint1.check_following(response)
+       met2 = self.constraint2.check_following(response)
        
        # Use LLM to check conflict recognition
        recognized = check_conflict_recognition_llm(response)

@@ -6,7 +6,6 @@ from conflicts import ConflictingInstructionPair
 
 INSTRUCTION_CONFLICTS = {
     "language_conflict: en_fr": {
-        "related_instruction_ids": ["language:response_language"],
         "conflict_pair": ConflictingInstructionPair(
             instructions.ResponseLanguageChecker("lang1"),
             instructions.ResponseLanguageChecker("lang2"), 
@@ -16,11 +15,6 @@ INSTRUCTION_CONFLICTS = {
     },
     
     "case_conflict": {
-        "related_instruction_ids": [
-            "change_cases:english_capital",
-            "change_cases:english_lowercase",
-            "change_cases:capital_word_frequency"
-        ],
         "conflict_pair": ConflictingInstructionPair(
             instructions.CapitalLettersEnglishChecker("caps"),
             instructions.LowercaseLettersEnglishChecker("lower"),
@@ -30,9 +24,6 @@ INSTRUCTION_CONFLICTS = {
     },
     
     "word_length_conflict: 300_50": {
-        "related_instruction_ids": [
-            "length_constraints:number_words"
-        ],
         "conflict_pair": ConflictingInstructionPair(
             instructions.NumberOfWords("words1"),
             instructions.NumberOfWords("words2"),
@@ -43,10 +34,6 @@ INSTRUCTION_CONFLICTS = {
     },
     
     "num_sentence_conflict: 10_5": {
-        "related_instruction_ids": [
-            "length_constraints:number_sentences",
-            "length_constraints:number_paragraphs"
-        ],
         "conflict_pair": ConflictingInstructionPair(
             instructions.NumberOfSentences("sent1"),  
             instructions.NumberOfSentences("sent2"),
@@ -57,10 +44,6 @@ INSTRUCTION_CONFLICTS = {
     },
     
     "keyword_forbidden_conflict: awesome_need": {
-        "related_instruction_ids": [
-            "keywords:existence",
-            "keywords:forbidden_words"
-        ],
         "conflict_pair": ConflictingInstructionPair(
             instructions.KeywordChecker("keywords"), 
             instructions.ForbiddenWords("forbidden"),
@@ -71,9 +54,6 @@ INSTRUCTION_CONFLICTS = {
     },
     
     "keyword_frequency_conflict: like_5_2": {
-        "related_instruction_ids": [
-            "keywords:frequency"
-        ],
         "conflict_pair": ConflictingInstructionPair(
             instructions.KeywordFrequencyChecker("freq1"),
             instructions.KeywordFrequencyChecker("freq2"),
@@ -84,9 +64,6 @@ INSTRUCTION_CONFLICTS = {
     },
 
       #     "num_paragraph_conflict: 1_5": {
-    #     "related_instruction_ids": [
-    #         "length_constraints:number_paragraphs"
-    #     ],
     #     "conflict_pair": ConflictingInstructionPair(
     #         instructions.ParagraphChecker("para1"),
     #         instructions.ParagraphChecker("para2"),
@@ -97,9 +74,6 @@ INSTRUCTION_CONFLICTS = {
     # },
     
     # "json_colon_conflict": {
-    #     "related_instruction_ids": [
-    #         "detectable_format:json_format"
-    #     ],
     #     "conflict_pair": ConflictingInstructionPair(
     #         instructions.JsonFormat("json"),
     #         instructions.LetterFrequencyChecker("no_colon"),

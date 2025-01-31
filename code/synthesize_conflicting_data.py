@@ -15,7 +15,7 @@ def generate_conflicting_data(base_instructions_file: Path, flip_instructions: b
     
     Args:
         base_instructions_file: Path to CSV file containing base instructions
-        flip_instructions: If True, flip instruction1 and instruction2 in the output
+        flip_instructions: If True, flip constraint1 and constraint2 in the output
     """
     conflicting_data = []
     
@@ -35,17 +35,17 @@ def generate_conflicting_data(base_instructions_file: Path, flip_instructions: b
             conflict_pair = conflict_data["conflict_pair"]
             
             # Get the conflicting instructions
-            inst1, inst2 = conflict_pair.get_instructions()
+            constraint1, constraint2 = conflict_pair.get_constraints()
             
             # Flip instructions if requested
             if flip_instructions:
-                inst1, inst2 = inst2, inst1
+                constraint1, constraint2 = constraint2, constraint1
             
             # Create data point
             data_point = {
                 'base_instruction': base_instruction,
-                'instruction1': inst1,
-                'instruction2': inst2,
+                'constraint1': constraint1,
+                'constraint2': constraint2,
                 'kwargs': conflict_pair.kwargs if not flip_instructions else list(reversed(conflict_pair.kwargs)),
                 'conflict_name': conflict_name
             }
