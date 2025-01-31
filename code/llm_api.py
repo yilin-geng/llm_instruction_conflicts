@@ -10,30 +10,63 @@ logging.getLogger("httpx").setLevel(logging.WARNING)
 
 from together import Together
 client_together = Together(api_key=TOGETHER_API_KEY)
-def get_completion_llama3(system_prompt,prompt):
+def get_completion_llama3(system_prompt, messages):
+    """
+    Get completion from Llama 3 model
+    Args:
+        system_prompt: System prompt to set context
+        messages: List of message dictionaries or single prompt string
+    """
+    if isinstance(messages, str):
+        messages = [{"role": "user", "content": messages}]
+    
+    formatted_messages = [{"role": "system", "content": system_prompt}]
+    formatted_messages.extend(messages)
+    
     response = client_together.chat.completions.create(
         model="meta-llama/Llama-3.3-70B-Instruct-Turbo",
-        messages=[{"role": "system", "content": system_prompt}, 
-                  {"role": "user", "content": prompt}]
+        messages=formatted_messages
     )
     return response.choices[0].message.content
 
 
 import openai
 client_openai = openai.OpenAI(api_key=OPENAI_API_KEY)
-def get_completion_gpt4o(system_prompt,prompt):
+def get_completion_gpt4o(system_prompt, messages):
+    """
+    Get completion from GPT-4o model
+    Args:
+        system_prompt: System prompt to set context
+        messages: List of message dictionaries or single prompt string
+    """
+    if isinstance(messages, str):
+        messages = [{"role": "user", "content": messages}]
+    
+    formatted_messages = [{"role": "system", "content": system_prompt}]
+    formatted_messages.extend(messages)
+    
     response = client_openai.chat.completions.create(
         model="gpt-4o",
-        messages=[{"role": "system", "content": system_prompt}, 
-                  {"role": "user", "content": prompt}]
+        messages=formatted_messages
     )
     return response.choices[0].message.content
 
-def get_completion_gpt4omini(system_prompt,prompt):
+def get_completion_gpt4omini(system_prompt, messages):
+    """
+    Get completion from GPT-4o-mini model
+    Args:
+        system_prompt: System prompt to set context
+        messages: List of message dictionaries or single prompt string
+    """
+    if isinstance(messages, str):
+        messages = [{"role": "user", "content": messages}]
+    
+    formatted_messages = [{"role": "system", "content": system_prompt}]
+    formatted_messages.extend(messages)
+    
     response = client_openai.chat.completions.create(
         model="gpt-4o-mini",
-        messages=[{"role": "system", "content": system_prompt}, 
-                  {"role": "user", "content": prompt}]
+        messages=formatted_messages
     )
     return response.choices[0].message.content
 
