@@ -43,7 +43,7 @@ class PriorityControlPolicy(ABC):
         """Get both system and user prompts according to the policy."""
         pass
         
-    def evaluate_conflict(self, conflict_data: Dict, llm_call_fn) -> PolicyEvaluation:
+    def evaluate_conflict(self, conflict_data: Dict, llm_call_fn, is_reversed) -> PolicyEvaluation:
         """Evaluate a single conflict instance."""
         system_prompt, user_prompt = self.get_prompts(
             base_instruction=conflict_data['base_instruction'],
@@ -56,13 +56,22 @@ class PriorityControlPolicy(ABC):
         # Get conflict pair from the conflicts_dict module
         conflict_pair = INSTRUCTION_CONFLICTS[conflict_data['conflict_name']]['conflict_pair']
         eval_result = conflict_pair.evaluate_response(response)
+    
+        
+        # If using reversed data, swap constraint results (for sanity check)
+        if is_reversed:
+            primary_met = eval_result.constraint2_met
+            secondary_met = eval_result.constraint1_met
+        else:
+            primary_met = eval_result.constraint1_met
+            secondary_met = eval_result.constraint2_met
         
         return PolicyEvaluation(
             policy_name=self.name,
             conflict_name=conflict_data['conflict_name'],
             conflict_recognized=eval_result.conflict_recognized,
-            primary_constraint_met=eval_result.constraint1_met,
-            secondary_constraint_met=eval_result.constraint2_met,
+            primary_constraint_met=primary_met,
+            secondary_constraint_met=secondary_met,
             joint_satisfaction=eval_result.joint_satisfaction,
             response=response,
             system_prompt=system_prompt,
@@ -74,6 +83,9 @@ class PriorityControlPolicy(ABC):
     
     def evaluate_all(self, data_path: Path, llm_call_fn) -> List[PolicyEvaluation]:
         """Evaluate all conflicts in the dataset."""
+
+        # Check if we're using reversed data by looking at the data path
+        is_reversed = 'reversed' in str(data_path).lower()
         results = []
         loader = ConflictDataLoader(data_path)
         conflicts = list(loader.load_conflicts())  # Convert iterator to list for tqdm
@@ -81,7 +93,7 @@ class PriorityControlPolicy(ABC):
         logger.info(f"Evaluating {self.name} policy on {len(conflicts)} conflicts...")
         for conflict_data in tqdm(conflicts, desc=f"Evaluating {self.name}"):
             try:
-                eval_result = self.evaluate_conflict(conflict_data, llm_call_fn)
+                eval_result = self.evaluate_conflict(conflict_data, llm_call_fn, is_reversed)
                 results.append(eval_result)
             except Exception as e:
                 logger.error(f"Error evaluating {self.name} on conflict {conflict_data['conflict_name']}: {e}")
