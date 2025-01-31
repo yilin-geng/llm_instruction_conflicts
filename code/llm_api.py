@@ -19,7 +19,6 @@ def get_completion_llama3(system_prompt,prompt):
     return response.choices[0].message.content
 
 
-
 import openai
 client_openai = openai.OpenAI(api_key=OPENAI_API_KEY)
 def get_completion_gpt4o(system_prompt,prompt):
@@ -44,13 +43,14 @@ def main():
     # Test models
     models = {
         "GPT-4o": get_completion_gpt4o,
-        "Llama-3": get_completion_llama3
+        "GPT-4o-mini": get_completion_gpt4omini,
+        "Llama-3": get_completion_llama3,
     }
     
     logger.info("Testing LLM APIs...")
     for model_name, model_func in models.items():
         try:
-            prompt = f"Say 'Hello World from (whatever model you are, e.g. GPT4o).'"
+            prompt = f"Say 'Hello World from (whatever model you are).'"
             response = model_func(system_prompt, prompt)
             logger.info(f"{model_name} response: {response}")
         except Exception as e:

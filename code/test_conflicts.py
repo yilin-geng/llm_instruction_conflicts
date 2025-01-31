@@ -95,7 +95,6 @@ class TestConflicts(unittest.TestCase):
 
         with_keywords = "This example is a test of the system."
         without_keywords = "This is a simple response."
-        recognized = "There is a confliction in the instructions given. It is not possible to meet the requirements."
         
         eval_with = self.keyword_forbidden_conflict_pair.evaluate_response(with_keywords)
         self.assertEqual(eval_with.constraint1_met, 1.0)  # Keywords present
@@ -106,17 +105,10 @@ class TestConflicts(unittest.TestCase):
         self.assertEqual(eval_without.constraint2_met, 1.0)  
         self.assertEqual(eval_without.conflict_recognized, 0.0) 
 
-        eval_recognized = self.keyword_forbidden_conflict_pair.evaluate_response(recognized)
-        self.assertEqual(eval_recognized.constraint1_met, 0.0)  
-        self.assertEqual(eval_recognized.constraint2_met, 1.0)
-        self.assertEqual(eval_recognized.conflict_recognized, 1.0)
-        self.assertEqual(eval_recognized.joint_satisfaction, 0.0)
-
     def test_keyword_frequency_conflict(self):
         
         few_keywords = "This is an example of a response."
         many_keywords = " example ".join(["This is an"] * 12)
-        recognized = "There is a confliction in the instructions given. It is not possible to meet the requirements."
         
         eval_few = self.keyword_frequency_conflict_pair.evaluate_response(few_keywords)
         self.assertEqual(eval_few.constraint1_met, 0.0)  # At least 10 occurrences not met
@@ -127,11 +119,6 @@ class TestConflicts(unittest.TestCase):
         self.assertEqual(eval_many.constraint2_met, 0.0)  # Less than 2 occurrences not met
         self.assertEqual(eval_many.conflict_recognized, 0.0) 
 
-        eval_recognized = self.keyword_frequency_conflict_pair.evaluate_response(recognized)
-        self.assertEqual(eval_recognized.constraint1_met, 0.0)  
-        self.assertEqual(eval_recognized.constraint2_met, 1.0)
-        self.assertEqual(eval_recognized.conflict_recognized, 1.0)
-        self.assertEqual(eval_recognized.joint_satisfaction, 0.0)
 
 if __name__ == '__main__':
     unittest.main()

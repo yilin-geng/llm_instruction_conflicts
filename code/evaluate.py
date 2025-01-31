@@ -26,7 +26,7 @@ def main():
         UnmarkedSystemPolicyDetailed("unmarked_system_detailed"),
         MarkedSystemPolicyDetailed("marked_system_detailed"),
         UnmarkedUserPolicyDetailed("unmarked_user_detailed"),
-        MarkedUserPolicyDetailed("marked_user_detailed")
+        MarkedUserPolicyDetailed("marked_user_detailed"),
     ]
     
     # Initialize LLM functions
