@@ -131,7 +131,7 @@ class ResponseLanguageChecker(Instruction):
       self._language = random.choice(list(_LANGUAGES.keys()))
     # TODO(tianjianlu): opens the description generation to more choices.
     self._description_pattern = (
-        "Your ENTIRE response should be in {language} language, no other " +
+        "Your entire response should be in {language} language, no other " +
         "language is allowed.")
     return self._description_pattern.format(language=_LANGUAGES[self._language])
 

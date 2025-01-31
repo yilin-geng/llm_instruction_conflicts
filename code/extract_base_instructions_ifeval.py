@@ -41,5 +41,5 @@ def process_prompts(input_file, output_file):
 
 
 ifeval_input_data_path = root_dir / 'data' / 'ifeval_input_data.jsonl'
-output_path = root_dir / 'data' / 'base_instructions.jsonl'
+output_path = root_dir / 'data' / 'base_instructions_extracted.jsonl'
 process_prompts(ifeval_input_data_path, output_path)
