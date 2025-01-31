@@ -1,0 +1,13 @@
+Experiment Configuration
+======================
+
+Timestamp: 20250131_145533
+
+Policies:
+- Specified Role Policy 2
+
+Models:
+- gpt4
+- llama3
+
+Input Data: /Users/yigeng/Documents/Github/prompt_hierarchy/data/conflicting_instructions_test.jsonl

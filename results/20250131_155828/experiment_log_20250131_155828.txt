@@ -1,0 +1,23 @@
+Experiment Configuration
+======================
+
+Timestamp: 20250131_155828
+
+Policies:
+- baseline_all_user
+- basic_separation
+- task_specified_separation
+- emphasized_separation
+- unmarked_system_basic
+- marked_system_basic
+- unmarked_user_basic
+- marked_user_basic
+- unmarked_system_detailed
+- marked_system_detailed
+- unmarked_user_detailed
+- marked_user_detailed
+
+Models:
+- llama3
+
+Input Data: /Users/yigeng/Documents/Github/prompt_hierarchy/data/conflicting_instructions_test.jsonl

@@ -77,7 +77,7 @@ INSTRUCTION_CONFLICTS = {
         "conflict_pair": ConflictingInstructionPair(
             instructions.KeywordFrequencyChecker("freq1"),
             instructions.KeywordFrequencyChecker("freq2"),
-            [{"keyword": "example", "frequency": 10, "relation": "at least"},
+            [{"keyword": "example", "frequency": 5, "relation": "at least"},
              {"keyword": "example", "frequency": 2, "relation": "less than"}],
             "keyword_frequency_conflict"
         )
