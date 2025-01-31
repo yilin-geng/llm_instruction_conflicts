@@ -15,31 +15,36 @@ def main():
 
     # Initialize policies
     policies = [
-        # BaselineAllUserPolicy("baseline_all_user"),
-        # BasicSeparationPolicy("basic_separation"),
-        # TaskSpecifiedSeparationPolicy("task_specified_separation"), 
-        # EmphasizedSeparationPolicy("emphasized_separation"),
-        # UnmarkedSystemPolicyBasic("unmarked_system_basic"),
-        # MarkedSystemPolicyBasic("marked_system_basic"),
-        # UnmarkedUserPolicyBasic("unmarked_user_basic"),
-        # MarkedUserPolicyBasic("marked_user_basic"),
-        # UnmarkedSystemPolicyDetailed("unmarked_system_detailed"),
-        # MarkedSystemPolicyDetailed("marked_system_detailed"),
+        BaselineAllUserPolicy("baseline_all_user"),
+        BasicSeparationPolicy("basic_separation"),
+        TaskSpecifiedSeparationPolicy("task_specified_separation"), 
+        EmphasizedSeparationPolicy("emphasized_separation"),
+        UnmarkedSystemPolicyBasic("unmarked_system_basic"),
+        MarkedSystemPolicyBasic("marked_system_basic"),
+        UnmarkedUserPolicyBasic("unmarked_user_basic"),
+        MarkedUserPolicyBasic("marked_user_basic"),
+        UnmarkedSystemPolicyDetailed("unmarked_system_detailed"),
+        MarkedSystemPolicyDetailed("marked_system_detailed"),
         UnmarkedUserPolicyDetailed("unmarked_user_detailed"),
         MarkedUserPolicyDetailed("marked_user_detailed"),
     ]
     
     # Initialize LLM functions
     llm_call_fns = {
-        # "gpt4": get_completion_gpt4o,
+        "gpt4": get_completion_gpt4o,
         "llama3": get_completion_llama3
     }
     
     # paths
+
+    # data_path = root_dir / 'data' / 'conflicting_instructions_test.jsonl'
+    # data_path = root_dir / 'data' / 'conflicting_instructions_reversed_test.jsonl'
+    # data_path = root_dir / 'data' / 'conflicting_instructions_rich_context_test.jsonl'
+    # data_path = root_dir / 'data' / 'conflicting_instructions_rich_context_reversed_test.jsonl'
     # data_path = root_dir / 'data' / 'conflicting_instructions.jsonl'
     # data_path = root_dir / 'data' / 'conflicting_instructions_reversed.jsonl'
-    # data_path = root_dir / 'data' / 'conflicting_instructions_test.jsonl' # test
-    data_path = root_dir / 'data' / 'conflicting_instructions_reversed_test.jsonl' # reversed_test
+    # data_path = root_dir / 'data' / 'conflicting_instructions_rich_context.jsonl'
+    # data_path = root_dir / 'data' / 'conflicting_instructions_rich_context_reversed.jsonl'
     output_dir = root_dir / 'results'
     checkpoint_dir = output_dir / 'checkpoints'
     
