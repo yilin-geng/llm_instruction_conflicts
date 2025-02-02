@@ -150,18 +150,34 @@ class ResponseLanguageChecker(Instruction):
       value: A string representing the response.
 
     Returns:
-      True if the language of `value` follows instruction; otherwise False.
+      True if the language of `value` follows instruction and no other language 
+      is detected; otherwise False.
     """
     assert isinstance(value, str)
 
     try:
-      return langdetect.detect(value) == self._language
+        # Use detect_langs instead of detect to get all detected languages
+        detected_langs = langdetect.detect_langs(value)
+        
+        # Check if primary language matches and has high confidence
+        primary_lang = detected_langs[0]
+        if primary_lang.lang != self._language:
+            return False
+            
+        # If there are other languages detected with significant probability
+        # (e.g. > 0.1), consider it a violation
+        for lang in detected_langs[1:]:
+            if lang.prob > 0.1:  # Threshold can be adjusted
+                return False
+                
+        return True
+        
     except langdetect.LangDetectException as e:
-      # Count as instruction is followed.
-      logging.error(
-          "Unable to detect language for text %s due to %s", value, e
-      )  # refex: disable=pytotw.037
-      return True
+        # Count as instruction is followed
+        logging.error(
+            "Unable to detect language for text %s due to %s", value, e
+        )  # refex: disable=pytotw.037
+        return True
 
 
 class NumberOfSentences(Instruction):
