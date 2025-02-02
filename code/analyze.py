@@ -114,6 +114,9 @@ def plot_conflict_analysis(df: pd.DataFrame, output_dir: Path, timestamp: str = 
     """Generate visualization plots for the analysis with timestamp handling."""
     # Validate that scenario_both_met is always 0
     if not (df['scenario_both_met'] == 0).all():
+        # print the df['scenario_both_met'] != 0 cases, show detailed information
+        for index, row in df[df['scenario_both_met'] != 0].iterrows():
+            print(row)
         raise ValueError("Invalid data: Found non-zero values in scenario_both_met")
         
     plots_dir = output_dir / 'plots'
