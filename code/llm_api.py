@@ -29,46 +29,32 @@ def get_completion_llama3(system_prompt, messages):
     )
     return response.choices[0].message.content
 
+def get_completion_openai_fn(model_name, url):
+    import openai
+    client_openai = openai.OpenAI(api_key=OPENAI_API_KEY, base_url=url)
+    def get_completion_openai(system_prompt, messages):
+        """
+        Get completion from OpenAI-compatible model
+        Args:
+            system_prompt: System prompt to set context
+            messages: List of message dictionaries or single prompt string
+            model_name: Name of the model to use
+        """
+        if isinstance(messages, str):
+            messages = [{"role": "user", "content": messages}]
+        
+        formatted_messages = [{"role": "system", "content": system_prompt}]
+        formatted_messages.extend(messages)
+        
+        response = client_openai.chat.completions.create(
+            model=model_name,
+            messages=formatted_messages
+        )
+        return response.choices[0].message.content
+    return get_completion_openai
 
-import openai
-client_openai = openai.OpenAI(api_key=OPENAI_API_KEY)
-def get_completion_gpt4o(system_prompt, messages):
-    """
-    Get completion from GPT-4o model
-    Args:
-        system_prompt: System prompt to set context
-        messages: List of message dictionaries or single prompt string
-    """
-    if isinstance(messages, str):
-        messages = [{"role": "user", "content": messages}]
-    
-    formatted_messages = [{"role": "system", "content": system_prompt}]
-    formatted_messages.extend(messages)
-    
-    response = client_openai.chat.completions.create(
-        model="gpt-4o",
-        messages=formatted_messages
-    )
-    return response.choices[0].message.content
-
-def get_completion_gpt4omini(system_prompt, messages):
-    """
-    Get completion from GPT-4o-mini model
-    Args:
-        system_prompt: System prompt to set context
-        messages: List of message dictionaries or single prompt string
-    """
-    if isinstance(messages, str):
-        messages = [{"role": "user", "content": messages}]
-    
-    formatted_messages = [{"role": "system", "content": system_prompt}]
-    formatted_messages.extend(messages)
-    
-    response = client_openai.chat.completions.create(
-        model="gpt-4o-mini",
-        messages=formatted_messages
-    )
-    return response.choices[0].message.content
+get_completion_gpt4omini = get_completion_openai_fn("gpt-4o-mini", "https://api.openai.com/v1")
+get_completion_gpt4o = get_completion_openai_fn("gpt-4o", "https://api.openai.com/v1")
 
 def batch_llm_call(messages_list: List[List[Dict]], llm_call_fn=get_completion_gpt4omini) -> List[str]:
     """
@@ -95,6 +81,7 @@ def main():
         "GPT-4o": get_completion_gpt4o,
         "GPT-4o-mini": get_completion_gpt4omini,
         "Llama-3": get_completion_llama3,
+        "Llama-3-8B": get_completion_openai_fn("meta-llama/Meta-Llama-3-8B-Instruct", "http://localhost:8000/v1"),
     }
     
     logger.info("Testing LLM APIs...")
