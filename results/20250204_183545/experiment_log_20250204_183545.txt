@@ -1,0 +1,16 @@
+Experiment Configuration
+======================
+
+Timestamp: 20250204_183545
+
+Policies:
+- unmarked_user_detailed
+- marked_user_detailed
+
+Models:
+- qwen2.5-7b-instruct
+- gpt-4o-mini-2024-07-18
+
+Input Data:
+- /Users/yigeng/Documents/Github/prompt_hierarchy/data/conflicting_instructions.jsonl
+

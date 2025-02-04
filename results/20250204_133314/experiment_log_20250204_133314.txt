@@ -1,0 +1,17 @@
+Experiment Configuration
+======================
+
+Timestamp: 20250204_133314
+
+Policies:
+- unmarked_user_detailed
+- marked_user_detailed
+
+Models:
+- gpt-4o
+- gpt-4o-mini
+
+Input Data:
+- /Users/yigeng/Documents/Github/prompt_hierarchy/data/conflicting_instructions_test.jsonl
+- /Users/yigeng/Documents/Github/prompt_hierarchy/data/conflicting_instructions_reversed_test.jsonl
+
