@@ -1,13 +1,11 @@
 from abc import ABC, abstractmethod
 from typing import List, Dict, Tuple, Iterator
-from dataclasses import asdict, dataclass
+from dataclasses import dataclass
 import json
 from pathlib import Path
 import logging
 from conflicts_dict import INSTRUCTION_CONFLICTS
-from tqdm import tqdm
 import textwrap
-
 logger = logging.getLogger(__name__)
 
 @dataclass
@@ -43,160 +41,61 @@ class PriorityControlPolicy(ABC):
         """Get both system and user prompts according to the policy."""
         pass
         
-    def evaluate_conflict(self, conflict_data: Dict, llm_call_fn, is_reversed) -> PolicyEvaluation:
-        """Evaluate a single conflict instance."""
-        system_prompt, user_prompt = self.get_prompts(
-            base_instruction=conflict_data['base_instruction'],
-            constraint1=conflict_data['constraint1'],
-            constraint2=conflict_data['constraint2']
-        )
+    def prepare_evaluation_batch(self, conflicts: List[Dict]) -> Tuple[List[Dict], List[Tuple[str, str]]]:
+        """Prepare a batch of prompts for evaluation."""
+        conflict_data = []
+        prompts = []
         
-        response = llm_call_fn(system_prompt, user_prompt)
-        
-        # Get conflict pair from the conflicts_dict module
-        conflict_pair = INSTRUCTION_CONFLICTS[conflict_data['conflict_name']]['conflict_pair']
-        eval_result = conflict_pair.evaluate_response(response)
-    
-        
-        # If using reversed data, swap constraint results (for sanity check)
-        if is_reversed:
-            primary_met = eval_result.constraint2_met
-            secondary_met = eval_result.constraint1_met
-        else:
-            primary_met = eval_result.constraint1_met
-            secondary_met = eval_result.constraint2_met
-        
-        return PolicyEvaluation(
-            policy_name=self.name,
-            conflict_name=conflict_data['conflict_name'],
-            conflict_recognized=eval_result.conflict_recognized,
-            primary_constraint_met=primary_met,
-            secondary_constraint_met=secondary_met,
-            joint_satisfaction=eval_result.joint_satisfaction,
-            response=response,
-            system_prompt=system_prompt,
-            user_prompt=user_prompt,
-            base_instruction=conflict_data['base_instruction'],
-            constraint1=conflict_data['constraint1'],
-            constraint2=conflict_data['constraint2']
-        )
-    
-    def evaluate_all(self, data_path: Path, llm_call_fn) -> List[PolicyEvaluation]:
-        """Evaluate all conflicts in the dataset."""
+        for conflict in conflicts:
+            system_prompt, user_prompt = self.get_prompts(
+                base_instruction=conflict['base_instruction'],
+                constraint1=conflict['constraint1'],
+                constraint2=conflict['constraint2']
+            )
+            conflict_data.append(conflict)
+            prompts.append((system_prompt, user_prompt))
+            
+        return conflict_data, prompts
 
-        # Check if we're using reversed data by looking at the data path
-        is_reversed = 'reversed' in str(data_path).lower()
+    def evaluate_responses(self, conflict_data: List[Dict], responses: List[str], is_reversed: bool) -> List[PolicyEvaluation]:
+        """Evaluate a batch of responses."""
         results = []
-        loader = ConflictDataLoader(data_path)
-        conflicts = list(loader.load_conflicts())  # Convert iterator to list for tqdm
         
-        logger.info(f"Evaluating {self.name} policy on {len(conflicts)} conflicts...")
-        for conflict_data in tqdm(conflicts, desc=f"Evaluating {self.name}"):
-            try:
-                eval_result = self.evaluate_conflict(conflict_data, llm_call_fn, is_reversed)
-                results.append(eval_result)
-            except Exception as e:
-                logger.error(f"Error evaluating {self.name} on conflict {conflict_data['conflict_name']}: {e}")
-                
+        for conflict, response in zip(conflict_data, responses):
+            # Get conflict pair from the conflicts_dict module
+            conflict_pair = INSTRUCTION_CONFLICTS[conflict['conflict_name']]['conflict_pair']
+            eval_result = conflict_pair.evaluate_response(response)
+            
+            # If using reversed data, swap constraint results
+            if is_reversed:
+                primary_met = eval_result.constraint2_met
+                secondary_met = eval_result.constraint1_met
+            else:
+                primary_met = eval_result.constraint1_met
+                secondary_met = eval_result.constraint2_met
+            
+            system_prompt, user_prompt = self.get_prompts(
+                base_instruction=conflict['base_instruction'],
+                constraint1=conflict['constraint1'],
+                constraint2=conflict['constraint2']
+            )
+            
+            results.append(PolicyEvaluation(
+                policy_name=self.name,
+                conflict_name=conflict['conflict_name'],
+                conflict_recognized=eval_result.conflict_recognized,
+                primary_constraint_met=primary_met,
+                secondary_constraint_met=secondary_met,
+                joint_satisfaction=eval_result.joint_satisfaction,
+                response=response,
+                system_prompt=system_prompt,
+                user_prompt=user_prompt,
+                base_instruction=conflict['base_instruction'],
+                constraint1=conflict['constraint1'],
+                constraint2=conflict['constraint2']
+            ))
+            
         return results
-
-class ConflictPolicyEvaluator:
-    def __init__(self, policies: List[PriorityControlPolicy], llm_call_fns: Dict[str, callable]):
-        self.policies = policies
-        self.llm_call_fns = llm_call_fns
-        
-    def load_checkpoint(self, checkpoint_dir: Path) -> Dict[str, Dict[str, List[PolicyEvaluation]]]:
-        """Load evaluation checkpoint if exists."""
-        checkpoint = {}
-        checkpoint_file = checkpoint_dir / 'evaluation_checkpoint.json'
-        
-        if checkpoint_file.exists():
-            with open(checkpoint_file, 'r') as f:
-                # Load the basic data
-                checkpoint_data = json.load(f)
-                
-                # Reconstruct PolicyEvaluation objects
-                for llm_name, policy_data in checkpoint_data.items():
-                    checkpoint[llm_name] = {}
-                    for policy_name, evaluations in policy_data.items():
-                        checkpoint[llm_name][policy_name] = [
-                            PolicyEvaluation(**eval_dict) for eval_dict in evaluations
-                        ]
-        
-        return checkpoint
-    
-    def save_checkpoint(self, checkpoint_dir: Path, results: Dict[str, Dict[str, List[PolicyEvaluation]]]):
-        """Save current evaluation progress."""
-        checkpoint_dir.mkdir(exist_ok=True)
-        checkpoint_file = checkpoint_dir / 'evaluation_checkpoint.json'
-        
-        # Convert PolicyEvaluation objects to dictionaries
-        checkpoint_data = {
-            llm_name: {
-                policy_name: [asdict(eval_result) for eval_result in evaluations]
-                for policy_name, evaluations in policy_results.items()
-            }
-            for llm_name, policy_results in results.items()
-        }
-        
-        with open(checkpoint_file, 'w') as f:
-            json.dump(checkpoint_data, f)
-            
-    def evaluate_all(self, data_path: Path, checkpoint_dir: Path = None) -> Dict[str, List[PolicyEvaluation]]:
-        """Evaluate all policies with all LLMs, with checkpointing support."""
-        if checkpoint_dir is None:
-            checkpoint_dir = Path(data_path).parent / 'checkpoints'
-            
-        # Load checkpoint if exists
-        checkpoint = self.load_checkpoint(checkpoint_dir)
-        results = {llm_name: {} for llm_name in self.llm_call_fns.keys()}
-        
-        total_evaluations = len(self.policies) * len(self.llm_call_fns)
-        logger.info(f"Starting evaluation of {len(self.policies)} policies with {len(self.llm_call_fns)} LLM models...")
-        
-        try:
-            with tqdm(total=total_evaluations, desc="Overall progress") as pbar:
-                for llm_name, llm_fn in self.llm_call_fns.items():
-                    logger.info(f"Evaluating with {llm_name}...")
-                    
-                    for policy in self.policies:
-                        # Skip if already evaluated in checkpoint
-                        if (llm_name in checkpoint and 
-                            policy.name in checkpoint[llm_name]):
-                            results[llm_name][policy.name] = checkpoint[llm_name][policy.name]
-                            pbar.update(1)
-                            continue
-                            
-                        try:
-                            policy_results = policy.evaluate_all(data_path, llm_fn)
-                            results[llm_name][policy.name] = policy_results
-                            
-                            # Save checkpoint after each policy evaluation
-                            self.save_checkpoint(checkpoint_dir, results)
-                            pbar.update(1)
-                            
-                        except Exception as e:
-                            logger.error(f"Error evaluating {policy.name} with {llm_name}: {e}")
-                            # Save checkpoint even if there's an error
-                            self.save_checkpoint(checkpoint_dir, results)
-                            raise
-                            
-        except Exception as e:
-            logger.error(f"Evaluation interrupted: {e}")
-            # Final checkpoint save on interruption
-            self.save_checkpoint(checkpoint_dir, results)
-            raise
-            
-        # Convert results to the expected format
-        final_results = {
-            llm_name: [eval_result 
-                      for policy_results in model_results.values() 
-                      for eval_result in policy_results]
-            for llm_name, model_results in results.items()
-        }
-        
-        return final_results
-
 
 
 # Set 1: Testing System/User Separation Effect

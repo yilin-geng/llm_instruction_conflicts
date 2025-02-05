@@ -1,5 +1,5 @@
 import logging
-
+from typing import List, Dict
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 
@@ -70,6 +70,23 @@ def get_completion_gpt4omini(system_prompt, messages):
     )
     return response.choices[0].message.content
 
+def batch_llm_call(messages_list: List[List[Dict]], llm_call_fn=get_completion_gpt4omini) -> List[str]:
+    """
+    Batch process messages using any LLM function
+    Args:
+        llm_call_fn: Function that takes (system_prompt, messages) and returns response
+        messages_list: List of message lists, each containing dicts with role and content
+    Returns:
+        List of response strings
+    """
+    responses = []
+    for messages in messages_list:
+        system_content = next((m["content"] for m in messages if m["role"] == "system"), "")
+        user_content = next(m["content"] for m in messages if m["role"] == "user")
+        response = llm_call_fn(system_content, user_content)
+        responses.append(response)
+    return responses
+
 def main():
     system_prompt = "You are a helpful assistant."
     
@@ -88,6 +105,18 @@ def main():
             logger.info(f"{model_name} response: {response}")
         except Exception as e:
             logger.error(f"Error testing {model_name}: {e}")
+
+    
+    
+    logger.info("Testing batch_llm_call...")
+    messages_list = [
+        [{"role": "system", "content": "You are a helpful assistant."}, {"role": "user", "content": "What is the capital of France?"}],
+        [{"role": "system", "content": "You are a helpful assistant."}, {"role": "user", "content": "What is the capital of Germany?"}],
+    ]
+    for model_name, model_func in models.items():
+        logger.info(f"Testing {model_name}...")
+        responses = batch_llm_call(messages_list, llm_call_fn=model_func)
+        logger.info(f"Batch responses: {responses}")
 
 if __name__ == "__main__":
     main()
