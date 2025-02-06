@@ -57,13 +57,13 @@ class PriorityControlPolicy(ABC):
             
         return conflict_data, prompts
 
-    def evaluate_responses(self, conflict_data: List[Dict], responses: List[str], is_reversed: bool) -> List[PolicyEvaluation]:
+    def evaluate_responses(self, conflict_data: List[Dict], responses: List[str], is_reversed: bool, conflicts_dict=INSTRUCTION_CONFLICTS) -> List[PolicyEvaluation]:
         """Evaluate a batch of responses."""
         results = []
         
         for conflict, response in zip(conflict_data, responses):
-            # Get conflict pair from the conflicts_dict module
-            conflict_pair = INSTRUCTION_CONFLICTS[conflict['conflict_name']]['conflict_pair']
+
+            conflict_pair = conflicts_dict[conflict['conflict_name']]['conflict_pair']
             eval_result = conflict_pair.evaluate_response(response)
             
             # If using reversed data, swap constraint results

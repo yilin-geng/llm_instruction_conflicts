@@ -83,3 +83,66 @@ INSTRUCTION_CONFLICTS = {
     # },
 
 } 
+
+
+
+INSTRUCTION_CONFLICTS_FOR_FINETUNING = {
+    "language_conflict: it_es": {
+        "conflict_pair": ConflictingInstructionPair(
+            instructions.ResponseLanguageChecker("lang1"),
+            instructions.ResponseLanguageChecker("lang2"), 
+            [{"language": "it"}, {"language": "es"}],
+            "language_conflict: it_es"
+        )
+    },
+    
+    "case_conflict": {
+        "conflict_pair": ConflictingInstructionPair(
+            instructions.CapitalLettersEnglishChecker("caps"),
+            instructions.LowercaseLettersEnglishChecker("lower"),
+            [{}, {}],
+            "case_conflict"
+        )
+    },
+    
+    "word_length_conflict: 100_30": {
+        "conflict_pair": ConflictingInstructionPair(
+            instructions.NumberOfWords("words1"),
+            instructions.NumberOfWords("words2"),
+            [{"num_words": 100, "relation": "at least"}, 
+             {"num_words": 30, "relation": "less than"}],
+            "word_length_conflict: 100_30"
+        )
+    },
+    
+    "num_sentence_conflict: 7_3": {
+        "conflict_pair": ConflictingInstructionPair(
+            instructions.NumberOfSentences("sent1"),  
+            instructions.NumberOfSentences("sent2"),
+            [{"num_sentences": 7, "relation": "at least"},
+             {"num_sentences": 3, "relation": "less than"}],
+            "num_sentence_conflict: 7_3"
+        )
+    },
+    
+    "keyword_forbidden_conflict: many_special": {
+        "conflict_pair": ConflictingInstructionPair(
+            instructions.KeywordChecker("keywords"), 
+            instructions.ForbiddenWords("forbidden"),
+            [{"keywords": ["many, special"]}, 
+             {"forbidden_words": ["many, special"]}],
+            "keyword_forbidden_conflict: many_special"
+        )
+    },
+    
+    "keyword_frequency_conflict: often_6_3": {
+        "conflict_pair": ConflictingInstructionPair(
+            instructions.KeywordFrequencyChecker("freq1"),
+            instructions.KeywordFrequencyChecker("freq2"),
+            [{"keyword": "often", "frequency": 6, "relation": "at least"},
+             {"keyword": "often", "frequency": 3, "relation": "less than"}],
+            "keyword_frequency_conflict: often_6_3"
+        )
+    },
+
+} 

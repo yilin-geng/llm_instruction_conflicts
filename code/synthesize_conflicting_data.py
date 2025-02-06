@@ -10,7 +10,7 @@ logging.basicConfig(level=logging.INFO)
 
 from conflicts_dict import INSTRUCTION_CONFLICTS
 
-def generate_conflicting_data(base_instructions_file: Path, flip_instructions: bool = False) -> List[Dict]:
+def generate_conflicting_data(base_instructions_file: Path, flip_instructions: bool = False, conflict_dict: Dict = INSTRUCTION_CONFLICTS) -> List[Dict]:
     """Generate conflicting instruction pairs from base instructions.
     
     Args:
@@ -27,7 +27,7 @@ def generate_conflicting_data(base_instructions_file: Path, flip_instructions: b
         base_instruction = row['base_instruction']
         
         # For each conflict type
-        for conflict_name, conflict_data in INSTRUCTION_CONFLICTS.items():
+        for conflict_name, conflict_data in conflict_dict.items():
             # Skip commented out conflicts
             if conflict_name.startswith('#'):
                 continue
