@@ -55,7 +55,9 @@ def generate_ideal_output(data: Dict, is_reversed: bool = False) -> tuple[str, l
         if evaluation.primary_constraint_met > 0.5:
             return response, input_message
     
-    logger.warning(f"Failed to generate valid response for {data['base_instruction']} with the prompt {user_prompt}")
+    logger.warning(f"Failed to generate valid response for {data['base_instruction']}\n"
+                    f"Prompt: {user_prompt}\n"
+                    f"Response: {response}")
     return "", input_message
 
 def main():
@@ -108,41 +110,45 @@ def main():
                 f"{len(finetuning_data_training_reversed)} reversed training, "
                 f"{len(finetuning_data_test_reversed)} reversed test data")
 
-    # Generate ideal outputs for normal data
-    logger.info("Generating ideal outputs for normal training data...")
-    for data in tqdm(finetuning_data_training_normal):
-        ideal_output, input_message = generate_ideal_output(data, is_reversed=False)
-        data["ideal_output"] = ideal_output
-        data["input_message"] = input_message
-    
-    logger.info("Generating ideal outputs for normal test data...")
-    for data in tqdm(finetuning_data_test_normal):
-        ideal_output, input_message = generate_ideal_output(data, is_reversed=False)
-        data["ideal_output"] = ideal_output
-        data["input_message"] = input_message
+    # # Generate ideal outputs for normal data
+    # logger.info("Generating ideal outputs for normal training data...")
+    # for data in tqdm(finetuning_data_training_normal):
+    #     ideal_output, input_message = generate_ideal_output(data, is_reversed=False)
+    #     data["ideal_output"] = ideal_output
+    #     data["input_message"] = input_message
 
-    # Generate ideal outputs for reversed data
-    logger.info("Generating ideal outputs for reversed training data...")
-    for data in tqdm(finetuning_data_training_reversed):
-        ideal_output, input_message = generate_ideal_output(data, is_reversed=True)
-        data["ideal_output"] = ideal_output
-        data["input_message"] = input_message
+    # save_conflicting_data(finetuning_data_training_normal, output_file_training_normal)
+    
+    # logger.info("Generating ideal outputs for normal test data...")
+    # for data in tqdm(finetuning_data_test_normal):
+    #     ideal_output, input_message = generate_ideal_output(data, is_reversed=False)
+    #     data["ideal_output"] = ideal_output
+    #     data["input_message"] = input_message
+
+    # save_conflicting_data(finetuning_data_test_normal, output_file_test_normal)
+
+    # # Generate ideal outputs for reversed data
+    # logger.info("Generating ideal outputs for reversed training data...")
+    # for data in tqdm(finetuning_data_training_reversed):
+    #     ideal_output, input_message = generate_ideal_output(data, is_reversed=True)
+    #     data["ideal_output"] = ideal_output
+    #     data["input_message"] = input_message
+
+    # save_conflicting_data(finetuning_data_training_reversed, output_file_training_reversed)
     
     logger.info("Generating ideal outputs for reversed test data...")
     for data in tqdm(finetuning_data_test_reversed):
         ideal_output, input_message = generate_ideal_output(data, is_reversed=True)
         data["ideal_output"] = ideal_output
         data["input_message"] = input_message
-    
-    logger.info(f"Final dataset sizes - Normal Training: {len(finetuning_data_training_normal)}, "
-                f"Normal Test: {len(finetuning_data_test_normal)}, "
-                f"Reversed Training: {len(finetuning_data_training_reversed)}, "
-                f"Reversed Test: {len(finetuning_data_test_reversed)}")
-    
-    save_conflicting_data(finetuning_data_training_normal, output_file_training_normal)
-    save_conflicting_data(finetuning_data_test_normal, output_file_test_normal)
-    save_conflicting_data(finetuning_data_training_reversed, output_file_training_reversed)
+
     save_conflicting_data(finetuning_data_test_reversed, output_file_test_reversed)
+    
+    logger.info(f"Final dataset sizes - \n"
+                f"Normal Training: {len(finetuning_data_training_normal)}, \n"
+                f"Normal Test: {len(finetuning_data_test_normal)}, \n"
+                f"Reversed Training: {len(finetuning_data_training_reversed)}, \n"
+                f"Reversed Test: {len(finetuning_data_test_reversed)}")
 
 if __name__ == "__main__":
     main()
