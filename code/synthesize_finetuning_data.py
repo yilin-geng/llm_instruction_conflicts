@@ -33,20 +33,25 @@ def generate_ideal_output(data: Dict, is_reversed: bool = False) -> tuple[str, l
     input_message.append({"role": "user", "content": user_prompt})
     
     # Prepare single prompt for generating output
-    data["constraint2"] = ""
-    conflict_data = [data]
-    conflict_data, prompts = policy.prepare_evaluation_batch(conflict_data)
-    _, user_prompt = prompts[0]
+    # data["constraint2"] = ""
+    # conflict_data = [data]
+    # conflict_data, prompts = policy.prepare_evaluation_batch(conflict_data)
+    # _, user_prompt = prompts[0]
+
+
+    # user_prompt = f'{base_instruction}{contraint1}'
+    system_prompt = "You are generating responses that fulfill the following constraints: " + data['constraint1']
+    user_prompt = data['base_instruction'] + 'You MUST fulfill the following constraint for your response: ' + data['constraint1']
+    
     
     # Try up to 3 times to get a valid response
     for _ in range(3):
         response = get_completion_gpt4o(
-            system_prompt="",
+            system_prompt=system_prompt,
             messages=user_prompt
         )
-        
         # Evaluate if response meets primary constraint
-        evaluation = policy.evaluate_responses(conflict_data, [response], is_reversed=is_reversed, conflicts_dict=INSTRUCTION_CONFLICTS_FOR_FINETUNING)[0]
+        evaluation = policy.evaluate_responses([data], [response], is_reversed=is_reversed, conflicts_dict=INSTRUCTION_CONFLICTS_FOR_FINETUNING)[0]
         if evaluation.primary_constraint_met > 0.5:
             return response, input_message
     
@@ -55,10 +60,10 @@ def generate_ideal_output(data: Dict, is_reversed: bool = False) -> tuple[str, l
 
 def main():
     base_instructions_file = root_dir / 'data' / 'base_instructions_picked.csv'
-    output_file_training_normal = root_dir / 'data' / 'finetuning_data_training_normal.jsonl'
-    output_file_test_normal = root_dir / 'data' / 'finetuning_data_test_normal.jsonl'
-    output_file_training_reversed = root_dir / 'data' / 'finetuning_data_training_reversed.jsonl'
-    output_file_test_reversed = root_dir / 'data' / 'finetuning_data_test_reversed.jsonl'
+    output_file_training_normal = root_dir / 'data' / 'finetuning_data' / 'finetuning_data_training_normal.jsonl'
+    output_file_test_normal = root_dir / 'data' / 'finetuning_data' / 'finetuning_data_test_normal.jsonl'
+    output_file_training_reversed = root_dir / 'data' / 'finetuning_data' / 'finetuning_data_training_reversed.jsonl'
+    output_file_test_reversed = root_dir / 'data' / 'finetuning_data' / 'finetuning_data_test_reversed.jsonl'
     
     logger.info("Generating conflicting instructions...")
     if not base_instructions_file.exists():
@@ -103,12 +108,12 @@ def main():
                 f"{len(finetuning_data_training_reversed)} reversed training, "
                 f"{len(finetuning_data_test_reversed)} reversed test data")
 
-    # # Generate ideal outputs for normal data
-    # logger.info("Generating ideal outputs for normal training data...")
-    # for data in tqdm(finetuning_data_training_normal):
-    #     ideal_output, input_message = generate_ideal_output(data, is_reversed=False)
-    #     data["ideal_output"] = ideal_output
-    #     data["input_message"] = input_message
+    # Generate ideal outputs for normal data
+    logger.info("Generating ideal outputs for normal training data...")
+    for data in tqdm(finetuning_data_training_normal):
+        ideal_output, input_message = generate_ideal_output(data, is_reversed=False)
+        data["ideal_output"] = ideal_output
+        data["input_message"] = input_message
     
     logger.info("Generating ideal outputs for normal test data...")
     for data in tqdm(finetuning_data_test_normal):
@@ -116,12 +121,12 @@ def main():
         data["ideal_output"] = ideal_output
         data["input_message"] = input_message
 
-    # # Generate ideal outputs for reversed data
-    # logger.info("Generating ideal outputs for reversed training data...")
-    # for data in tqdm(finetuning_data_training_reversed):
-    #     ideal_output, input_message = generate_ideal_output(data, is_reversed=True)
-    #     data["ideal_output"] = ideal_output
-    #     data["input_message"] = input_message
+    # Generate ideal outputs for reversed data
+    logger.info("Generating ideal outputs for reversed training data...")
+    for data in tqdm(finetuning_data_training_reversed):
+        ideal_output, input_message = generate_ideal_output(data, is_reversed=True)
+        data["ideal_output"] = ideal_output
+        data["input_message"] = input_message
     
     logger.info("Generating ideal outputs for reversed test data...")
     for data in tqdm(finetuning_data_test_reversed):
@@ -129,14 +134,14 @@ def main():
         data["ideal_output"] = ideal_output
         data["input_message"] = input_message
     
-    # logger.info(f"Final dataset sizes - Normal Training: {len(finetuning_data_training_normal)}, "
-    #             f"Normal Test: {len(finetuning_data_test_normal)}, "
-    #             f"Reversed Training: {len(finetuning_data_training_reversed)}, "
-    #             f"Reversed Test: {len(finetuning_data_test_reversed)}")
+    logger.info(f"Final dataset sizes - Normal Training: {len(finetuning_data_training_normal)}, "
+                f"Normal Test: {len(finetuning_data_test_normal)}, "
+                f"Reversed Training: {len(finetuning_data_training_reversed)}, "
+                f"Reversed Test: {len(finetuning_data_test_reversed)}")
     
-    # save_conflicting_data(finetuning_data_training_normal, output_file_training_normal)
+    save_conflicting_data(finetuning_data_training_normal, output_file_training_normal)
     save_conflicting_data(finetuning_data_test_normal, output_file_test_normal)
-    # save_conflicting_data(finetuning_data_training_reversed, output_file_training_reversed)
+    save_conflicting_data(finetuning_data_training_reversed, output_file_training_reversed)
     save_conflicting_data(finetuning_data_test_reversed, output_file_test_reversed)
 
 if __name__ == "__main__":
