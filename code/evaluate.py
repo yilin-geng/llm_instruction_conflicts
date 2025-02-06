@@ -13,15 +13,21 @@ logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 root_dir = Path(__file__).parent.parent
 
+
+
+# Configuration flag
+USE_NEXT_CLIENT = True  # Set to True to use Next_Client, False to use llm_api (need sperate api keys for each model)
+
+
 # Models to evaluate
 models = [
-    # "qwen2.5-7b-instruct",
+    "qwen2.5-7b-instruct",
     # "gpt-4o-mini-2024-07-18",
     # "gpt-4o-2024-11-20",
     # "claude-3-5-sonnet-20241022",
     # "deepseek-r1"
     # "Llama-3.1-8B",
-    "Llama-3.1-70B",
+    # "Llama-3.1-70B",
 ]
 
 # Data paths to evaluate
@@ -48,8 +54,6 @@ policies = [
     MarkedUserPolicyDetailed("marked_user_detailed"),
 ]
 
-# Configuration flag
-USE_NEXT_CLIENT = False  # Set to True to use Next_Client, False to use llm_api (need sperate api keys for each model)
 
 def get_llm_call_fn(model: str):
     """Get appropriate LLM client based on configuration"""
@@ -94,30 +98,25 @@ def construct_messages(policy: PriorityControlPolicy, evaluation_data: List[Dict
         
     return messages
 
-def save_results(model: str, policy_name: str, data_path: Path, messages: List[List[Dict]], 
-                responses: List[str], results: List[PolicyEvaluation], results_dir: Path, timestamp: str):
+def save_responses(model: str, policy_name: str, data_path: Path, messages: List[List[Dict]], 
+                responses: List[str], 
+                # results: List[PolicyEvaluation], 
+                results_dir: Path, timestamp: str):
     """Save evaluation results and create experiment log."""
     experiment_dir = results_dir / timestamp
     experiment_dir.mkdir(exist_ok=True, parents=True)
     
     # Save detailed results
     dataset_name = data_path.stem
-    output_file = experiment_dir / f"{dataset_name}_{model}_{policy_name}_results.jsonl"
+    output_file = experiment_dir / f"{dataset_name}_{model}_{policy_name}_responses.jsonl"
     with open(output_file, 'w') as f:
-        for message, response, result in zip(messages, responses, results):
+        for message, response in zip(messages, responses):
             result_dict = {
                 "model": model,
                 "policy": policy_name,
                 "dataset": dataset_name,
                 "input_data": message,
                 "response": response,
-                "evaluation": {
-                    "conflict_recognized": result.conflict_recognized,
-                    "primary_constraint_met": result.primary_constraint_met,
-                    "secondary_constraint_met": result.secondary_constraint_met,
-                    "joint_satisfaction": result.joint_satisfaction,
-                    "conflict_name": result.conflict_name
-                }
             }
             f.write(json.dumps(result_dict) + '\n')
 
@@ -174,22 +173,15 @@ def main():
                     logger.error(f"Mismatch between messages ({len(messages)}) and responses ({len(responses)})")
                     raise ValueError("Number of responses does not match number of messages")
                 
-                # Process responses
-                results = policy.evaluate_responses(evaluation_data, responses, 
-                                                    is_reversed='reversed' in str(data_path))
+                # # Process responses
+                # results = policy.evaluate_responses(evaluation_data, responses, 
+                #                                     is_reversed='reversed' in str(data_path))
                 
-                # Save results
-                save_results(model, policy.name, data_path, messages, responses, 
-                            results, results_dir, timestamp)
-            
+                # Save responses
+                save_responses(model, policy.name, data_path, messages, responses, 
+                            results_dir, timestamp)
 
-    # # Run analysis after all evaluations are complete
-    # logger.info("Starting analysis...")
-    # from analyze import main as analyze_main
-    # import sys
-    # sys.argv = [sys.argv[0], '--timestamp', timestamp]
-    # analyze_main()
-    # logger.info("Analysis complete")
+            # leave the evaluation and analysis for later
 
 if __name__ == "__main__":
     main()
