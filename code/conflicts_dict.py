@@ -47,8 +47,8 @@ INSTRUCTION_CONFLICTS = {
         "conflict_pair": ConflictingInstructionPair(
             instructions.KeywordChecker("keywords"), 
             instructions.ForbiddenWords("forbidden"),
-            [{"keywords": ["awesome, need"]}, 
-             {"forbidden_words": ["awesome, need"]}],
+            [{"keywords": ["awesome", "need"]}, 
+             {"forbidden_words": ["awesome", "need"]}],
             "keyword_forbidden_conflict: awesome_need"
         )
     },
@@ -129,8 +129,8 @@ INSTRUCTION_CONFLICTS_FOR_FINETUNING = {
         "conflict_pair": ConflictingInstructionPair(
             instructions.KeywordChecker("keywords"), 
             instructions.ForbiddenWords("forbidden"),
-            [{"keywords": ["many, special"]}, 
-             {"forbidden_words": ["many, special"]}],
+            [{"keywords": ["many", "special"]}, 
+             {"forbidden_words": ["many", "special"]}],
             "keyword_forbidden_conflict: many_special"
         )
     },
