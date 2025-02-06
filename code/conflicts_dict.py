@@ -115,13 +115,13 @@ INSTRUCTION_CONFLICTS_FOR_FINETUNING = {
         )
     },
     
-    "num_sentence_conflict: 7_3": {
+    "num_sentence_conflict: 12_7": {
         "conflict_pair": ConflictingInstructionPair(
             instructions.NumberOfSentences("sent1"),  
             instructions.NumberOfSentences("sent2"),
-            [{"num_sentences": 7, "relation": "at least"},
-             {"num_sentences": 3, "relation": "less than"}],
-            "num_sentence_conflict: 7_3"
+            [{"num_sentences": 12, "relation": "at least"},
+             {"num_sentences": 7, "relation": "less than"}],
+            "num_sentence_conflict: 12_7"
         )
     },
     
