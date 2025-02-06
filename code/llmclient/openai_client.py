@@ -36,15 +36,18 @@ class OpenAI_Client(BaseClient):
         response_format = kwargs.get("response_format", None)  # JSON mode: response_format={ "type": "json_object" },
 
         r = ""
+        chat_params = {
+            "response_format": response_format,
+            "seed": seed,
+            "model": self.name_mapping[self.model],
+            "messages": messages,
+        }
+        if "temperature" in kwargs:
+            chat_params["temperature"] = kwargs["temperature"]
 
         for i in range(num_retries):
             try:
-                response = self.client.chat.completions.create(
-                    response_format=response_format,
-                    seed=seed,
-                    model=self.name_mapping[self.model],
-                    messages=messages,
-                )
+                response = self.client.chat.completions.create(**chat_params)
                 r = response.choices[0].message.content
                 if post_check_function is None:
                     break
