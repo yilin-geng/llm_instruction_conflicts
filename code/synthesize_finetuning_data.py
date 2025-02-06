@@ -48,22 +48,22 @@ async def generate_ideal_output(data: Dict, is_reversed: bool = False) -> tuple[
     """Generate ideal output and input message for a given instruction using GPT-4."""
     policy = BaselineAllUserPolicy("baseline_all_user")
     
-    # Create BasicSeparationPolicy for input message format
-    separation_policy = BasicSeparationPolicy("basic_separation")
-    system_prompt, user_prompt = separation_policy.get_prompts(
-        data['base_instruction'], 
-        data['constraint1'], 
-        data['constraint2']
-    )
+    # # Create BasicSeparationPolicy for input message format
+    # separation_policy = BasicSeparationPolicy("basic_separation")
+    # system_prompt, user_prompt = separation_policy.get_prompts(
+    #     data['base_instruction'], 
+    #     data['constraint1'], 
+    #     data['constraint2']
+    # )
     
+    system_prompt = "You are generating responses that fulfill the following constraints: " + data['constraint1']
+    user_prompt = data['base_instruction'] + 'You MUST fulfill the following constraint for your response: ' + data['constraint1']
+
     # Create input message in API format
     input_message = []
     if system_prompt:
         input_message.append({"role": "system", "content": system_prompt})
     input_message.append({"role": "user", "content": user_prompt})
-    
-    system_prompt = "You are generating responses that fulfill the following constraints: " + data['constraint1']
-    user_prompt = data['base_instruction'] + 'You MUST fulfill the following constraint for your response: ' + data['constraint1']
     
     # Try up to 3 times to get a valid response
     for _ in range(3):
@@ -121,11 +121,11 @@ async def main_async():
     # Split normal data into training and test
     finetuning_data_training_normal = [
         data for data in conflicting_data_normal 
-        if data["conflict_name"] not in ["num_sentence_conflict: 12_7", "keyword_frequency_conflict: often_6_3"]
+        # if data["conflict_name"] not in ["num_sentence_conflict: 12_7", "keyword_frequency_conflict: often_6_3"]
     ]
     finetuning_data_test_normal = [
         data for data in conflicting_data_normal 
-        if data["conflict_name"] in ["num_sentence_conflict: 12_7", "keyword_frequency_conflict: often_6_3"]
+        # if data["conflict_name"] in ["num_sentence_conflict: 12_7", "keyword_frequency_conflict: often_6_3"]
     ]
     
     conflicting_data_reversed = generate_conflicting_data(
@@ -149,22 +149,22 @@ async def main_async():
                 f"{len(finetuning_data_training_reversed)} reversed training, "
                 f"{len(finetuning_data_test_reversed)} reversed test data")
 
+    logger.info("Generating ideal outputs for normal test data...")
+    await process_data_batch(finetuning_data_test_normal, is_reversed=False)
+    save_conflicting_data(finetuning_data_test_normal, output_file_test_normal)
+    
+    logger.info("Generating ideal outputs for reversed test data...")
+    await process_data_batch(finetuning_data_test_reversed, is_reversed=True)
+    save_conflicting_data(finetuning_data_test_reversed, output_file_test_reversed)
+
     # Generate ideal outputs for all datasets in parallel
     logger.info("Generating ideal outputs for normal training data...")
     await process_data_batch(finetuning_data_training_normal, is_reversed=False)
     save_conflicting_data(finetuning_data_training_normal, output_file_training_normal)
     
-    logger.info("Generating ideal outputs for normal test data...")
-    await process_data_batch(finetuning_data_test_normal, is_reversed=False)
-    save_conflicting_data(finetuning_data_test_normal, output_file_test_normal)
-
     logger.info("Generating ideal outputs for reversed training data...")
     await process_data_batch(finetuning_data_training_reversed, is_reversed=True)
     save_conflicting_data(finetuning_data_training_reversed, output_file_training_reversed)
-    
-    logger.info("Generating ideal outputs for reversed test data...")
-    await process_data_batch(finetuning_data_test_reversed, is_reversed=True)
-    save_conflicting_data(finetuning_data_test_reversed, output_file_test_reversed)
     
     logger.info(f"Final dataset sizes - \n"
                 f"Normal Training: {len(finetuning_data_training_normal)}, \n"
