@@ -1,5 +1,15 @@
 import logging
+import openai
 from typing import List, Dict
+import asyncio
+import time
+from tenacity import (
+    retry,
+    stop_after_attempt,
+    wait_exponential,
+    retry_if_exception_type
+)
+
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 
@@ -10,9 +20,30 @@ logging.getLogger("httpx").setLevel(logging.WARNING)
 
 from together import Together
 client_together = Together(api_key=TOGETHER_API_KEY)
+
+def create_retry_decorator(max_retries=8, min_wait=1, max_wait=60):
+    return retry(
+        stop=stop_after_attempt(max_retries),
+        wait=wait_exponential(multiplier=min_wait, max=max_wait),
+        retry=retry_if_exception_type((
+            openai.RateLimitError,  # Rate limit error
+            openai.APITimeoutError,  # Timeout error
+            openai.APIConnectionError,  # Connection error
+            openai.APIError,  # Generic API error
+            asyncio.TimeoutError,  # Async timeout
+            TimeoutError,  # General timeout
+            ConnectionError,  # Connection issues
+        )),
+        before_sleep=lambda retry_state: logger.warning(
+            f"API call failed with {retry_state.outcome.exception()}, "
+            f"retrying in {retry_state.next_action.sleep} seconds..."
+        )
+    )
+
+@create_retry_decorator()
 def get_completion_llama3(system_prompt, messages):
     """
-    Get completion from Llama 3 model
+    Get completion from Llama 3 model with automatic retries
     Args:
         system_prompt: System prompt to set context
         messages: List of message dictionaries or single prompt string
@@ -30,11 +61,12 @@ def get_completion_llama3(system_prompt, messages):
     return response.choices[0].message.content
 
 def get_completion_openai_fn(model_name, url):
-    import openai
     client_openai = openai.OpenAI(api_key=OPENAI_API_KEY, base_url=url)
+    
+    @create_retry_decorator()
     def get_completion_openai(system_prompt, messages):
         """
-        Get completion from OpenAI-compatible model
+        Get completion from OpenAI-compatible model with automatic retries
         Args:
             system_prompt: System prompt to set context
             messages: List of message dictionaries or single prompt string
@@ -53,8 +85,36 @@ def get_completion_openai_fn(model_name, url):
         return response.choices[0].message.content
     return get_completion_openai
 
+def get_completion_openai_fn_async(model_name, url):
+    client_openai = openai.AsyncOpenAI(api_key=OPENAI_API_KEY, base_url=url)
+    
+    @create_retry_decorator()
+    async def get_completion_openai_async(system_prompt, messages):
+        """
+        Get completion from OpenAI-compatible model asynchronously with automatic retries
+        Args:
+            system_prompt: System prompt to set context
+            messages: List of message dictionaries or single prompt string
+            model_name: Name of the model to use
+        """
+        if isinstance(messages, str):
+            messages = [{"role": "user", "content": messages}]
+        
+        formatted_messages = [{"role": "system", "content": system_prompt}]
+        formatted_messages.extend(messages)
+        
+        response = await client_openai.chat.completions.create(
+            model=model_name,
+            messages=formatted_messages
+        )
+        return response.choices[0].message.content
+    return get_completion_openai_async
+
 get_completion_gpt4omini = get_completion_openai_fn("gpt-4o-mini", "https://api.openai.com/v1")
 get_completion_gpt4o = get_completion_openai_fn("gpt-4o", "https://api.openai.com/v1")
+
+get_completion_gpt4omini_async = get_completion_openai_fn_async("gpt-4o-mini", "https://api.openai.com/v1")
+get_completion_gpt4o_async = get_completion_openai_fn_async("gpt-4o", "https://api.openai.com/v1")
 
 def batch_llm_call(messages_list: List[List[Dict]], llm_call_fn=get_completion_gpt4omini) -> List[str]:
     """
