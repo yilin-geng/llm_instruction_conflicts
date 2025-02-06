@@ -82,6 +82,8 @@ def main():
         "GPT-4o-mini": get_completion_gpt4omini,
         "Llama-3": get_completion_llama3,
         "Llama-3-8B": get_completion_openai_fn("meta-llama/Meta-Llama-3-8B-Instruct", "http://localhost:8000/v1"),
+        "Llama-3.1-8B": get_completion_openai_fn("meta-llama/Llama-3.1-8B-Instruct", "http://localhost:8000/v1"),
+        "Llama-3.1-70B": get_completion_openai_fn("meta-llama/Llama-3.1-70B-Instruct", "http://localhost:8000/v1"),
     }
     
     logger.info("Testing LLM APIs...")
