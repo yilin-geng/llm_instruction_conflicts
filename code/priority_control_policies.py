@@ -101,6 +101,15 @@ class PriorityControlPolicy(ABC):
 # Set 1: Testing System/User Separation Effect
 # Tests whether system/user prompt separation naturally creates priority
 
+
+class ConstraintFollowingBaseline(PriorityControlPolicy):
+    """Base case: Instruction following behavior without conflicts."""
+    
+    def get_prompts(self, base_instruction: str, constraint1: str, constraint2: str, **kwargs) -> Tuple[str, str]:
+        system_prompt = ""
+        user_prompt = f"{base_instruction} {constraint1}"
+        return system_prompt, user_prompt
+
 class BaselineAllUserPolicy(PriorityControlPolicy):
     """Base case: Everything in user prompt.
     Tests natural instruction following behavior without intervention."""

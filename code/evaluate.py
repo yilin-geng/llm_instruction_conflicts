@@ -40,6 +40,7 @@ data_paths = [
 
 # Initialize policies
 policies = [
+    ConstraintFollowingBaseline("constraint_following_baseline"),
     BaselineAllUserPolicy("baseline_all_user"),
     BasicSeparationPolicy("basic_separation"),
     TaskSpecifiedSeparationPolicy("task_specified_separation"), 
