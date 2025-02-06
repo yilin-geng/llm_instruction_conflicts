@@ -15,11 +15,13 @@ root_dir = Path(__file__).parent.parent
 
 # Models to evaluate
 models = [
-    "qwen2.5-7b-instruct",
+    # "qwen2.5-7b-instruct",
     # "gpt-4o-mini-2024-07-18",
     # "gpt-4o-2024-11-20",
     # "claude-3-5-sonnet-20241022",
     # "deepseek-r1"
+    # "Llama-3.1-8B",
+    "Llama-3.1-70B",
 ]
 
 # Data paths to evaluate
@@ -47,7 +49,7 @@ policies = [
 ]
 
 # Configuration flag
-USE_NEXT_CLIENT = True  # Set to True to use Next_Client, False to use llm_api (need sperate api keys for each model)
+USE_NEXT_CLIENT = False  # Set to True to use Next_Client, False to use llm_api (need sperate api keys for each model)
 
 def get_llm_call_fn(model: str):
     """Get appropriate LLM client based on configuration"""
@@ -63,7 +65,9 @@ def get_llm_call_fn(model: str):
         # Map models to their corresponding functions
         model_map = {
             "gpt-4o-2024-11-20": lambda x: batch_llm_call(x, get_completion_gpt4o),
-            "llama-3.1-70b": lambda x: batch_llm_call(x, get_completion_llama3),
+            # "llama-3.1-70b": lambda x: batch_llm_call(x, get_completion_llama3),
+            "Llama-3.1-8B": lambda x: batch_llm_call(x, get_completion_openai_fn("meta-llama/Llama-3.1-8B-Instruct", "http://localhost:8000/v1")),
+            "Llama-3.1-70B": lambda x: batch_llm_call(x, get_completion_openai_fn("meta-llama/Llama-3.1-70B-Instruct", "http://localhost:8001/v1")),
             # Add corresponding model mappings for models added in llm_api.py
         }
         return model_map.get(model, lambda x: batch_llm_call(x, get_completion_gpt4o))
