@@ -1,12 +1,11 @@
 import time
+import traceback
 from openai import OpenAI
-from .base import BaseClient
+from .base import MODEL_LIST, BaseClient
 
+models = list(filter(lambda x: x.startswith("gpt") or x.startswith("o"), MODEL_LIST))
+name_mapping = {i:i for i in models}
 
-support_models = {
-    "gpt-4o":"gpt-4o",
-    "gpt-4o-mini":"gpt-4o-mini",
-}
 
 class OpenAI_Client(BaseClient):
     def __init__(
@@ -18,42 +17,51 @@ class OpenAI_Client(BaseClient):
     ):
         super().__init__(model, api_config, max_requests_per_minute, request_window)
         self.client_name = "OpenAI"
+        assert self.api_config["OPENAI_API_KEY"] != ""
         self.client = OpenAI(api_key=self.api_config["OPENAI_API_KEY"])
-        self.support_models = support_models
+        self.name_mapping = name_mapping
 
     def _call(self, messages: str, **kwargs):
         seed = kwargs.get("seed", 42)  # default seed is 42
         assert type(seed) is int, "Seed must be an integer."
+
+        # Convert system role to developer if needed
+        if self.system_role_name == "developer":
+            for msg in messages:
+                if msg["role"] == "system":
+                    msg["role"] = "developer"
 
         num_retries = kwargs.get("num_retries", 1)
         post_check_function = kwargs.get("post_check_function", None)
         response_format = kwargs.get("response_format", None)  # JSON mode: response_format={ "type": "json_object" },
 
         r = ""
-        for _ in range(num_retries):
+
+        for i in range(num_retries):
             try:
                 response = self.client.chat.completions.create(
                     response_format=response_format,
                     seed=seed,
-                    model=self.support_models[self.model],
+                    model=self.name_mapping[self.model],
                     messages=messages,
                 )
                 r = response.choices[0].message.content
-
-                if post_check_function is not None and post_check_function(r):
+                if post_check_function is None:
                     break
+                else:
+                    post_r = post_check_function(r)
+                    if post_r:
+                        return post_r
+                    else:
+                        print(f"Warning: Post check function failed. Response is {r}. Retrying {i} ...")
             except Exception as e:
-                print("Error: ", e)
-                time.sleep(1)
+                print("Error in LLM Client: ")
+                print(traceback.format_exc())  # This will print the full stack trace
+                time.sleep(1)      
 
         if r == "":
-            print(f"{self.client_name} Client Warning: Empty response from LLM Client call")
-
-        # if response in locals() and hasattr(response, "usage"):
-        #     self._log_usage(usage_dict=response.usage)
-        # else:
-        #     print("Warning: ChatGPT API Usage is not logged.")
-
+            print(f"{self.client_name} Client Warning: Empty response from LLM Client call.")
+        
         return r
 
     def _log_usage(self, usage_dict):
@@ -63,9 +71,6 @@ class OpenAI_Client(BaseClient):
         except:  # noqa E722
             print("Warning: prompt_tokens or completion_token not found in usage_dict")
 
-    def get_request_length(self, messages):
-        # TODO: check if we should return the len(menages) instead
-        return 1
 
     def construct_message_list(
         self,
@@ -75,7 +80,7 @@ class OpenAI_Client(BaseClient):
         messages_list = list()
         for prompt in prompt_list:
             messages = [
-                {"role": "system", "content": system_role},
+                {"role": self.system_role_name, "content": system_role},
                 {"role": "user", "content": prompt},
             ]
             messages_list.append(messages)
