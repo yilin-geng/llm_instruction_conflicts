@@ -1,4 +1,4 @@
-from llmclient import Next_Client
+from llmclient import Next_Client, OpenAI_Client
 from api_keys import NEXT_BASE_URL, NEXT_API_KEY, OPENAI_API_KEY
 import json
 from pathlib import Path
@@ -21,14 +21,18 @@ USE_NEXT_CLIENT = True  # Set to True to use Next_Client, False to use llm_api (
 
 # Models to evaluate
 models = [
-    "qwen2.5-7b-instruct",
+    # "qwen2.5-7b-instruct",
     # "gpt-4o-mini-2024-07-18",
     # "gpt-4o-2024-11-20",
     # "claude-3-5-sonnet-20241022",
     # "deepseek-r1"
     # "Llama-3.1-8B",
-    # "Llama-3.1-70B",
+    "Llama-3.1-70B",
 ]
+model_name_mapping = {
+    "Llama-3.1-8B": "meta-llama/Llama-3.1-8B-Instruct",
+    "Llama-3.1-70B": "meta-llama/Llama-3.1-70B-Instruct",
+}
 
 # Data paths to evaluate
 data_paths = [
@@ -64,15 +68,15 @@ def get_llm_call_fn(model: str):
             "NEXT_API_KEY": NEXT_API_KEY,
             "OPENAI_API_KEY": OPENAI_API_KEY,
         }
-        client = Next_Client(model=model, api_config=api_config)
+        if model in model_name_mapping:
+            model_name = model_name_mapping[model]
+        client = Next_Client(model=model_name, api_config=api_config)
         return client.multi_call
     else:
         # Map models to their corresponding functions
         model_map = {
             "gpt-4o-2024-11-20": lambda x: batch_llm_call(x, get_completion_gpt4o),
             # "llama-3.1-70b": lambda x: batch_llm_call(x, get_completion_llama3),
-            "Llama-3.1-8B": lambda x: batch_llm_call(x, get_completion_openai_fn("meta-llama/Llama-3.1-8B-Instruct", "http://localhost:8000/v1")),
-            "Llama-3.1-70B": lambda x: batch_llm_call(x, get_completion_openai_fn("meta-llama/Llama-3.1-70B-Instruct", "http://localhost:8001/v1")),
             # Add corresponding model mappings for models added in llm_api.py
         }
         return model_map.get(model, lambda x: batch_llm_call(x, get_completion_gpt4o))
