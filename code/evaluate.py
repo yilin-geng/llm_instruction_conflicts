@@ -21,12 +21,12 @@ USE_NEXT_CLIENT = True  # Set to True to use Next_Client, False to use llm_api (
 
 # Models to evaluate
 models = [
-    # "qwen2.5-7b-instruct",
-    # "gpt-4o-mini-2024-07-18",
-    # "gpt-4o-2024-11-20",
-    # "claude-3-5-sonnet-20241022",
-    # "deepseek-r1"
-    # "Llama-3.1-8B",
+    "qwen2.5-7b-instruct",
+    "gpt-4o-mini-2024-07-18",
+    "gpt-4o-2024-11-20",
+    "claude-3-5-sonnet-20241022",
+    "deepseek-r1"
+    "Llama-3.1-8B",
     "Llama-3.1-70B",
 ]
 model_name_mapping = {
@@ -69,11 +69,11 @@ def get_llm_call_fn(model: str):
             "OPENAI_API_KEY": OPENAI_API_KEY,
         }
         if model in model_name_mapping:
-            model_name = model_name_mapping[model]
-        client = Next_Client(model=model_name, api_config=api_config)
+            model = model_name_mapping[model]
+        client = Next_Client(model=model, api_config=api_config)
         return client.multi_call
     else:
-        # Map models to their corresponding functions
+        # TODO: Map models to their corresponding functions (MUST MODIFY IF NOT USING OPENAI_NEXT CLIENT)
         model_map = {
             "gpt-4o-2024-11-20": lambda x: batch_llm_call(x, get_completion_gpt4o),
             # "llama-3.1-70b": lambda x: batch_llm_call(x, get_completion_llama3),
