@@ -1,3 +1,4 @@
+import os
 from llmclient import Next_Client, OpenAI_Client
 from api_keys import NEXT_BASE_URL, NEXT_API_KEY, OPENAI_API_KEY
 import json
@@ -6,6 +7,7 @@ from typing import List, Dict
 import logging
 from tqdm import tqdm
 from datetime import datetime
+import argparse
 from priority_control_policies import *
 from llm_api import *
 
@@ -20,15 +22,15 @@ USE_NEXT_CLIENT = True  # Set to True to use Next_Client, False to use llm_api (
 
 
 # Models to evaluate
-models = [
-    "qwen2.5-7b-instruct",
-    "gpt-4o-mini-2024-07-18",
-    "gpt-4o-2024-11-20",
-    "claude-3-5-sonnet-20241022",
-    "deepseek-r1"
-    "Llama-3.1-8B",
-    "Llama-3.1-70B",
-]
+# models = [
+#     # "qwen2.5-7b-instruct",
+#     # "gpt-4o-mini-2024-07-18",
+#     # "gpt-4o-2024-11-20",
+#     # "claude-3-5-sonnet-20241022",
+#     # "deepseek-r1"
+#     "Llama-3.1-8B",
+#     # "Llama-3.1-70B",
+# ]
 model_name_mapping = {
     "Llama-3.1-8B": "meta-llama/Llama-3.1-8B-Instruct",
     "Llama-3.1-70B": "meta-llama/Llama-3.1-70B-Instruct",
@@ -103,23 +105,36 @@ def construct_messages(policy: PriorityControlPolicy, evaluation_data: List[Dict
         
     return messages
 
-def save_responses(model: str, policy_name: str, data_path: Path, messages: List[List[Dict]], 
-                responses: List[str], 
-                # results: List[PolicyEvaluation], 
-                results_dir: Path, timestamp: str):
-    """Save evaluation results and create experiment log."""
+def get_output_file(model: str, policy_name: str, data_path: Path, results_dir: Path, timestamp: str):
     experiment_dir = results_dir / timestamp
     experiment_dir.mkdir(exist_ok=True, parents=True)
     
     # Save detailed results
     dataset_name = data_path.stem
-    output_file = experiment_dir / f"{dataset_name}_{model}_{policy_name}_responses.jsonl"
+    output_file = experiment_dir / f"{dataset_name}_{model}_{policy_name}_results.jsonl"
+    return output_file
+
+def save_responses(model: str, policy_name: str, data_path: Path, messages: List[List[Dict]], 
+                responses: List[str], 
+                # results: List[PolicyEvaluation], 
+                results_dir: Path, timestamp: str):
+    """Save evaluation results and create experiment log."""
+    # Check for empty responses
+    empty_responses = sum(1 for r in responses if not r or r.strip() == '')
+    empty_ratio = empty_responses / len(responses) if responses else 1.0
+    
+    if empty_ratio > 0.5:
+        logger.warning(f"Skipping saving results for {model} {policy_name} on {data_path.stem} - "
+                      f"too many empty responses ({empty_ratio:.2%})")
+        return
+        
+    output_file = get_output_file(model, policy_name, data_path, results_dir, timestamp)
     with open(output_file, 'w') as f:
         for message, response in zip(messages, responses):
             result_dict = {
                 "model": model,
                 "policy": policy_name,
-                "dataset": dataset_name,
+                "dataset": data_path.stem,
                 "input_data": message,
                 "response": response,
             }
@@ -153,10 +168,25 @@ def save_experiment_log(policies: List[PriorityControlPolicy], models: List[str]
         f.write("\n")
 
 def main():
+    parser = argparse.ArgumentParser(description='Evaluate LLM models with different policies')
+    parser.add_argument('--model', type=str, default="Llama-3.1-8B",
+                        choices=list(model_name_mapping.keys()) + ["qwen2.5-7b-instruct", "gpt-4o-mini-2024-07-18", "gpt-4o-2024-11-20", "claude-3-5-sonnet-20241022", "deepseek-r1"],
+                        help='Model to evaluate (default: Llama-3.1-8B)')
+    parser.add_argument('--timestamp', type=str,
+                        default=datetime.now().strftime("%Y%m%d_%H%M%S"),
+                        help='Timestamp for the experiment (format: YYYYMMDD_HHMMSS)')
+    args = parser.parse_args()
 
     results_dir = root_dir / 'results'
     results_dir.mkdir(exist_ok=True)
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    
+    # Use command line arguments
+    models = [args.model]
+    timestamp = args.timestamp
+    # timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    # timestamp = "20250205_110356" # 70B
+    # timestamp = "20250205_091309" # 8B
+    
     save_experiment_log(policies, models, data_paths, timestamp, results_dir)
     
     # Process each dataset
@@ -171,6 +201,11 @@ def main():
             
             # Evaluate each policy
             for policy in tqdm(policies, desc=f"Processing policies for {model}"):
+                output_file = get_output_file(model, policy.name, data_path, results_dir, timestamp)
+                if os.path.exists(output_file):
+                    logger.info(f"Skipping policy {output_file} as it already exists")
+                    continue
+                
                 logger.info(f"Processing policy: {policy.name}")
                 messages = construct_messages(policy, evaluation_data)
                 responses = llm_call_fn(messages)
