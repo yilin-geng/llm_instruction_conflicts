@@ -127,7 +127,9 @@ name_mapping = {
     "gpt-4o-mini-2024-07-18": "gpt-4o-mini-2024-07-18",
     "gpt-4o-2024-11-20": "gpt-4o-2024-11-20",
     "claude-3-5-sonnet-20241022": "claude-3-5-sonnet-20241022",
-    "deepseek-r1": "deepseek-r1"
+    "deepseek-r1": "deepseek-r1",
+    "meta-llama/Llama-3.1-8B-Instruct": "meta-llama/Llama-3.1-8B-Instruct",
+    "meta-llama/Llama-3.1-70B-Instruct": "meta-llama/Llama-3.1-70B-Instruct",
 }
 
 

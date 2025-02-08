@@ -4,6 +4,7 @@ Experiment Configuration
 Timestamp: 20250205_091309
 
 Policies:
+- constraint_following_baseline
 - baseline_all_user
 - basic_separation
 - task_specified_separation
