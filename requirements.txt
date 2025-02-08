@@ -8,3 +8,4 @@ langdetect
 nltk
 immutabledict
 together
+tenacity
