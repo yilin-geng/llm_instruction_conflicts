@@ -135,6 +135,8 @@ def main():
         if filename not in expected_files:
             logger.warning(f"Unexpected file found: {filename}")
             continue
+        else:
+            expected_files[filename]['exists'] = True   
             
         # Read responses from file
         with open(file_path, 'r') as f:
