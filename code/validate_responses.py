@@ -34,12 +34,12 @@ def get_expected_files_mapping():
     # Extract from evaluate.py configurations
     models = [
         "qwen2.5-7b-instruct",
-        # "gpt-4o-mini-2024-07-18",
-        # "gpt-4o-2024-11-20",
-        # "claude-3-5-sonnet-20241022",
-        # "deepseek-r1",
-        # "Llama-3.1-8B",
-        # "Llama-3.1-70B",
+        "gpt-4o-mini-2024-07-18",
+        "gpt-4o-2024-11-20",
+        "claude-3-5-sonnet-20241022",
+        "deepseek-r1",
+        "Llama-3.1-8B",
+        "Llama-3.1-70B",
     ]
     
     datasets = [
