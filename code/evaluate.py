@@ -23,13 +23,13 @@ USE_NEXT_CLIENT = True  # Set to True to use Next_Client, False to use llm_api (
 
 # Models to evaluate
 models = [
-    "qwen2.5-7b-instruct",
-    "gpt-4o-mini-2024-07-18",
-    "gpt-4o-2024-11-20",
-    "claude-3-5-sonnet-20241022",
+    # "qwen2.5-7b-instruct",
+    # "gpt-4o-mini-2024-07-18",
+    # "gpt-4o-2024-11-20",
+    # "claude-3-5-sonnet-20241022",
     "deepseek-r1"
-    "Llama-3.1-8B",
-    "Llama-3.1-70B",
+    # "Llama-3.1-8B",
+    # "Llama-3.1-70B",
 ]
 model_name_mapping = {
     "Llama-3.1-8B": "meta-llama/Llama-3.1-8B-Instruct",
@@ -38,9 +38,9 @@ model_name_mapping = {
 
 # Data paths to evaluate
 data_paths = [
-    root_dir / 'data' / 'conflicting_instructions.jsonl',
-    root_dir / 'data' / 'conflicting_instructions_reversed.jsonl',
-    root_dir / 'data' / 'conflicting_instructions_rich_context.jsonl',
+    # root_dir / 'data' / 'conflicting_instructions.jsonl',
+    # root_dir / 'data' / 'conflicting_instructions_reversed.jsonl',
+    # root_dir / 'data' / 'conflicting_instructions_rich_context.jsonl',
     root_dir / 'data' / 'conflicting_instructions_rich_context_reversed.jsonl',
 ]
 
