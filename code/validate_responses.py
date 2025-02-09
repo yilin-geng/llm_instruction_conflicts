@@ -34,12 +34,12 @@ def get_expected_files_mapping():
     # Extract from evaluate.py configurations
     models = [
         "qwen2.5-7b-instruct",
-        "gpt-4o-mini-2024-07-18",
-        "gpt-4o-2024-11-20",
-        "claude-3-5-sonnet-20241022",
-        "deepseek-r1",
-        "Llama-3.1-8B",
-        "Llama-3.1-70B",
+        # "gpt-4o-mini-2024-07-18",
+        # "gpt-4o-2024-11-20",
+        # "claude-3-5-sonnet-20241022",
+        # "deepseek-r1",
+        # "Llama-3.1-8B",
+        # "Llama-3.1-70B",
     ]
     
     datasets = [
@@ -82,7 +82,7 @@ def get_expected_files_mapping():
     
     return expected_files
 
-def fill_empty_responses(file_path: Path, empty_indices: list[int], data: list[dict], model: str):
+def fill_empty_responses(file_path: Path, empty_indices: list[int], data: list[dict], model: str, next_base_url: str):
     """Fill empty responses using the model."""
     if not empty_indices:
         return data
@@ -90,7 +90,7 @@ def fill_empty_responses(file_path: Path, empty_indices: list[int], data: list[d
     logger.info(f"Filling {len(empty_indices)} empty responses in {file_path.name}")
     
     # Get model call function
-    llm_call_fn = get_llm_call_fn(model)
+    llm_call_fn = get_llm_call_fn(model, next_base_url=next_base_url)
     
     # Prepare messages for empty responses
     messages = []
@@ -113,6 +113,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--target_dir", type=str, required=True)
     parser.add_argument("--tofill", action="store_true", help="Fill empty responses if set")
+    parser.add_argument("--next_base_url", type=str, default=NEXT_BASE_URL, help="Base URL for the Next API")
     args = parser.parse_args()
     target_dir = Path(args.target_dir)
     if not target_dir.exists():
@@ -168,7 +169,7 @@ def main():
                 model = expected_files[filename]['model']
                 
                 # Fill empty responses
-                updated_data = fill_empty_responses(file_path, empty_indices, data, model)
+                updated_data = fill_empty_responses(file_path, empty_indices, data, model, args.next_base_url)
                 
                 # Save updated file
                 with open(file_path, 'w') as f:

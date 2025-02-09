@@ -62,7 +62,7 @@ policies = [
 ]
 
 
-def get_llm_call_fn(model: str, next_base_url: str = "http://localhost:8000/v1"):
+def get_llm_call_fn(model: str, next_base_url: str = NEXT_BASE_URL, max_requests_per_minute: int = 20):
     """Get appropriate LLM client based on configuration"""
     if USE_NEXT_CLIENT:
         api_config = {
@@ -72,7 +72,7 @@ def get_llm_call_fn(model: str, next_base_url: str = "http://localhost:8000/v1")
         }
         if model in model_name_mapping:
             model = model_name_mapping[model]
-        client = Next_Client(model=model, api_config=api_config, max_requests_per_minute=100)
+        client = Next_Client(model=model, api_config=api_config, max_requests_per_minute=max_requests_per_minute)
         return client.multi_call
     else:
         # TODO: Map models to their corresponding functions (MUST MODIFY IF NOT USING OPENAI_NEXT CLIENT)
@@ -176,11 +176,14 @@ def main():
                         default=datetime.now().strftime("%Y%m%d_%H%M%S"),
                         help='Timestamp for the experiment (format: YYYYMMDD_HHMMSS)')
     parser.add_argument('--next-base-url', type=str,
-                        default="http://localhost:8000/v1",
-                        help='Base URL for the Next API (default: http://localhost:8000/v1)')
+                        default=NEXT_BASE_URL,
+                        help='Base URL for the Next API')
     parser.add_argument('--temperature', type=float,
                         default=0.6,
                         help='Temperature for LLM sampling (default: 0.6)')
+    parser.add_argument('--max-requests-per-minute', type=int,
+                        default=100,
+                        help='Maximum requests per minute for the Next API (default: 100)')
     args = parser.parse_args()
 
     results_dir = root_dir / 'results'
@@ -203,7 +206,7 @@ def main():
         # Evaluate each model
         for model in models:
             logger.info(f"Evaluating model: {model}")
-            llm_call_fn = get_llm_call_fn(model, next_base_url=args.next_base_url)
+            llm_call_fn = get_llm_call_fn(model, next_base_url=args.next_base_url, max_requests_per_minute=args.max_requests_per_minute)
             
             # Evaluate each policy
             for policy in tqdm(policies, desc=f"Processing policies for {model}"):
