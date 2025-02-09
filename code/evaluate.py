@@ -62,17 +62,17 @@ policies = [
 ]
 
 
-def get_llm_call_fn(model: str):
+def get_llm_call_fn(model: str, next_base_url: str = "http://localhost:8000/v1"):
     """Get appropriate LLM client based on configuration"""
     if USE_NEXT_CLIENT:
         api_config = {
-            "NEXT_BASE_URL": NEXT_BASE_URL,
+            "NEXT_BASE_URL": next_base_url,
             "NEXT_API_KEY": NEXT_API_KEY,
             "OPENAI_API_KEY": OPENAI_API_KEY,
         }
         if model in model_name_mapping:
             model = model_name_mapping[model]
-        client = Next_Client(model=model, api_config=api_config)
+        client = Next_Client(model=model, api_config=api_config, max_requests_per_minute=100)
         return client.multi_call
     else:
         # TODO: Map models to their corresponding functions (MUST MODIFY IF NOT USING OPENAI_NEXT CLIENT)
@@ -105,19 +105,19 @@ def construct_messages(policy: PriorityControlPolicy, evaluation_data: List[Dict
         
     return messages
 
-def get_output_file(model: str, policy_name: str, data_path: Path, results_dir: Path, timestamp: str):
+def get_output_file(model: str, policy_name: str, data_path: Path, results_dir: Path, timestamp: str, temperature: float):
     experiment_dir = results_dir / timestamp
     experiment_dir.mkdir(exist_ok=True, parents=True)
     
     # Save detailed results
     dataset_name = data_path.stem
-    output_file = experiment_dir / f"{dataset_name}_{model}_{policy_name}_results.jsonl"
+    output_file = experiment_dir / f"{dataset_name}_{model}_{policy_name}_{str(temperature)}_results.jsonl"
     return output_file
 
 def save_responses(model: str, policy_name: str, data_path: Path, messages: List[List[Dict]], 
                 responses: List[str], 
                 # results: List[PolicyEvaluation], 
-                results_dir: Path, timestamp: str):
+                results_dir: Path, timestamp: str, temperature: float):
     """Save evaluation results and create experiment log."""
     # Check for empty responses
     empty_responses = sum(1 for r in responses if not r or r.strip() == '')
@@ -128,7 +128,7 @@ def save_responses(model: str, policy_name: str, data_path: Path, messages: List
                       f"too many empty responses ({empty_ratio:.2%})")
         return
         
-    output_file = get_output_file(model, policy_name, data_path, results_dir, timestamp)
+    output_file = get_output_file(model, policy_name, data_path, results_dir, timestamp, temperature)
     with open(output_file, 'w') as f:
         for message, response in zip(messages, responses):
             result_dict = {
@@ -175,6 +175,12 @@ def main():
     parser.add_argument('--timestamp', type=str,
                         default=datetime.now().strftime("%Y%m%d_%H%M%S"),
                         help='Timestamp for the experiment (format: YYYYMMDD_HHMMSS)')
+    parser.add_argument('--next-base-url', type=str,
+                        default="http://localhost:8000/v1",
+                        help='Base URL for the Next API (default: http://localhost:8000/v1)')
+    parser.add_argument('--temperature', type=float,
+                        default=0.6,
+                        help='Temperature for LLM sampling (default: 0.6)')
     args = parser.parse_args()
 
     results_dir = root_dir / 'results'
@@ -197,18 +203,18 @@ def main():
         # Evaluate each model
         for model in models:
             logger.info(f"Evaluating model: {model}")
-            llm_call_fn = get_llm_call_fn(model)
+            llm_call_fn = get_llm_call_fn(model, next_base_url=args.next_base_url)
             
             # Evaluate each policy
             for policy in tqdm(policies, desc=f"Processing policies for {model}"):
-                output_file = get_output_file(model, policy.name, data_path, results_dir, timestamp)
+                output_file = get_output_file(model, policy.name, data_path, results_dir, timestamp, args.temperature)
                 if os.path.exists(output_file):
                     logger.info(f"Skipping policy {output_file} as it already exists")
                     continue
                 
                 logger.info(f"Processing policy: {policy.name}")
                 messages = construct_messages(policy, evaluation_data)
-                responses = llm_call_fn(messages)
+                responses = llm_call_fn(messages, temperature=args.temperature)
                 if len(responses) != len(messages):
                     logger.error(f"Mismatch between messages ({len(messages)}) and responses ({len(responses)})")
                     raise ValueError("Number of responses does not match number of messages")
@@ -219,7 +225,7 @@ def main():
                 
                 # Save responses
                 save_responses(model, policy.name, data_path, messages, responses, 
-                            results_dir, timestamp)
+                            results_dir, timestamp, args.temperature)
 
             # leave the evaluation and analysis for later
 
