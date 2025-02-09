@@ -19,7 +19,6 @@ Policies:
 - marked_user_detailed
 
 Models:
-- claude-3-5-sonnet-20241022
 - deepseek-r1
 
 Input Data:

@@ -22,6 +22,7 @@ Models:
 - qwen2.5-7b-instruct
 - gpt-4o-mini-2024-07-18
 - gpt-4o-2024-11-20
+- claude-3-5-sonnet-20241022
 
 Input Data:
 - /scratch/yigeng/instruction_conflicts/data/conflicting_instructions.jsonl
