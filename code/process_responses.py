@@ -91,6 +91,15 @@ def process_responses(responses: list[str], llm_call_fn) -> list[str]:
                                             "processed_response": "[execution content]"
                                         }
 
+                                        Example input:
+                                        "I notice these instructions conflict since you've asked for both X and Y. How can I help you with your request?"
+
+                                        Example output:
+                                        {
+                                            "conflict_recognized": 1,
+                                            "processed_response": ""
+                                        }
+
 
                                         Original response to process:
                                         {response}

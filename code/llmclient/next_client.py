@@ -147,5 +147,6 @@ class Next_Client(OpenAI_Client):
         self.client = OpenAI(
             base_url=self.api_config["NEXT_BASE_URL"],
             api_key=self.api_config["NEXT_API_KEY"],
+            timeout=900 # extend timeout to 15 minutes, TODO: remove this
         )
         self.name_mapping = name_mapping
