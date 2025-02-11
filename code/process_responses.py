@@ -1,15 +1,22 @@
 from pathlib import Path
-from llmclient import Next_Client
+from llmclient import OpenAI_Client
 from api_keys import NEXT_BASE_URL, NEXT_API_KEY, OPENAI_API_KEY
 import json
 import logging
 import textwrap
 from tqdm import tqdm
 from datetime import datetime
-from evaluate import get_llm_call_fn
 import argparse
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
+
+def get_llm_call_fn(model: str, max_requests_per_minute: int = 20):
+    """Get appropriate LLM client based on configuration"""
+    api_config = {
+        "OPENAI_API_KEY": OPENAI_API_KEY,
+    }
+    client = OpenAI_Client(model=model, api_config=api_config, max_requests_per_minute=max_requests_per_minute)
+    return client.multi_call
 
 
 def process_responses(responses: list[str], llm_call_fn) -> list[str]:
@@ -133,7 +140,7 @@ def get_entries_to_reprocess(file_path: Path) -> tuple[list[dict], list[int]]:
             if line.strip():
                 entry = json.loads(line)
                 entries.append(entry)
-                if entry.get('processed_response', {}).get('processed_response', '') == '':
+                if entry['processed_response'] == "":
                     indices_to_reprocess.append(i)
                     
     return entries, indices_to_reprocess
