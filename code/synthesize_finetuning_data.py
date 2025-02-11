@@ -15,7 +15,7 @@ logging.basicConfig(level=logging.INFO)
 from conflicts_dict import INSTRUCTION_CONFLICTS_FOR_FINETUNING
 from synthesize_conflicting_data import generate_conflicting_data, save_conflicting_data
 from llm_api import get_completion_gpt4o_async
-from priority_control_policies import BaselineAllUserPolicy, BasicSeparationPolicy
+from priority_control_policies import *
 
 class RateLimiter:
     def __init__(self, max_requests_per_minute: int):
@@ -43,6 +43,24 @@ class RateLimiter:
 RATE_LIMITER = RateLimiter(max_requests_per_minute=20)
 MAX_CONCURRENT_REQUESTS = 20
 SEMAPHORE = asyncio.Semaphore(MAX_CONCURRENT_REQUESTS)
+
+# Initialize policies
+policies = [
+    ConstraintFollowingBaseline("constraint_following_baseline"),
+    BaselineAllUserPolicy("baseline_all_user"),
+    BasicSeparationPolicy("basic_separation"),
+    TaskSpecifiedSeparationPolicy("task_specified_separation"), 
+    EmphasizedSeparationPolicy("emphasized_separation"),
+    # UnmarkedSystemPolicyBasic("unmarked_system_basic"),
+    # MarkedSystemPolicyBasic("marked_system_basic"),
+    # UnmarkedUserPolicyBasic("unmarked_user_basic"),
+    # MarkedUserPolicyBasic("marked_user_basic"),
+    # UnmarkedSystemPolicyDetailed("unmarked_system_detailed"),
+    # MarkedSystemPolicyDetailed("marked_system_detailed"),
+    # UnmarkedUserPolicyDetailed("unmarked_user_detailed"),
+    # MarkedUserPolicyDetailed("marked_user_detailed"),
+]
+
 
 async def generate_ideal_output(data: Dict, is_reversed: bool = False) -> tuple[str, list[dict]]:
     """Generate ideal output and input message for a given instruction using GPT-4."""
@@ -99,12 +117,64 @@ async def process_data_batch(data_list: List[Dict], is_reversed: bool = False) -
         data["ideal_output"] = ideal_output
         data["input_message"] = input_message
 
+def load_responses(finetuning_data_without_ideal_output: List[Dict], output_file: Path) -> List[Dict]:
+    with open(output_file, 'r') as f:
+        data = [json.loads(line) for line in f]
+    if len(data) != len(finetuning_data_without_ideal_output):
+        raise ValueError(f"Length of data in {output_file} does not match length of finetuning_data_without_ideal_output")
+    for d1, d2 in zip(data, finetuning_data_without_ideal_output):
+        if d1["base_instruction"] != d2["base_instruction"]:
+            raise ValueError(f"Base instruction mismatch between {output_file} and finetuning_data_without_ideal_output")
+        d2["ideal_output"] = d1["ideal_output"]
+
+def augment_with_policies(finetuning_data_with_ideal_output: List[Dict]) -> List[Dict]:
+    finetuning_data_with_policies = []
+    for data in finetuning_data_with_ideal_output:
+        for policy in policies:
+            finetuning_datapoint = data.copy()
+            system_prompt, user_prompt = policy.get_prompts(
+                data["base_instruction"], 
+                data["constraint1"], 
+                data["constraint2"])
+
+            message = []
+            if system_prompt:
+                message.append({"role": "system", "content": system_prompt})
+            message.append({"role": "user", "content": user_prompt})
+            finetuning_datapoint["input_message"] = message
+            finetuning_data_with_policies.append(finetuning_datapoint)
+    return finetuning_data_with_policies
+
+async def process_dataset_with_policies(
+    data_list: List[Dict],
+    output_file: Path,
+    output_file_with_policies: Path,
+    is_reversed: bool,
+    dataset_name: str
+) -> None:
+    """Process a dataset and generate its policy-augmented version."""
+    if not output_file.exists():
+        logger.info(f"Generating ideal outputs for {dataset_name}...")
+        await process_data_batch(data_list, is_reversed=is_reversed)
+        save_conflicting_data(data_list, output_file)
+    else:
+        logger.info(f"Skipping {dataset_name} generation as file already exists: {output_file}")
+    
+    load_responses(data_list, output_file)
+    data_with_policies = augment_with_policies(data_list)
+    save_conflicting_data(data_with_policies, output_file_with_policies)
+
 async def main_async():
     base_instructions_file = root_dir / 'data' / 'base_instructions_picked.csv'
     output_file_training_normal = root_dir / 'data' / 'finetuning_data' / 'finetuning_data_training_normal.jsonl'
-    output_file_test_normal = root_dir / 'data' / 'finetuning_data' / 'finetuning_data_test_normal.jsonl'
     output_file_training_reversed = root_dir / 'data' / 'finetuning_data' / 'finetuning_data_training_reversed.jsonl'
+    output_file_test_normal = root_dir / 'data' / 'finetuning_data' / 'finetuning_data_test_normal.jsonl'
     output_file_test_reversed = root_dir / 'data' / 'finetuning_data' / 'finetuning_data_test_reversed.jsonl'
+    
+    output_file_training_normal_with_policies = root_dir / 'data' / 'finetuning_data' / 'finetuning_data_training_normal_with_policies.jsonl'
+    output_file_training_reversed_with_policies = root_dir / 'data' / 'finetuning_data' / 'finetuning_data_training_reversed_with_policies.jsonl'
+    output_file_test_normal_with_policies = root_dir / 'data' / 'finetuning_data' / 'finetuning_data_test_normal_with_policies.jsonl'
+    output_file_test_reversed_with_policies = root_dir / 'data' / 'finetuning_data' / 'finetuning_data_test_reversed_with_policies.jsonl'
     
     logger.info("Generating conflicting instructions...")
     if not base_instructions_file.exists():
@@ -121,11 +191,11 @@ async def main_async():
     # Split normal data into training and test
     finetuning_data_training_normal = [
         data for data in conflicting_data_normal 
-        # if data["conflict_name"] not in ["num_sentence_conflict: 12_7", "keyword_frequency_conflict: often_6_3"]
+        if data["conflict_name"] not in ["num_sentence_conflict: 12_7", "keyword_frequency_conflict: often_6_3"]
     ]
     finetuning_data_test_normal = [
         data for data in conflicting_data_normal 
-        # if data["conflict_name"] in ["num_sentence_conflict: 12_7", "keyword_frequency_conflict: often_6_3"]
+        if data["conflict_name"] in ["num_sentence_conflict: 12_7", "keyword_frequency_conflict: often_6_3"]
     ]
     
     conflicting_data_reversed = generate_conflicting_data(
@@ -149,23 +219,23 @@ async def main_async():
                 f"{len(finetuning_data_training_reversed)} reversed training, "
                 f"{len(finetuning_data_test_reversed)} reversed test data")
 
-    logger.info("Generating ideal outputs for normal test data...")
-    await process_data_batch(finetuning_data_test_normal, is_reversed=False)
-    save_conflicting_data(finetuning_data_test_normal, output_file_test_normal)
-    
-    logger.info("Generating ideal outputs for reversed test data...")
-    await process_data_batch(finetuning_data_test_reversed, is_reversed=True)
-    save_conflicting_data(finetuning_data_test_reversed, output_file_test_reversed)
+    # Process all datasets
+    datasets = [
+        (finetuning_data_test_normal, output_file_test_normal, output_file_test_normal_with_policies, False, "normal test data"),
+        (finetuning_data_test_reversed, output_file_test_reversed, output_file_test_reversed_with_policies, True, "reversed test data"),
+        (finetuning_data_training_normal, output_file_training_normal, output_file_training_normal_with_policies, False, "normal training data"),
+        (finetuning_data_training_reversed, output_file_training_reversed, output_file_training_reversed_with_policies, True, "reversed training data")
+    ]
 
-    # Generate ideal outputs for all datasets in parallel
-    logger.info("Generating ideal outputs for normal training data...")
-    await process_data_batch(finetuning_data_training_normal, is_reversed=False)
-    save_conflicting_data(finetuning_data_training_normal, output_file_training_normal)
-    
-    logger.info("Generating ideal outputs for reversed training data...")
-    await process_data_batch(finetuning_data_training_reversed, is_reversed=True)
-    save_conflicting_data(finetuning_data_training_reversed, output_file_training_reversed)
-    
+    for data_list, output_file, output_file_with_policies, is_reversed, dataset_name in datasets:
+        await process_dataset_with_policies(
+            data_list,
+            output_file,
+            output_file_with_policies,
+            is_reversed,
+            dataset_name
+        )
+
     logger.info(f"Final dataset sizes - \n"
                 f"Normal Training: {len(finetuning_data_training_normal)}, \n"
                 f"Normal Test: {len(finetuning_data_test_normal)}, \n"
