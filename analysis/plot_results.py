@@ -2,6 +2,27 @@ import pandas as pd
 import numpy as np
 
 
+conflict_name_mapping = {
+    'case_conflict': 'Case',
+    'keyword_forbidden_conflict: awesome_need': 'Keyword Usage',
+    'keyword_frequency_conflict: like_5_2': 'Keyword Frequency',
+    'language_conflict: en_fr': 'Language',
+    'num_sentence_conflict: 10_5': 'Sentence Count',
+    'word_length_conflict: 300_50': 'Word Length'
+}
+
+def csv_to_latex(df):
+    # Round numeric columns to 3 decimal places
+    numeric_columns = df.select_dtypes(include=['float64', 'int64']).columns
+    df[numeric_columns] = df[numeric_columns].round(3)
+    
+    # Convert to latex with specific float format
+    latex_text = df.to_latex(index=False, float_format=lambda x: '{:.3f}'.format(x))
+    return latex_text
+    
+    
+
+
 def generate_latex_table1(df):
     latex_str = []
     # Start table
@@ -140,6 +161,42 @@ def table1():
     # print(result_df.to_string())
 
 
+def metrics_computation(model, policy, conflict_name):
+    """Compute Priority Effectiveness Score (PES) and Instruction Neutrality Score (INS)"""
+    
+    def get_values(dataset):
+                base = df[(df['model'] == model) & 
+                         (df['policy'] == policy) & 
+                         (df['conflict_name'] == conflict_name) &
+                         (df['dataset'] == dataset)]
+                return (base['primary_constraint_met'].values[0],
+                       base['secondary_constraint_met'].values[0])
+
+    # Get values for each dataset
+    p_a_a, p_b_a = get_values('conflicting_instructions')
+    p_b_b, p_a_b = get_values('conflicting_instructions_reversed') 
+    p_a_a_rich, p_b_a_rich = get_values('conflicting_instructions_rich_context')
+    p_b_b_rich, p_a_b_rich = get_values('conflicting_instructions_rich_context_reversed')
+
+    # Calculate metrics
+    # PES = 0.25[P(A|A_p) + P(B|B_p)] - 0.25[P(B|A_p) + P(A|B_p)] + 0.5
+    simple_pes = 0.25 * (p_a_a + p_b_b) - 0.25 * (p_b_a + p_a_b) + 0.5
+    rich_pes = 0.25 * (p_a_a_rich + p_b_b_rich) - 0.25 * (p_b_a_rich + p_a_b_rich) + 0.5
+
+    # Calculate INS for simple context
+    # INS = 1 - 0.5 * |[P(A|A_p) + P(A|B_p)] - [P(B|A_p) + P(B|B_p)]|
+    simple_ins = 1 - 0.5 * abs((p_a_a + p_a_b) - (p_b_a + p_b_b))
+    rich_ins = 1 - 0.5 * abs((p_a_a_rich + p_a_b_rich) - (p_b_a_rich + p_b_b_rich))
+
+    return {
+        'PES simple': simple_pes,
+        'INS simple': simple_ins,
+        'PES rich': rich_pes,
+        'INS rich': rich_ins
+    }
+    
+
+
 def table2():
     """Generate Table 2 analyzing baseline_all_user performance by conflict type. (constraint preference)"""
 
@@ -155,59 +212,43 @@ def table2():
         conflict_names = df[df['model'] == model]['conflict_name'].unique()
         
         for conflict_name in conflict_names:
-            row = {'model': model, 'conflict_name': conflict_name}
+            row = {'model': model, 'Conflict Type': conflict_name_mapping[conflict_name]}
+
+            metrics = metrics_computation(model, policy, conflict_name)
             
-            # Simple context (normal and reversed)
-            normal_simple_A = df[(df['model'] == model) & 
-                             (df['policy'] == policy) & 
-                             (df['conflict_name'] == conflict_name) &
-                             (df['dataset'] == 'conflicting_instructions')]['primary_constraint_met'].values[0]
+            # def get_values(dataset):
+            #     base = df[(df['model'] == model) & 
+            #              (df['policy'] == policy) & 
+            #              (df['conflict_name'] == conflict_name) &
+            #              (df['dataset'] == dataset)]
+            #     return (base['primary_constraint_met'].values[0],
+            #            base['secondary_constraint_met'].values[0])
+
+            # # Get values for each dataset
+            # normal_simple = get_values('conflicting_instructions')
+            # reversed_simple = get_values('conflicting_instructions_reversed') 
+            # normal_rich = get_values('conflicting_instructions_rich_context')
+            # reversed_rich = get_values('conflicting_instructions_rich_context_reversed')
+
+            # # Calculate metrics
+            # simple_constraintA = (normal_simple[0] + reversed_simple[1])
+            # simple_constraintB = (normal_simple[1] + reversed_simple[0])
+            # rich_constraintA = (normal_rich[0] + reversed_rich[1])
+            # rich_constraintB = (normal_rich[1] + reversed_rich[0])
+
+            # simple_leading = (normal_simple[0] + reversed_simple[0])
+            # simple_trailing = (normal_simple[1] + reversed_simple[1])
+            # rich_leading = (normal_rich[0] + reversed_rich[0])
+            # rich_trailing = (normal_rich[1] + reversed_rich[1])
             
-            reversed_simple_A = df[(df['model'] == model) & 
-                               (df['policy'] == policy) & 
-                               (df['conflict_name'] == conflict_name) &
-                               (df['dataset'] == 'conflicting_instructions_reversed')]['secondary_constraint_met'].values[0]
-            
-            normal_simple_B = df[(df['model'] == model) & 
-                             (df['policy'] == policy) & 
-                             (df['conflict_name'] == conflict_name) &
-                             (df['dataset'] == 'conflicting_instructions')]['secondary_constraint_met'].values[0]
-            
-            reversed_simple_B = df[(df['model'] == model) & 
-                               (df['policy'] == policy) & 
-                               (df['conflict_name'] == conflict_name) &
-                               (df['dataset'] == 'conflicting_instructions_reversed')]['primary_constraint_met'].values[0]
-            
-            # Rich context (normal and reversed)
-            normal_rich_A = df[(df['model'] == model) & 
-                           (df['policy'] == policy) & 
-                           (df['conflict_name'] == conflict_name) &
-                           (df['dataset'] == 'conflicting_instructions_rich_context')]['primary_constraint_met'].values[0]
-            
-            reversed_rich_A = df[(df['model'] == model) & 
-                             (df['policy'] == policy) & 
-                             (df['conflict_name'] == conflict_name) &
-                             (df['dataset'] == 'conflicting_instructions_rich_context_reversed')]['secondary_constraint_met'].values[0]
-            
-            normal_rich_B = df[(df['model'] == model) & 
-                           (df['policy'] == policy) & 
-                           (df['conflict_name'] == conflict_name) &
-                           (df['dataset'] == 'conflicting_instructions_rich_context')]['secondary_constraint_met'].values[0]
-            
-            reversed_rich_B = df[(df['model'] == model) & 
-                             (df['policy'] == policy) & 
-                             (df['conflict_name'] == conflict_name) &
-                             (df['dataset'] == 'conflicting_instructions_rich_context_reversed')]['primary_constraint_met'].values[0]
-            
-            simple_constraintA = (normal_simple_A + reversed_simple_A) / 2
-            simple_constraintB = (normal_simple_B + reversed_simple_B) / 2
-            rich_constraintA = (normal_rich_A + reversed_rich_A) / 2
-            rich_constraintB = (normal_rich_B + reversed_rich_B) / 2
-            
-            row.update({
-                'simple_constraintA/B': f"{simple_constraintA:.3f} / {simple_constraintB:.3f}",
-                'rich_constraintA/B': f"{rich_constraintA:.3f} / {rich_constraintB:.3f}"
-            })
+            # row.update({
+            #     'Sim. Pos.': f"{(0.25*(simple_leading - simple_trailing)+0.5):.3f}",
+            #     'Rich Pos.': f"{(0.25*(rich_leading - rich_trailing)+0.5):.3f}",
+            #     'Sim. Sem.': f"{((simple_constraintA - simple_constraintB)/2):.3f}",
+            #     'Rich Sem.': f"{((rich_constraintA - rich_constraintB)/2):.3f}"
+            # })
+
+            row.update(metrics)
             
             results.append(row)
 
@@ -216,13 +257,17 @@ def table2():
 
     # Save the results
     result_df.to_csv(f'{output_dir}/table2.csv', index=False)
+    latex_table = csv_to_latex(result_df)
+    with open(f'{output_dir}/table2_latex', 'w') as f:
+        f.write(latex_table)
     # print(result_df.to_string())
 
 
-def table3():
-    """Generate Table 2 analyzing baseline_all_user performance by conflict type. (location preference)"""
 
-    policy = "baseline_all_user"
+def table3():
+    """Generate Table 3 analyzing separation performance by conflict type."""
+
+    policy = "basic_separation"
     
     # Create the result table
     results = []
@@ -233,60 +278,10 @@ def table3():
         conflict_names = df[df['model'] == model]['conflict_name'].unique()
         
         for conflict_name in conflict_names:
-            row = {'model': model, 'conflict_name': conflict_name}
-            
-            # Simple context (normal and reversed)
-            normal_simple_leading = df[(df['model'] == model) & 
-                             (df['policy'] == policy) & 
-                             (df['conflict_name'] == conflict_name) &
-                             (df['dataset'] == 'conflicting_instructions')]['primary_constraint_met'].values[0]
-            
-            reversed_simple_leading = df[(df['model'] == model) & 
-                               (df['policy'] == policy) & 
-                               (df['conflict_name'] == conflict_name) &
-                               (df['dataset'] == 'conflicting_instructions_reversed')]['primary_constraint_met'].values[0]
-            
-            normal_simple_trailing = df[(df['model'] == model) & 
-                             (df['policy'] == policy) & 
-                             (df['conflict_name'] == conflict_name) &
-                             (df['dataset'] == 'conflicting_instructions')]['secondary_constraint_met'].values[0]
-            
-            reversed_simple_trailing = df[(df['model'] == model) & 
-                               (df['policy'] == policy) & 
-                               (df['conflict_name'] == conflict_name) &
-                               (df['dataset'] == 'conflicting_instructions_reversed')]['secondary_constraint_met'].values[0]
-            
-            # Rich context (normal and reversed)
-            normal_rich_leading = df[(df['model'] == model) & 
-                           (df['policy'] == policy) & 
-                           (df['conflict_name'] == conflict_name) &
-                           (df['dataset'] == 'conflicting_instructions_rich_context')]['primary_constraint_met'].values[0]
-            
-            reversed_rich_leading = df[(df['model'] == model) & 
-                             (df['policy'] == policy) & 
-                             (df['conflict_name'] == conflict_name) &
-                             (df['dataset'] == 'conflicting_instructions_rich_context_reversed')]['primary_constraint_met'].values[0]
-            
-            normal_rich_trailing = df[(df['model'] == model) & 
-                           (df['policy'] == policy) & 
-                           (df['conflict_name'] == conflict_name) &
-                           (df['dataset'] == 'conflicting_instructions_rich_context')]['secondary_constraint_met'].values[0]
-            
-            reversed_rich_trailing = df[(df['model'] == model) & 
-                             (df['policy'] == policy) & 
-                             (df['conflict_name'] == conflict_name) &
-                             (df['dataset'] == 'conflicting_instructions_rich_context_reversed')]['secondary_constraint_met'].values[0]
-            
-            simple_leading = (normal_simple_leading + reversed_simple_leading) / 2
-            simple_trailing = (normal_simple_trailing + reversed_simple_trailing) / 2
-            rich_leading = (normal_rich_leading + reversed_rich_leading) / 2
-            rich_trailing = (normal_rich_trailing + reversed_rich_trailing) / 2
-            
-            row.update({
-                'simple_constraint_leading/trailing': f"{simple_leading:.3f} / {simple_trailing:.3f}",
-                'rich_constraint_leading_trailing': f"{rich_leading:.3f} / {rich_trailing:.3f}"
-            })
-            
+            row = {'model': model, 'Conflict Type': conflict_name_mapping[conflict_name]}
+
+            metrics = metrics_computation(model, policy, conflict_name)
+            row.update(metrics)
             results.append(row)
 
     # Convert to DataFrame
@@ -294,10 +289,42 @@ def table3():
 
     # Save the results
     result_df.to_csv(f'{output_dir}/table3.csv', index=False)
-    # print(result_df.to_string())
+    latex_table = csv_to_latex(result_df)
+    with open(f'{output_dir}/table3_latex', 'w') as f:
+        f.write(latex_table)
+
+
+
+def temp():
+
+    # check performance of qwen2.5-7b-instruct on all conflicts
+    conflict_names = df[df['model'] == 'qwen2.5-7b-instruct']['conflict_name'].unique()
+    model = 'qwen2.5-7b-instruct'
+    policy = 'basic_separation'
+    for conflict_name in conflict_names:
+        def get_values(dataset):
+                    base = df[(df['model'] == model) & 
+                            (df['policy'] == policy) & 
+                            (df['conflict_name'] == conflict_name) &
+                            (df['dataset'] == dataset)]
+                    return (base['primary_constraint_met'].values[0],
+                        base['secondary_constraint_met'].values[0])
+        
+        normal_simple = get_values('conflicting_instructions')
+        reversed_simple = get_values('conflicting_instructions_reversed') 
+        normal_rich = get_values('conflicting_instructions_rich_context')
+        reversed_rich = get_values('conflicting_instructions_rich_context_reversed')
+
+        print(f'conflict name: {conflict_name}')
+        print(f'normal: {normal_simple}')
+        print(f'reversed: {reversed_simple}')
+        
+        
+
 
 
 if __name__ == "__main__":
-    table1()
-    table2()
-    table3()
+    # table1()
+    # table2()
+    # table3()
+    temp()

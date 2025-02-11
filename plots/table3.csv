@@ -1,37 +1,37 @@
-model,conflict_name,simple_constraint_leading/trailing,rich_constraint_leading_trailing
-qwen2.5-7b-instruct,case_conflict,0.125 / 0.540,0.190 / 0.455
-qwen2.5-7b-instruct,keyword_forbidden_conflict: awesome_need,0.095 / 0.655,0.255 / 0.405
-qwen2.5-7b-instruct,keyword_frequency_conflict: like_5_2,0.455 / 0.225,0.555 / 0.265
-qwen2.5-7b-instruct,language_conflict: en_fr,0.120 / 0.870,0.425 / 0.545
-qwen2.5-7b-instruct,num_sentence_conflict: 10_5,0.090 / 0.145,0.215 / 0.310
-qwen2.5-7b-instruct,word_length_conflict: 300_50,0.095 / 0.460,0.040 / 0.085
-gpt-4o-mini-2024-07-18,case_conflict,0.465 / 0.425,0.770 / 0.060
-gpt-4o-mini-2024-07-18,keyword_forbidden_conflict: awesome_need,0.145 / 0.560,0.445 / 0.370
-gpt-4o-mini-2024-07-18,keyword_frequency_conflict: like_5_2,0.605 / 0.115,0.515 / 0.160
-gpt-4o-mini-2024-07-18,language_conflict: en_fr,1.000 / 0.000,1.000 / 0.000
-gpt-4o-mini-2024-07-18,num_sentence_conflict: 10_5,0.130 / 0.320,0.220 / 0.335
-gpt-4o-mini-2024-07-18,word_length_conflict: 300_50,0.055 / 0.425,0.250 / 0.440
-gpt-4o-2024-11-20,case_conflict,0.005 / 0.965,0.435 / 0.490
-gpt-4o-2024-11-20,keyword_forbidden_conflict: awesome_need,0.305 / 0.580,0.240 / 0.660
-gpt-4o-2024-11-20,keyword_frequency_conflict: like_5_2,0.230 / 0.525,0.120 / 0.590
-gpt-4o-2024-11-20,language_conflict: en_fr,0.255 / 0.730,0.700 / 0.300
-gpt-4o-2024-11-20,num_sentence_conflict: 10_5,0.070 / 0.495,0.175 / 0.515
-gpt-4o-2024-11-20,word_length_conflict: 300_50,0.060 / 0.460,0.130 / 0.485
-claude-3-5-sonnet-20241022,case_conflict,0.395 / 0.465,0.360 / 0.205
-claude-3-5-sonnet-20241022,keyword_forbidden_conflict: awesome_need,0.380 / 0.460,0.450 / 0.485
-claude-3-5-sonnet-20241022,keyword_frequency_conflict: like_5_2,0.535 / 0.185,0.340 / 0.220
-claude-3-5-sonnet-20241022,language_conflict: en_fr,0.845 / 0.140,0.845 / 0.150
-claude-3-5-sonnet-20241022,num_sentence_conflict: 10_5,0.245 / 0.285,0.275 / 0.280
-claude-3-5-sonnet-20241022,word_length_conflict: 300_50,0.065 / 0.515,0.175 / 0.375
-Llama-3.1-8B,case_conflict,0.180 / 0.395,0.195 / 0.280
-Llama-3.1-8B,keyword_forbidden_conflict: awesome_need,0.035 / 0.665,0.135 / 0.635
-Llama-3.1-8B,keyword_frequency_conflict: like_5_2,0.365 / 0.430,0.360 / 0.370
-Llama-3.1-8B,language_conflict: en_fr,0.450 / 0.420,0.320 / 0.355
-Llama-3.1-8B,num_sentence_conflict: 10_5,0.180 / 0.490,0.325 / 0.455
-Llama-3.1-8B,word_length_conflict: 300_50,0.085 / 0.405,0.415 / 0.490
-Llama-3.1-70B,case_conflict,0.250 / 0.470,0.320 / 0.340
-Llama-3.1-70B,keyword_forbidden_conflict: awesome_need,0.225 / 0.690,0.345 / 0.495
-Llama-3.1-70B,keyword_frequency_conflict: like_5_2,0.230 / 0.530,0.225 / 0.430
-Llama-3.1-70B,language_conflict: en_fr,0.330 / 0.450,0.875 / 0.080
-Llama-3.1-70B,num_sentence_conflict: 10_5,0.170 / 0.475,0.305 / 0.470
-Llama-3.1-70B,word_length_conflict: 300_50,0.065 / 0.515,0.415 / 0.515
+model,Conflict Type,PES simple,INS simple,PES rich,INS rich
+qwen2.5-7b-instruct,Case,0.185,0.85,0.157,0.765
+qwen2.5-7b-instruct,Keyword Usage,0.172,0.745,0.185,0.9
+qwen2.5-7b-instruct,Keyword Frequency,0.49,0.59,0.408,0.555
+qwen2.5-7b-instruct,Language,0.0,1.0,0.12,0.88
+qwen2.5-7b-instruct,Sentence Count,0.295,0.7,0.205,0.83
+qwen2.5-7b-instruct,Word Length,0.332,0.395,0.397,0.805
+gpt-4o-mini-2024-07-18,Case,0.668,0.415,0.83,0.83
+gpt-4o-mini-2024-07-18,Keyword Usage,0.53,0.13,0.502,0.105
+gpt-4o-mini-2024-07-18,Keyword Frequency,0.52,0.14,0.495,0.41
+gpt-4o-mini-2024-07-18,Language,0.995,0.99,0.922,0.855
+gpt-4o-mini-2024-07-18,Sentence Count,0.312,0.705,0.288,0.825
+gpt-4o-mini-2024-07-18,Word Length,0.16,0.97,0.228,0.855
+gpt-4o-2024-11-20,Case,0.992,0.995,0.962,0.965
+gpt-4o-2024-11-20,Keyword Usage,0.485,0.06,0.392,0.315
+gpt-4o-2024-11-20,Keyword Frequency,0.378,0.455,0.143,0.985
+gpt-4o-2024-11-20,Language,0.97,0.94,1.0,1.0
+gpt-4o-2024-11-20,Sentence Count,0.322,0.845,0.267,0.755
+gpt-4o-2024-11-20,Word Length,0.462,0.335,0.392,0.985
+claude-3-5-sonnet-20241022,Case,0.05,0.97,0.608,0.725
+claude-3-5-sonnet-20241022,Keyword Usage,0.382,0.355,0.498,0.105
+claude-3-5-sonnet-20241022,Keyword Frequency,0.49,0.38,0.425,0.48
+claude-3-5-sonnet-20241022,Language,0.395,0.92,0.938,0.895
+claude-3-5-sonnet-20241022,Sentence Count,0.288,0.745,0.422,0.975
+claude-3-5-sonnet-20241022,Word Length,0.12,0.96,0.305,0.97
+Llama-3.1-8B,Case,0.23,0.72,0.312,0.635
+Llama-3.1-8B,Keyword Usage,0.105,0.91,0.112,0.925
+Llama-3.1-8B,Keyword Frequency,0.202,0.825,0.215,0.84
+Llama-3.1-8B,Language,0.188,0.795,0.39,0.94
+Llama-3.1-8B,Sentence Count,0.175,0.97,0.178,0.685
+Llama-3.1-8B,Word Length,0.182,0.695,0.262,0.485
+Llama-3.1-70B,Case,0.29,0.47,0.232,0.605
+Llama-3.1-70B,Keyword Usage,0.27,0.48,0.195,0.67
+Llama-3.1-70B,Keyword Frequency,0.083,0.945,0.095,0.99
+Llama-3.1-70B,Language,0.452,0.875,0.635,0.83
+Llama-3.1-70B,Sentence Count,0.143,0.985,0.165,0.74
+Llama-3.1-70B,Word Length,0.12,0.87,0.188,0.625
