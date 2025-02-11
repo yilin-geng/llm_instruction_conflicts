@@ -214,41 +214,40 @@ def table2():
         for conflict_name in conflict_names:
             row = {'model': model, 'Conflict Type': conflict_name_mapping[conflict_name]}
 
-            metrics = metrics_computation(model, policy, conflict_name)
             
-            # def get_values(dataset):
-            #     base = df[(df['model'] == model) & 
-            #              (df['policy'] == policy) & 
-            #              (df['conflict_name'] == conflict_name) &
-            #              (df['dataset'] == dataset)]
-            #     return (base['primary_constraint_met'].values[0],
-            #            base['secondary_constraint_met'].values[0])
+            def get_values(dataset):
+                base = df[(df['model'] == model) & 
+                         (df['policy'] == policy) & 
+                         (df['conflict_name'] == conflict_name) &
+                         (df['dataset'] == dataset)]
+                return (base['primary_constraint_met'].values[0],
+                       base['secondary_constraint_met'].values[0])
 
-            # # Get values for each dataset
-            # normal_simple = get_values('conflicting_instructions')
-            # reversed_simple = get_values('conflicting_instructions_reversed') 
-            # normal_rich = get_values('conflicting_instructions_rich_context')
-            # reversed_rich = get_values('conflicting_instructions_rich_context_reversed')
+            # Get values for each dataset
+            normal_simple = get_values('conflicting_instructions')
+            reversed_simple = get_values('conflicting_instructions_reversed') 
+            normal_rich = get_values('conflicting_instructions_rich_context')
+            reversed_rich = get_values('conflicting_instructions_rich_context_reversed')
 
-            # # Calculate metrics
-            # simple_constraintA = (normal_simple[0] + reversed_simple[1])
-            # simple_constraintB = (normal_simple[1] + reversed_simple[0])
-            # rich_constraintA = (normal_rich[0] + reversed_rich[1])
-            # rich_constraintB = (normal_rich[1] + reversed_rich[0])
+            # Calculate metrics
+            simple_constraintA = (normal_simple[0] + reversed_simple[1])
+            simple_constraintB = (normal_simple[1] + reversed_simple[0])
+            rich_constraintA = (normal_rich[0] + reversed_rich[1])
+            rich_constraintB = (normal_rich[1] + reversed_rich[0])
 
-            # simple_leading = (normal_simple[0] + reversed_simple[0])
-            # simple_trailing = (normal_simple[1] + reversed_simple[1])
-            # rich_leading = (normal_rich[0] + reversed_rich[0])
-            # rich_trailing = (normal_rich[1] + reversed_rich[1])
+            simple_leading = (normal_simple[0] + reversed_simple[0])
+            simple_trailing = (normal_simple[1] + reversed_simple[1])
+            rich_leading = (normal_rich[0] + reversed_rich[0])
+            rich_trailing = (normal_rich[1] + reversed_rich[1])
             
-            # row.update({
-            #     'Sim. Pos.': f"{(0.25*(simple_leading - simple_trailing)+0.5):.3f}",
-            #     'Rich Pos.': f"{(0.25*(rich_leading - rich_trailing)+0.5):.3f}",
-            #     'Sim. Sem.': f"{((simple_constraintA - simple_constraintB)/2):.3f}",
-            #     'Rich Sem.': f"{((rich_constraintA - rich_constraintB)/2):.3f}"
-            # })
+            row.update({
+                'Sim. Pos.': f"{((simple_leading - simple_trailing)/2):.3f}",
+                'Sim. Sem.': f"{((simple_constraintA - simple_constraintB)/2):.3f}",
+                'Rich Pos.': f"{((rich_leading - rich_trailing)/2):.3f}",
+                'Rich Sem.': f"{((rich_constraintA - rich_constraintB)/2):.3f}"
+            })
 
-            row.update(metrics)
+
             
             results.append(row)
 
@@ -325,6 +324,6 @@ def temp():
 
 if __name__ == "__main__":
     # table1()
-    # table2()
+    table2()
     # table3()
-    temp()
+    # temp()

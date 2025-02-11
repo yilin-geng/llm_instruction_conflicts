@@ -1,42 +1,42 @@
-\begin{tabular}{llrrrr}
+\begin{tabular}{llllll}
 \toprule
-model & Conflict Type & PES simple & INS simple & PES rich & INS rich \\
+model & Conflict Type & Sim. Pos. & Sim. Sem. & Rich Pos. & Rich Sem. \\
 \midrule
-qwen2.5-7b-instruct & Case & 0.292 & 0.575 & 0.368 & 0.725 \\
-qwen2.5-7b-instruct & Keyword Usage & 0.220 & 0.890 & 0.425 & 0.870 \\
-qwen2.5-7b-instruct & Keyword Frequency & 0.615 & 0.860 & 0.645 & 0.470 \\
-qwen2.5-7b-instruct & Language & 0.125 & 0.750 & 0.440 & 0.900 \\
-qwen2.5-7b-instruct & Sentence Count & 0.473 & 0.945 & 0.452 & 0.565 \\
-qwen2.5-7b-instruct & Word Length & 0.318 & 0.445 & 0.478 & 0.995 \\
-gpt-4o-mini-2024-07-18 & Case & 0.520 & 0.150 & 0.855 & 0.960 \\
-gpt-4o-mini-2024-07-18 & Keyword Usage & 0.292 & 0.705 & 0.538 & 0.245 \\
-gpt-4o-mini-2024-07-18 & Keyword Frequency & 0.745 & 0.670 & 0.678 & 0.895 \\
-gpt-4o-mini-2024-07-18 & Language & 1.000 & 1.000 & 1.000 & 1.000 \\
-gpt-4o-mini-2024-07-18 & Sentence Count & 0.405 & 0.680 & 0.442 & 0.485 \\
-gpt-4o-mini-2024-07-18 & Word Length & 0.315 & 0.570 & 0.405 & 0.380 \\
-gpt-4o-2024-11-20 & Case & 0.020 & 0.990 & 0.473 & 0.625 \\
-gpt-4o-2024-11-20 & Keyword Usage & 0.363 & 0.355 & 0.290 & 0.550 \\
-gpt-4o-2024-11-20 & Keyword Frequency & 0.352 & 0.725 & 0.265 & 0.760 \\
-gpt-4o-2024-11-20 & Language & 0.262 & 0.535 & 0.700 & 0.440 \\
-gpt-4o-2024-11-20 & Sentence Count & 0.288 & 0.575 & 0.330 & 0.440 \\
-gpt-4o-2024-11-20 & Word Length & 0.300 & 0.760 & 0.322 & 0.545 \\
-claude-3-5-sonnet-20241022 & Case & 0.465 & 0.250 & 0.578 & 0.875 \\
-claude-3-5-sonnet-20241022 & Keyword Usage & 0.460 & 0.720 & 0.483 & 0.195 \\
-claude-3-5-sonnet-20241022 & Keyword Frequency & 0.675 & 0.560 & 0.560 & 0.910 \\
-claude-3-5-sonnet-20241022 & Language & 0.852 & 0.955 & 0.847 & 0.795 \\
-claude-3-5-sonnet-20241022 & Sentence Count & 0.480 & 0.930 & 0.498 & 0.725 \\
-claude-3-5-sonnet-20241022 & Word Length & 0.275 & 0.950 & 0.400 & 0.540 \\
-Llama-3.1-8B & Case & 0.392 & 0.445 & 0.457 & 0.605 \\
-Llama-3.1-8B & Keyword Usage & 0.185 & 0.940 & 0.250 & 0.990 \\
-Llama-3.1-8B & Keyword Frequency & 0.468 & 0.285 & 0.495 & 0.550 \\
-Llama-3.1-8B & Language & 0.515 & 0.620 & 0.483 & 0.715 \\
-Llama-3.1-8B & Sentence Count & 0.345 & 0.620 & 0.435 & 0.270 \\
-Llama-3.1-8B & Word Length & 0.340 & 0.530 & 0.462 & 0.095 \\
-Llama-3.1-70B & Case & 0.390 & 0.280 & 0.490 & 0.360 \\
-Llama-3.1-70B & Keyword Usage & 0.268 & 0.505 & 0.425 & 0.470 \\
-Llama-3.1-70B & Keyword Frequency & 0.350 & 0.470 & 0.398 & 0.675 \\
-Llama-3.1-70B & Language & 0.440 & 0.630 & 0.898 & 0.845 \\
-Llama-3.1-70B & Sentence Count & 0.348 & 0.685 & 0.418 & 0.375 \\
-Llama-3.1-70B & Word Length & 0.275 & 0.710 & 0.450 & 0.160 \\
+qwen2.5-7b-instruct & Case & -0.415 & -0.425 & -0.265 & -0.275 \\
+qwen2.5-7b-instruct & Keyword Usage & -0.560 & -0.110 & -0.150 & -0.130 \\
+qwen2.5-7b-instruct & Keyword Frequency & 0.230 & 0.140 & 0.290 & 0.530 \\
+qwen2.5-7b-instruct & Language & -0.750 & -0.250 & -0.120 & 0.100 \\
+qwen2.5-7b-instruct & Sentence Count & -0.055 & 0.055 & -0.095 & 0.435 \\
+qwen2.5-7b-instruct & Word Length & -0.365 & -0.555 & -0.045 & 0.005 \\
+gpt-4o-mini-2024-07-18 & Case & 0.040 & -0.850 & 0.710 & -0.040 \\
+gpt-4o-mini-2024-07-18 & Keyword Usage & -0.415 & -0.295 & 0.075 & -0.755 \\
+gpt-4o-mini-2024-07-18 & Keyword Frequency & 0.490 & -0.330 & 0.355 & -0.105 \\
+gpt-4o-mini-2024-07-18 & Language & 1.000 & 0.000 & 1.000 & 0.000 \\
+gpt-4o-mini-2024-07-18 & Sentence Count & -0.190 & 0.320 & -0.115 & 0.515 \\
+gpt-4o-mini-2024-07-18 & Word Length & -0.370 & 0.430 & -0.190 & 0.620 \\
+gpt-4o-2024-11-20 & Case & -0.960 & -0.010 & -0.055 & 0.375 \\
+gpt-4o-2024-11-20 & Keyword Usage & -0.275 & -0.645 & -0.420 & -0.450 \\
+gpt-4o-2024-11-20 & Keyword Frequency & -0.295 & -0.275 & -0.470 & 0.240 \\
+gpt-4o-2024-11-20 & Language & -0.475 & 0.465 & 0.400 & 0.560 \\
+gpt-4o-2024-11-20 & Sentence Count & -0.425 & 0.425 & -0.340 & 0.560 \\
+gpt-4o-2024-11-20 & Word Length & -0.400 & -0.240 & -0.355 & 0.455 \\
+claude-3-5-sonnet-20241022 & Case & -0.070 & -0.750 & 0.155 & 0.125 \\
+claude-3-5-sonnet-20241022 & Keyword Usage & -0.080 & -0.280 & -0.035 & -0.805 \\
+claude-3-5-sonnet-20241022 & Keyword Frequency & 0.350 & -0.440 & 0.120 & -0.090 \\
+claude-3-5-sonnet-20241022 & Language & 0.705 & 0.045 & 0.695 & 0.205 \\
+claude-3-5-sonnet-20241022 & Sentence Count & -0.040 & 0.070 & -0.005 & 0.275 \\
+claude-3-5-sonnet-20241022 & Word Length & -0.450 & 0.050 & -0.200 & 0.460 \\
+Llama-3.1-8B & Case & -0.215 & -0.555 & -0.085 & -0.395 \\
+Llama-3.1-8B & Keyword Usage & -0.630 & -0.060 & -0.500 & -0.010 \\
+Llama-3.1-8B & Keyword Frequency & -0.065 & 0.715 & -0.010 & 0.450 \\
+Llama-3.1-8B & Language & 0.030 & -0.380 & -0.035 & -0.285 \\
+Llama-3.1-8B & Sentence Count & -0.310 & 0.380 & -0.130 & 0.730 \\
+Llama-3.1-8B & Word Length & -0.320 & 0.470 & -0.075 & 0.905 \\
+Llama-3.1-70B & Case & -0.220 & -0.720 & -0.020 & -0.640 \\
+Llama-3.1-70B & Keyword Usage & -0.465 & -0.495 & -0.150 & -0.530 \\
+Llama-3.1-70B & Keyword Frequency & -0.300 & 0.530 & -0.205 & 0.325 \\
+Llama-3.1-70B & Language & -0.120 & 0.370 & 0.795 & 0.155 \\
+Llama-3.1-70B & Sentence Count & -0.305 & 0.315 & -0.165 & 0.625 \\
+Llama-3.1-70B & Word Length & -0.450 & 0.290 & -0.100 & 0.840 \\
 \bottomrule
 \end{tabular}
