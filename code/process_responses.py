@@ -36,8 +36,8 @@ def process_responses(responses: list[str], llm_call_fn) -> list[str]:
 
                                     Output format:
                                     You must always output valid JSON with exactly two fields:
-                                    - "conflict_recognized": boolean
-                                    - "processed_response": string
+                                    - "conflict_recognized": 1 for yes and 0 for no
+                                    - "processed_response": a string that is the execution part of the response without any modifications
 
                                     Your responses should be pure JSON without any additional text, commentary, or markdown formatting.
 
@@ -45,7 +45,7 @@ def process_responses(responses: list[str], llm_call_fn) -> list[str]:
     
     messages = []
     for response in responses:
-        user_prompt = textwrap.dedent(f"""
+        user_prompt_template = textwrap.dedent("""
                                       You are tasked with analyzing responses from LLM-a that were generated from conflicting instructions. Your role is to:
                                         1. Identify if there is any explicit recognition of instruction conflicts in the response
                                         2. Extract the execution part of the response while preserving it exactly as is
@@ -68,52 +68,68 @@ def process_responses(responses: list[str], llm_call_fn) -> list[str]:
                                         "I notice these instructions conflict since you've asked for both X and Y. Here's how I'll proceed: [execution content]"
 
                                         Example output:
-                                        {
-                                            "conflict_recognized": 1,
-                                            "processed_response": "[execution content]"
-                                        }
+                                        {"conflict_recognized": 1, "processed_response": "[execution content]"}
 
                                         Example input:
                                         "Sorry, I can't do that. But here's how I'll proceed: [execution content]"
 
                                         Example output:
-                                        {
-                                            "conflict_recognized": 1,
-                                            "processed_response": "[execution content]"
-                                        }
+                                        {"conflict_recognized": 1, "processed_response": "[execution content]"}
+                                               
+                                        Example input:
+                                        "Sorry, I can't do that based on your constraints."
+
+                                        Example output:
+                                        {"conflict_recognized": 1, "processed_response": ""}
 
                                         Example input:
                                         "[execution content]"
 
                                         Example output:
-                                        {
-                                            "conflict_recognized": 0,
-                                            "processed_response": "[execution content]"
-                                        }
+                                        {"conflict_recognized": 0, "processed_response": "[execution content]"}
 
                                         Example input:
                                         "I notice these instructions conflict since you've asked for both X and Y. How can I help you with your request?"
 
                                         Example output:
-                                        {
-                                            "conflict_recognized": 1,
-                                            "processed_response": ""
-                                        }
+                                        {"conflict_recognized": 1, "processed_response": ""}
+                                               
+                                        Example input:
+                                        ""
 
+                                        Example output:
+                                        {"conflict_recognized": 0, "processed_response": ""}
 
+                                        """)
+        
+        user_prompt_task = textwrap.dedent(f"""
                                         Original response to process:
                                         {response}
 
                                         Output only the JSON, nothing else.
-
                                         """)
+        
+        user_prompt = user_prompt_template + user_prompt_task
         
         messages.append([
             {"role": "system", "content": system_prompt},
-            {"role": "user", "content": user_prompt}
+            {"role": "user", "content": user_prompt},
+            {"role": "user", "content": user_prompt_task}
         ])
     
     return llm_call_fn(messages, response_format={"type": "json_object"})
+
+# def test():
+#     llm_call_fn = get_llm_call_fn(model="gpt-4o-mini-2024-07-18")
+#     responses = [
+#         "I notice these instructions conflict since you've asked for both X and Y. Here's how I'll proceed: This is an email for my boss.",
+#         "",
+#         "I love the movie The Matrix. It's a great movie.",
+#         "Sorry, I can't do that based on your constraints."
+#     ]
+#     processed_responses = process_responses(responses, llm_call_fn)
+#     print(processed_responses)
+
 
 def main():
     results_dir = Path(__file__).parent.parent / 'results'
