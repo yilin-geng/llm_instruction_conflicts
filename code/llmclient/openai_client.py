@@ -39,7 +39,7 @@ class OpenAI_Client(BaseClient):
         chat_params = {
             "response_format": response_format,
             "seed": seed,
-            "model": self.name_mapping[self.model],
+            "model": self.model,
             "messages": messages,
         }
         if "temperature" in kwargs:

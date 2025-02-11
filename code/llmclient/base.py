@@ -151,6 +151,7 @@ MODEL_LIST = [
     "THUDM/chatglm3-6b",
     # Baichuan
     "baichuan-inc/Baichuan2-13B-Chat",
+    "Llama-3.1-8B-Instruct-conflict",
 ]
 
 @dataclass

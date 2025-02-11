@@ -34,13 +34,14 @@ models = [
 model_name_mapping = {
     "Llama-3.1-8B": "meta-llama/Llama-3.1-8B-Instruct",
     "Llama-3.1-70B": "meta-llama/Llama-3.1-70B-Instruct",
+    "Llama-3.1-8B-conflict": "Llama-3.1-8B-Instruct-conflict",
 }
 
 # Data paths to evaluate
 data_paths = [
-    # root_dir / 'data' / 'conflicting_instructions.jsonl',
-    # root_dir / 'data' / 'conflicting_instructions_reversed.jsonl',
-    # root_dir / 'data' / 'conflicting_instructions_rich_context.jsonl',
+    root_dir / 'data' / 'conflicting_instructions.jsonl',
+    root_dir / 'data' / 'conflicting_instructions_reversed.jsonl',
+    root_dir / 'data' / 'conflicting_instructions_rich_context.jsonl',
     root_dir / 'data' / 'conflicting_instructions_rich_context_reversed.jsonl',
 ]
 
