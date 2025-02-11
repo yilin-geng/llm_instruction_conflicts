@@ -29,6 +29,43 @@ def validate_responses(responses: list[str]):
     
     return empty_count, total_count, empty_indices
 
+def validate_processed_responses(data: list[dict]):
+    empty_count = 0
+    invalid_json_count = 0
+    total_count = len(data)
+    problem_indices = []
+    
+    for i, entry in enumerate(data):
+        # print("wowowow0")
+        if entry['response'] == '' and 'processed_response' not in entry:
+            empty_count += 1
+            problem_indices.append((i, 'missing'))
+            continue
+        # print("wowowow1")
+        if 'processed_response' not in entry:
+            continue
+            
+        # print("wowowow1")
+        processed_response = entry['processed_response']
+        if not processed_response or processed_response.strip() == '':
+            empty_count += 1
+            problem_indices.append((i, 'empty'))
+            continue
+            
+        try:
+            # Try to parse the processed_response as JSON
+            json.loads(processed_response)
+        except json.JSONDecodeError:
+            invalid_json_count += 1
+            problem_indices.append((i, 'invalid_json'))
+            
+    if total_count > 0:
+        problem_ratio = (empty_count + invalid_json_count) / total_count
+        if problem_ratio > 0:
+            logger.warning(f"Found {empty_count} empty and {invalid_json_count} invalid JSON in processed_responses out of {total_count} ({problem_ratio:.2%})")
+    
+    return empty_count, invalid_json_count, total_count, problem_indices
+
 def get_expected_files_mapping():
     """Generate mapping of all expected response files based on models, datasets, and policies."""
     # Extract from evaluate.py configurations
@@ -121,7 +158,7 @@ def main():
 
     logger.info(f"Processing directory: {target_dir}")
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    log_file = target_dir / f"empty_responses_summary_{timestamp}.log"
+    log_file = target_dir / f"validation_summary_{timestamp}.log"
     
     # Get mapping of all expected files
     expected_files = get_expected_files_mapping()
@@ -149,22 +186,31 @@ def main():
         if not data:
             continue
             
-        # Extract responses
+        # Extract and validate responses
         responses = [entry['response'] for entry in data]
-        
-        # Count empty responses
         empty_count, total_count, empty_indices = validate_responses(responses)
         
-        if empty_indices:
+        # Validate processed responses
+        proc_empty_count, proc_invalid_count, proc_total_count, proc_problem_indices = validate_processed_responses(data)
+        
+        if empty_indices or proc_problem_indices:
             summary_entry = {
                 'file': filename,
-                'empty_count': empty_count,
-                'total_count': total_count,
-                'empty_indices': empty_indices
+                'response_stats': {
+                    'empty_count': empty_count,
+                    'total_count': total_count,
+                    'empty_indices': empty_indices
+                },
+                'processed_response_stats': {
+                    'empty_count': proc_empty_count,
+                    'invalid_json_count': proc_invalid_count,
+                    'total_count': proc_total_count,
+                    'problem_indices': proc_problem_indices
+                }
             }
             summary.append(summary_entry)
             
-            if args.tofill:
+            if args.tofill and empty_indices:
                 # Get model name from filename
                 model = expected_files[filename]['model']
                 
@@ -180,7 +226,7 @@ def main():
     
     # Write summary to log file
     with open(log_file, 'w') as f:
-        f.write(f"Empty Response Summary - {timestamp}\n")
+        f.write(f"Validation Summary - {timestamp}\n")
         f.write(f"Fill mode: {'enabled' if args.tofill else 'disabled'}\n")
         f.write("-" * 50 + "\n\n")
         
@@ -193,13 +239,29 @@ def main():
         
         f.write("\n" + "-" * 50 + "\n\n")
         
-        # Files with empty responses
-        f.write(f"Files with empty responses ({len(summary)}):\n")
-        for entry in sorted(summary, key=lambda x: x['empty_count'], reverse=True):
+        # Files with problems
+        f.write(f"Files with problems ({len(summary)}):\n")
+        for entry in sorted(summary, key=lambda x: (
+            x['response_stats']['empty_count'] + 
+            x['processed_response_stats']['empty_count'] + 
+            x['processed_response_stats']['invalid_json_count']
+        ), reverse=True):
             f.write(f"\nFile: {entry['file']}\n")
-            f.write(f"Empty responses: {entry['empty_count']}/{entry['total_count']} ")
-            f.write(f"({entry['empty_count']/entry['total_count']:.2%})\n")
-            f.write(f"Empty indices: {entry['empty_indices']}\n")
+            
+            # Response stats
+            resp_stats = entry['response_stats']
+            f.write(f"Empty responses: {resp_stats['empty_count']}/{resp_stats['total_count']} ")
+            f.write(f"({resp_stats['empty_count']/resp_stats['total_count']:.2%})\n")
+            f.write(f"Empty response indices: {resp_stats['empty_indices']}\n")
+            
+            # Processed response stats
+            proc_stats = entry['processed_response_stats']
+            f.write(f"Processed response problems: {proc_stats['empty_count']} empty, {proc_stats['invalid_json_count']} invalid JSON ")
+            f.write(f"out of {proc_stats['total_count']} ")
+            problem_ratio = (proc_stats['empty_count'] + proc_stats['invalid_json_count']) / proc_stats['total_count']
+            f.write(f"({problem_ratio:.2%})\n")
+            f.write(f"Problem indices and types: {proc_stats['problem_indices']}\n")
+            
             if args.tofill:
                 f.write(f"Status: {'Filled' if entry.get('filled') else 'Failed to fill'}\n")
     
