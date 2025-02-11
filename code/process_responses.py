@@ -45,7 +45,7 @@ def process_responses(responses: list[str], llm_call_fn) -> list[str]:
     
     messages = []
     for response in responses:
-        user_prompt_template = textwrap.dedent("""
+        user_prompt_requirement = textwrap.dedent("""
                                       You are tasked with analyzing responses from LLM-a that were generated from conflicting instructions. Your role is to:
                                         1. Identify if there is any explicit recognition of instruction conflicts in the response
                                         2. Extract the execution part of the response while preserving it exactly as is
@@ -109,26 +109,34 @@ def process_responses(responses: list[str], llm_call_fn) -> list[str]:
                                         Output only the JSON, nothing else.
                                         """)
         
-        user_prompt = user_prompt_template + user_prompt_task
-        
+        user_prompt = user_prompt_requirement + user_prompt_task
+
+
         messages.append([
             {"role": "system", "content": system_prompt},
-            {"role": "user", "content": user_prompt},
-            {"role": "user", "content": user_prompt_task}
+            {"role": "user", "content": user_prompt}
         ])
     
     return llm_call_fn(messages, response_format={"type": "json_object"})
 
-# def test():
-#     llm_call_fn = get_llm_call_fn(model="gpt-4o-mini-2024-07-18")
-#     responses = [
-#         "I notice these instructions conflict since you've asked for both X and Y. Here's how I'll proceed: This is an email for my boss.",
-#         "",
-#         "I love the movie The Matrix. It's a great movie.",
-#         "Sorry, I can't do that based on your constraints."
-#     ]
-#     processed_responses = process_responses(responses, llm_call_fn)
-#     print(processed_responses)
+
+def get_entries_to_reprocess(file_path: Path) -> tuple[list[dict], list[int]]:
+    """
+    Read existing file and identify entries that need reprocessing.
+    Returns tuple of (all_entries, indices_to_reprocess)
+    """
+    entries = []
+    indices_to_reprocess = []
+    
+    with open(file_path, 'r') as f:
+        for i, line in enumerate(f):
+            if line.strip():
+                entry = json.loads(line)
+                entries.append(entry)
+                if entry.get('processed_response', {}).get('processed_response', '') == '':
+                    indices_to_reprocess.append(i)
+                    
+    return entries, indices_to_reprocess
 
 
 def main():
@@ -136,8 +144,6 @@ def main():
     output_dir = results_dir / f'processed_responses'
     output_dir.mkdir(exist_ok=True, parents=True)
 
-
-    # take target_dir as argument when calling the script with --target_dir
     parser = argparse.ArgumentParser()
     parser.add_argument("--target_dir", type=str, required=True)
     args = parser.parse_args()
@@ -147,33 +153,56 @@ def main():
     
     llm_call_fn = get_llm_call_fn(model="gpt-4o-mini-2024-07-18")
     
-
     logger.info(f"Processing directory: {target_dir}")
     
     for file_path in tqdm(list(target_dir.glob('*.jsonl'))):
-        responses = []
-        data = []
-        
-        # Read responses from file
-        with open(file_path, 'r') as f:
-            for line in f:
-                if line.strip():
-                    entry = json.loads(line)
-                    responses.append(entry['response'])
-                    data.append(entry)
-        
-        if not responses:
-            continue
-            
-        # Process responses in batch
-        processed_responses = process_responses(responses, llm_call_fn)
-        
-        # Save processed responses
         output_file = output_dir / file_path.name
-        with open(output_file, 'w') as f:
-            for entry, processed_response in zip(data, processed_responses):
-                entry['processed_response'] = processed_response
-                f.write(json.dumps(entry) + '\n')
+        
+        if output_file.exists():
+            # Handle existing file
+            entries, indices_to_reprocess = get_entries_to_reprocess(output_file)
+            if not indices_to_reprocess:
+                continue
+                
+            logger.info(f"Found {len(indices_to_reprocess)} entries to reprocess in {output_file}")
+            responses_to_process = [entries[i]['response'] for i in indices_to_reprocess]
+            
+            # Process only the empty responses
+            processed_responses = process_responses(responses_to_process, llm_call_fn)
+            
+            # Update the entries with new processed responses
+            for idx, processed_response in zip(indices_to_reprocess, processed_responses):
+                entries[idx]['processed_response'] = processed_response
+                
+            # Save updated entries
+            with open(output_file, 'w') as f:
+                for entry in entries:
+                    f.write(json.dumps(entry) + '\n')
+                    
+        else:
+            # Handle new file
+            responses = []
+            data = []
+            
+            # Read responses from file
+            with open(file_path, 'r') as f:
+                for line in f:
+                    if line.strip():
+                        entry = json.loads(line)
+                        responses.append(entry['response'])
+                        data.append(entry)
+            
+            if not responses:
+                continue
+                
+            # Process responses in batch
+            processed_responses = process_responses(responses, llm_call_fn)
+            
+            # Save processed responses
+            with open(output_file, 'w') as f:
+                for entry, processed_response in zip(data, processed_responses):
+                    entry['processed_response'] = processed_response
+                    f.write(json.dumps(entry) + '\n')
 
 if __name__ == "__main__":
     main()
