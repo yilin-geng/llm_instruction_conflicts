@@ -37,6 +37,10 @@ class ConflictingInstructionPair:
        return constraint1, constraint2
 
    def evaluate_response(self, response: str) -> ConflictEvaluation:
+       
+       if response == "":
+           return ConflictEvaluation(0.0, 0.0)
+       
        # First build the descriptions with the kwargs
        constraint1 = self.constraint1.build_description(**self.kwargs[0])
        constraint2 = self.constraint2.build_description(**self.kwargs[1])

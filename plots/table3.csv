@@ -1,0 +1,37 @@
+model,conflict_name,simple_constraint_leading/trailing,rich_constraint_leading_trailing
+qwen2.5-7b-instruct,case_conflict,0.125 / 0.540,0.190 / 0.455
+qwen2.5-7b-instruct,keyword_forbidden_conflict: awesome_need,0.095 / 0.655,0.255 / 0.405
+qwen2.5-7b-instruct,keyword_frequency_conflict: like_5_2,0.455 / 0.225,0.555 / 0.265
+qwen2.5-7b-instruct,language_conflict: en_fr,0.120 / 0.870,0.425 / 0.545
+qwen2.5-7b-instruct,num_sentence_conflict: 10_5,0.090 / 0.145,0.215 / 0.310
+qwen2.5-7b-instruct,word_length_conflict: 300_50,0.095 / 0.460,0.040 / 0.085
+gpt-4o-mini-2024-07-18,case_conflict,0.465 / 0.425,0.770 / 0.060
+gpt-4o-mini-2024-07-18,keyword_forbidden_conflict: awesome_need,0.145 / 0.560,0.445 / 0.370
+gpt-4o-mini-2024-07-18,keyword_frequency_conflict: like_5_2,0.605 / 0.115,0.515 / 0.160
+gpt-4o-mini-2024-07-18,language_conflict: en_fr,1.000 / 0.000,1.000 / 0.000
+gpt-4o-mini-2024-07-18,num_sentence_conflict: 10_5,0.130 / 0.320,0.220 / 0.335
+gpt-4o-mini-2024-07-18,word_length_conflict: 300_50,0.055 / 0.425,0.250 / 0.440
+gpt-4o-2024-11-20,case_conflict,0.005 / 0.965,0.435 / 0.490
+gpt-4o-2024-11-20,keyword_forbidden_conflict: awesome_need,0.305 / 0.580,0.240 / 0.660
+gpt-4o-2024-11-20,keyword_frequency_conflict: like_5_2,0.230 / 0.525,0.120 / 0.590
+gpt-4o-2024-11-20,language_conflict: en_fr,0.255 / 0.730,0.700 / 0.300
+gpt-4o-2024-11-20,num_sentence_conflict: 10_5,0.070 / 0.495,0.175 / 0.515
+gpt-4o-2024-11-20,word_length_conflict: 300_50,0.060 / 0.460,0.130 / 0.485
+claude-3-5-sonnet-20241022,case_conflict,0.395 / 0.465,0.360 / 0.205
+claude-3-5-sonnet-20241022,keyword_forbidden_conflict: awesome_need,0.380 / 0.460,0.450 / 0.485
+claude-3-5-sonnet-20241022,keyword_frequency_conflict: like_5_2,0.535 / 0.185,0.340 / 0.220
+claude-3-5-sonnet-20241022,language_conflict: en_fr,0.845 / 0.140,0.845 / 0.150
+claude-3-5-sonnet-20241022,num_sentence_conflict: 10_5,0.245 / 0.285,0.275 / 0.280
+claude-3-5-sonnet-20241022,word_length_conflict: 300_50,0.065 / 0.515,0.175 / 0.375
+Llama-3.1-8B,case_conflict,0.180 / 0.395,0.195 / 0.280
+Llama-3.1-8B,keyword_forbidden_conflict: awesome_need,0.035 / 0.665,0.135 / 0.635
+Llama-3.1-8B,keyword_frequency_conflict: like_5_2,0.365 / 0.430,0.360 / 0.370
+Llama-3.1-8B,language_conflict: en_fr,0.450 / 0.420,0.320 / 0.355
+Llama-3.1-8B,num_sentence_conflict: 10_5,0.180 / 0.490,0.325 / 0.455
+Llama-3.1-8B,word_length_conflict: 300_50,0.085 / 0.405,0.415 / 0.490
+Llama-3.1-70B,case_conflict,0.250 / 0.470,0.320 / 0.340
+Llama-3.1-70B,keyword_forbidden_conflict: awesome_need,0.225 / 0.690,0.345 / 0.495
+Llama-3.1-70B,keyword_frequency_conflict: like_5_2,0.230 / 0.530,0.225 / 0.430
+Llama-3.1-70B,language_conflict: en_fr,0.330 / 0.450,0.875 / 0.080
+Llama-3.1-70B,num_sentence_conflict: 10_5,0.170 / 0.475,0.305 / 0.470
+Llama-3.1-70B,word_length_conflict: 300_50,0.065 / 0.515,0.415 / 0.515

@@ -12,10 +12,8 @@ logger = logging.getLogger(__name__)
 class PolicyEvaluation:
     conflict_name: str
     policy_name: str
-    # conflict_recognized: float
     primary_constraint_met: float
     secondary_constraint_met: float
-    # joint_satisfaction: float
     response: str
     system_prompt: str
     user_prompt: str
@@ -83,10 +81,8 @@ class PriorityControlPolicy(ABC):
             results.append(PolicyEvaluation(
                 policy_name=self.name,
                 conflict_name=conflict['conflict_name'],
-                # conflict_recognized=eval_result.conflict_recognized,
                 primary_constraint_met=primary_met,
                 secondary_constraint_met=secondary_met,
-                # joint_satisfaction=eval_result.joint_satisfaction,
                 response=response,
                 system_prompt=system_prompt,
                 user_prompt=user_prompt,
