@@ -1,0 +1,23 @@
+\begin{table*}[t]
+\centering
+\small
+\begin{tabular}{l|cccc|cccc|c}
+\toprule
+& \multicolumn{4}{c|}{\textbf{Simple Instructions}} & \multicolumn{4}{c|}{\textbf{Rich Instructions}} & 
+\multicolumn{1}{c}{\textbf{Model}}
+\\
+\cmidrule(lr){2-5} \cmidrule(lr){6-9}
+\textbf{Model} & IF. & Basic & Task & Emph. & IF. & Basic & Task & Emph. & \textbf{Average} \\
+& Baseline& Sep. & Sep. & Sep. & Baseline & Sep. & Sep. & Sep. & \textbf{Sep.} \\
+\midrule
+qwen2.5-7b-instruct & 0.86 & 0.10 & 0.09 & 0.12 & 0.82 & 0.09 & 0.09 & 0.09 & 0.10 \\
+gpt-4o-mini-2024-07-18 & 0.86 & 0.44 & 0.54 & 0.49 & 0.85 & 0.43 & 0.43 & 0.47 & 0.47 \\
+gpt-4o-2024-11-20 & 0.91 & 0.51 & 0.33 & 0.67 & 0.86 & 0.41 & 0.30 & 0.46 & 0.45 \\
+claude-3-5-sonnet-20241022 & 0.84 & 0.20 & 0.15 & 0.34 & 0.78 & 0.41 & 0.24 & 0.48 & 0.30 \\
+Llama-3.1-8B & 0.79 & 0.05 & 0.06 & 0.06 & 0.72 & 0.08 & 0.06 & 0.13 & 0.07 \\
+Llama-3.1-70B & 0.90 & 0.15 & 0.05 & 0.34 & 0.84 & 0.15 & 0.04 & 0.26 & 0.17 \\
+\bottomrule
+\end{tabular}
+\caption{IF. Baseline stands for the Instruction Following Baseline, where only a single constraint is present, and averaged over the conflicting pair. 'Sep.' stands for Separation. Sep. values show the percentage of responses where the primary constraint was followed. Model Average shows the overall prioritization performance of the model with different separation templates and on different data.}
+\label{tab:model_performance}
+\end{table*}

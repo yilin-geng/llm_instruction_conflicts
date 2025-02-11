@@ -174,10 +174,10 @@ class ResponseLanguageChecker(Instruction):
         
     except langdetect.LangDetectException as e:
         # Count as instruction is followed
-        logging.error(
-            "Unable to detect language for text %s due to %s", value, e
-        )  # refex: disable=pytotw.037
-        return True
+        # logging.error(
+        #     "Unable to detect language for text %s due to %s", value, e
+        # )  # refex: disable=pytotw.037
+        return False
 
 
 class NumberOfSentences(Instruction):
