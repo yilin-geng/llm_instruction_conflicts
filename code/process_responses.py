@@ -153,13 +153,15 @@ def get_entries_to_reprocess(file_path: Path) -> tuple[list[dict], list[int]]:
 
 def main():
     results_dir = Path(__file__).parent.parent / 'results'
-    output_dir = results_dir / f'processed_responses'
-    output_dir.mkdir(exist_ok=True, parents=True)
+    # output_dir = results_dir / f'processed_responses'
+    # output_dir.mkdir(exist_ok=True, parents=True)
 
     parser = argparse.ArgumentParser()
     parser.add_argument("--target_dir", type=str, required=True)
+    parser.add_argument("--output_dir", type=str, required=True)
     args = parser.parse_args()
     target_dir = Path(args.target_dir)
+    output_dir = Path(args.output_dir)
     if not target_dir.exists():
         raise ValueError(f"Target directory does not exist: {target_dir}")
     
