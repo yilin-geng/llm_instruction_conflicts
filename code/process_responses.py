@@ -142,6 +142,11 @@ def get_entries_to_reprocess(file_path: Path) -> tuple[list[dict], list[int]]:
                 entries.append(entry)
                 if entry['processed_response'] == "":
                     indices_to_reprocess.append(i)
+                else:
+                    try:
+                        json.loads(entry['processed_response'])
+                    except:
+                        indices_to_reprocess.append(i)
                     
     return entries, indices_to_reprocess
 
