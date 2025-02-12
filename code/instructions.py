@@ -1444,8 +1444,7 @@ class LowercaseLettersEnglishChecker(Instruction):
   def build_description(self):
     """Build the instruction description."""
     self._description_pattern = (
-        "Your entire response should be in English, and in all lowercase"
-        " letters. No capital letters are allowed."
+        "Your entire response should be in English, and in all lowercase letters."
     )
     return self._description_pattern
 
