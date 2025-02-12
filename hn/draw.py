@@ -57,7 +57,9 @@ def create_plot(df, n=None):
         bar_widths = np.clip(bar_widths, 0, max_bar_width)
 
         for j, (angle, length, width) in enumerate(zip(angles, bar_lengths, bar_widths)):
-            ax.bar(angle, length, width=width, alpha=0.6, color=bar_color, edgecolor='black', linewidth=2)
+            # Always draw the bar, even if length is 0
+            ax.bar(angle, length, width=width, alpha=0.6, color=bar_color, 
+                  edgecolor='black', linewidth=2, bottom=0)  # Added bottom=0
 
         # Add circle at r=1 with very subtle, light gray line
         ax.plot(np.linspace(0, 2*np.pi, 100), np.ones(100), color='lightgray', linewidth=0.05, alpha=0.3)
@@ -129,12 +131,11 @@ def create_comparison_plot(df, n=None):
         bar_widths2 = np.clip(bar_widths2, 0, max_bar_width)
 
         for j, (angle, length1, width1, length2, width2) in enumerate(zip(angles, bar_lengths1, bar_widths1, bar_lengths2, bar_widths2)):
-            # Plot Value1 and Value2 bars
+            # Always draw both bars, even if lengths are 0
             ax.bar(angle - width1/16, length1, width=width1, alpha=0.6, color=color_values12, 
-                  edgecolor='black', linewidth=2, label='Simple' if j == 0 else "")
-            # Plot Value3 and Value4 bars
+                  edgecolor='black', linewidth=2, label='Simple' if j == 0 else "", bottom=0)
             ax.bar(angle + width2/16, length2, width=width2, alpha=0.6, color=color_values34, 
-                  edgecolor='black', linewidth=2, label='Rich' if j == 0 else "")
+                  edgecolor='black', linewidth=2, label='Rich' if j == 0 else "", bottom=0)
 
         # Add circle at r=1 with very subtle, light gray line
         ax.plot(np.linspace(0, 2*np.pi, 100), np.ones(100), color='lightgray', linewidth=0.05, alpha=0.3)
