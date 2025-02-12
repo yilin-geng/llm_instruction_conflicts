@@ -165,16 +165,17 @@ async def process_dataset_with_policies(
     save_conflicting_data(data_with_policies, output_file_with_policies)
 
 async def main_async():
+    output_index = 2
     base_instructions_file = root_dir / 'data' / 'base_instructions_picked.csv'
-    output_file_training_normal = root_dir / 'data' / 'finetuning_data' / 'finetuning_data_training_normal.jsonl'
-    output_file_training_reversed = root_dir / 'data' / 'finetuning_data' / 'finetuning_data_training_reversed.jsonl'
-    output_file_test_normal = root_dir / 'data' / 'finetuning_data' / 'finetuning_data_test_normal.jsonl'
-    output_file_test_reversed = root_dir / 'data' / 'finetuning_data' / 'finetuning_data_test_reversed.jsonl'
+    output_file_training_normal = root_dir / 'data' / 'finetuning_data' / f'finetuning_data_training_normal_{output_index}.jsonl'
+    output_file_training_reversed = root_dir / 'data' / 'finetuning_data' / f'finetuning_data_training_reversed_{output_index}.jsonl'
+    output_file_test_normal = root_dir / 'data' / 'finetuning_data' / f'finetuning_data_test_normal_{output_index}.jsonl'
+    output_file_test_reversed = root_dir / 'data' / 'finetuning_data' / f'finetuning_data_test_reversed_{output_index}.jsonl'
     
-    output_file_training_normal_with_policies = root_dir / 'data' / 'finetuning_data' / 'finetuning_data_training_normal_with_policies.jsonl'
-    output_file_training_reversed_with_policies = root_dir / 'data' / 'finetuning_data' / 'finetuning_data_training_reversed_with_policies.jsonl'
-    output_file_test_normal_with_policies = root_dir / 'data' / 'finetuning_data' / 'finetuning_data_test_normal_with_policies.jsonl'
-    output_file_test_reversed_with_policies = root_dir / 'data' / 'finetuning_data' / 'finetuning_data_test_reversed_with_policies.jsonl'
+    output_file_training_normal_with_policies = root_dir / 'data' / 'finetuning_data' / f'finetuning_data_training_normal_with_policies_{output_index}.jsonl'
+    output_file_training_reversed_with_policies = root_dir / 'data' / 'finetuning_data' / f'finetuning_data_training_reversed_with_policies_{output_index}.jsonl'
+    output_file_test_normal_with_policies = root_dir / 'data' / 'finetuning_data' / f'finetuning_data_test_normal_with_policies_{output_index}.jsonl'
+    output_file_test_reversed_with_policies = root_dir / 'data' / 'finetuning_data' / f'finetuning_data_test_reversed_with_policies_{output_index}.jsonl'
     
     logger.info("Generating conflicting instructions...")
     if not base_instructions_file.exists():
@@ -203,15 +204,30 @@ async def main_async():
         flip_instructions=True, 
         conflict_dict=INSTRUCTION_CONFLICTS_FOR_FINETUNING
     )
+    test_conflict_names = [
+        [
+            "num_sentence_conflict: 12_7",
+            "keyword_frequency_conflict: often_6_3"
+        ],
+        [
+            "language_conflict: it_es",
+            "case_conflict"
+        ],
+        [
+            "word_length_conflict: 100_30",
+            "keyword_forbidden_conflict: many_special"
+        ]
+    ]
+
     
     # Split reversed data into training and test
     finetuning_data_training_reversed = [
         data for data in conflicting_data_reversed 
-        if data["conflict_name"] not in ["num_sentence_conflict: 12_7", "keyword_frequency_conflict: often_6_3"]
+        if data["conflict_name"] not in test_conflict_names[output_index]
     ]
     finetuning_data_test_reversed = [
         data for data in conflicting_data_reversed 
-        if data["conflict_name"] in ["num_sentence_conflict: 12_7", "keyword_frequency_conflict: often_6_3"]
+        if data["conflict_name"] in test_conflict_names[output_index]
     ]
 
     logger.info(f"Generated {len(finetuning_data_training_normal)} normal training, "

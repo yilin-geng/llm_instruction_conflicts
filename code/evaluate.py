@@ -35,6 +35,9 @@ model_name_mapping = {
     "Llama-3.1-8B": "meta-llama/Llama-3.1-8B-Instruct",
     "Llama-3.1-70B": "meta-llama/Llama-3.1-70B-Instruct",
     "Llama-3.1-8B-conflict": "Llama-3.1-8B-Instruct-conflict",
+    "Llama-3.1-8B-conflict_0": "Llama-3.1-8B-Instruct-conflict_0",
+    "Llama-3.1-8B-conflict_1": "Llama-3.1-8B-Instruct-conflict_1",
+    "Llama-3.1-8B-conflict_2": "Llama-3.1-8B-Instruct-conflict_2",
 }
 
 # Data paths to evaluate
@@ -106,13 +109,16 @@ def construct_messages(policy: PriorityControlPolicy, evaluation_data: List[Dict
         
     return messages
 
-def get_output_file(model: str, policy_name: str, data_path: Path, results_dir: Path, timestamp: str, temperature: float):
+def get_output_file(model: str, policy_name: str, data_path: Path, results_dir: Path, timestamp: str, temperature):
     experiment_dir = results_dir / timestamp
     experiment_dir.mkdir(exist_ok=True, parents=True)
     
     # Save detailed results
     dataset_name = data_path.stem
-    output_file = experiment_dir / f"{dataset_name}_{model}_{policy_name}_{str(temperature)}_results.jsonl"
+    if temperature is not None:
+        output_file = experiment_dir / f"{dataset_name}_{model}_{policy_name}_{str(temperature)}_responses.jsonl"
+    else:
+        output_file = experiment_dir / f"{dataset_name}_{model}_{policy_name}_responses.jsonl"
     return output_file
 
 def save_responses(model: str, policy_name: str, data_path: Path, messages: List[List[Dict]], 
@@ -180,7 +186,7 @@ def main():
                         default=NEXT_BASE_URL,
                         help='Base URL for the Next API')
     parser.add_argument('--temperature', type=float,
-                        default=0.6,
+                        default=None,
                         help='Temperature for LLM sampling (default: 0.6)')
     parser.add_argument('--max-requests-per-minute', type=int,
                         default=100,
@@ -218,7 +224,10 @@ def main():
                 
                 logger.info(f"Processing policy: {policy.name}")
                 messages = construct_messages(policy, evaluation_data)
-                responses = llm_call_fn(messages, temperature=args.temperature)
+                if args.temperature is not None:
+                    responses = llm_call_fn(messages, temperature=args.temperature)
+                else:
+                    responses = llm_call_fn(messages)
                 if len(responses) != len(messages):
                     logger.error(f"Mismatch between messages ({len(messages)}) and responses ({len(responses)})")
                     raise ValueError("Number of responses does not match number of messages")

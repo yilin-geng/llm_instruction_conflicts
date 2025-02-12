@@ -8,6 +8,24 @@ from typing import Dict, List
 from priority_control_policies import *
 from conflicts_dict import INSTRUCTION_CONFLICTS
 
+# Test set conflict names
+# TEST_CONFLICTS = ["num_sentence_conflict: 12_7", "keyword_frequency_conflict: often_6_3"]
+test_conflict_names = [
+    [
+        "num_sentence_conflict: 12_7",
+        "keyword_frequency_conflict: often_6_3"
+    ],
+    [
+        "language_conflict: it_es",
+        "case_conflict"
+    ],
+    [
+        "word_length_conflict: 100_30",
+        "keyword_forbidden_conflict: many_special"
+    ]
+]
+
+
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 
@@ -19,6 +37,10 @@ def get_expected_files_mapping():
         "gpt-4o-2024-11-20",
         "claude-3-5-sonnet-20241022",
         "Llama-3.1-8B",
+        "Llama-3.1-8B-conflict",
+        "Llama-3.1-8B-conflict_0",
+        "Llama-3.1-8B-conflict_1",
+        "Llama-3.1-8B-conflict_2",
         "Llama-3.1-70B",
     ]
     
@@ -107,8 +129,13 @@ def load_response_files(processed_dir: Path, response_type: str = 'processed_res
     
     return results
 
-def evaluate_responses(df: pd.DataFrame) -> pd.DataFrame:
-    """Evaluate responses using the appropriate policies and conflict definitions."""
+def evaluate_responses(df: pd.DataFrame, test_set_only: bool = False, output_index: int = 4) -> pd.DataFrame:
+    """Evaluate responses using the appropriate policies and conflict definitions.
+    
+    Args:
+        df: DataFrame containing responses to evaluate
+        test_set_only: If True, only evaluate responses for test set conflicts
+    """
     # Initialize policies
     policies = {
         "constraint_following_baseline": ConstraintFollowingBaseline("constraint_following_baseline"),
@@ -137,13 +164,23 @@ def evaluate_responses(df: pd.DataFrame) -> pd.DataFrame:
         with open(data_path, 'r') as f:
             conflict_data = [json.loads(line) for line in f]
             
+        # Filter conflict data and responses if test_set_only is True
+        if test_set_only:
+            print([data['conflict_name'] for data in conflict_data])
+            test_indices = [i for i, data in enumerate(conflict_data) if data['conflict_name'] in test_conflict_names[output_index]]
+            if not test_indices:  # Skip if no test conflicts found
+                raise ValueError(f"No test conflicts found for model {model}, dataset {dataset}, policy {policy_name}")
+            conflict_data = [conflict_data[i] for i in test_indices]
+            group = group.iloc[test_indices].reset_index(drop=True)
+            
         # Get policy and evaluate
         policy = policies[policy_name]
         is_reversed = 'reversed' in dataset
         evaluations = policy.evaluate_responses(conflict_data, group['response'].tolist(), is_reversed)
 
-        # check len(evaluations) is 600
-        assert len(evaluations) == 600, f"Expected 600 evaluations for model {model}, got {len(evaluations)}"
+        # Check evaluations length matches data length
+        expected_len = 200 if test_set_only else 600
+        assert len(evaluations) == expected_len, f"Expected {expected_len} evaluations for model {model}, got {len(evaluations)}"
 
         # Store results
         for idx, eval_result in enumerate(evaluations):
@@ -188,6 +225,10 @@ def main():
                       help='Directory containing processed response files')
     parser.add_argument('--response_type', type=str, choices=['response', 'processed_response'],
                       default='processed_response', help='Which response to analyze')
+    parser.add_argument('--test_set_only', action='store_true',
+                      help='Only evaluate responses for test set conflicts')
+    parser.add_argument('--output_index', type=int, default=4,
+                      help='Index of the output to analyze')
     args = parser.parse_args()
     
     root_dir = Path(__file__).parent.parent
@@ -201,17 +242,17 @@ def main():
     logger.info(f"Loaded {len(results_df)} responses")
     
     # Evaluate responses
-    evaluated_df = evaluate_responses(results_df)
+    evaluated_df = evaluate_responses(results_df, test_set_only=args.test_set_only, output_index=args.output_index)
     logger.info(f"Evaluated {len(evaluated_df)} responses")
-    evaluated_df.to_csv(analysis_dir / f'evaluated_{args.response_type}.csv', index=False)
-
-    # load evaluated responses
-    evaluated_df = pd.read_csv(analysis_dir / f'evaluated_{args.response_type}.csv')
+    
+    # Add suffix to output files if test_set_only is True
+    suffix = f'_test_only_{args.output_index}' if args.test_set_only else ''
+    evaluated_df.to_csv(analysis_dir / f'evaluated_{args.response_type}{suffix}.csv', index=False)
 
     # Generate summary
     dataset_summary, conflict_summary = generate_summary(evaluated_df)
-    dataset_summary.to_csv(analysis_dir / f'dataset_level_summary_{args.response_type}.csv')
-    conflict_summary.to_csv(analysis_dir / f'conflict_level_summary_{args.response_type}.csv')
+    dataset_summary.to_csv(analysis_dir / f'dataset_level_summary_{args.response_type}{suffix}.csv')
+    conflict_summary.to_csv(analysis_dir / f'conflict_level_summary_{args.response_type}{suffix}.csv')
     
     logger.info(f"Analysis complete. Results saved to {analysis_dir}")
 
