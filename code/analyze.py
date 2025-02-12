@@ -80,9 +80,20 @@ def load_response_files(processed_dir: Path, response_type: str = 'processed_res
                 if line.strip():
                     entry = json.loads(line)
                     if response_type == 'processed_response':
-                        processed_response_data = json.loads(entry['processed_response'])
-                        recognition_flag = float(processed_response_data['conflict_recognized'])
-                        response_data = processed_response_data['response']
+                        try:
+                            processed_response_data = json.loads(entry['processed_response'])
+                            # there are multiple possible keys returned by the models
+                            conflict_recognized_keys = ['conflict_recognized', 'conflict_detected']
+                            for key in conflict_recognized_keys:
+                                if key in processed_response_data:
+                                    recognition_flag = float(processed_response_data[key])
+                                    response_data = processed_response_data['processed_response']
+                                    break
+                        except:
+                            # never happens
+                            logger.warning(f"Error parsing processed response for {filename}")
+                            recognition_flag = None
+                            response_data = entry['response']
                     else:
                         response_data = entry['response']
                     
@@ -157,14 +168,14 @@ def generate_summary(df: pd.DataFrame) -> pd.DataFrame:
         'primary_constraint_met': 'mean',
         'secondary_constraint_met': 'mean',
         'none_constraint_met': 'mean',
-        # 'conflict_recognized': 'mean',
+        'conflict_recognized': 'mean',
     }).round(3)
 
     conflict_level_summary = df.groupby(['model', 'policy', 'dataset', 'conflict_name']).agg({
         'primary_constraint_met': 'mean',
         'secondary_constraint_met': 'mean',
         'none_constraint_met': 'mean',
-        # 'conflict_recognized': 'mean',
+        'conflict_recognized': 'mean',
     }).round(3)
 
     return dataset_level_summary, conflict_level_summary
@@ -173,10 +184,10 @@ def generate_summary(df: pd.DataFrame) -> pd.DataFrame:
 
 def main():
     parser = argparse.ArgumentParser(description='Analyze model responses')
-    parser.add_argument('--processed_dir', type=str, default='results/validated_responses',
+    parser.add_argument('--processed_dir', type=str, default='results/processed_responses',
                       help='Directory containing processed response files')
     parser.add_argument('--response_type', type=str, choices=['response', 'processed_response'],
-                      default='response', help='Which response to analyze')
+                      default='processed_response', help='Which response to analyze')
     args = parser.parse_args()
     
     root_dir = Path(__file__).parent.parent
@@ -185,14 +196,14 @@ def main():
     analysis_dir = root_dir / 'analysis'
     analysis_dir.mkdir(exist_ok=True)
     
-    # # Load responses
-    # results_df = pd.DataFrame(load_response_files(processed_dir, args.response_type))
-    # logger.info(f"Loaded {len(results_df)} responses")
+    # Load responses
+    results_df = pd.DataFrame(load_response_files(processed_dir, args.response_type))
+    logger.info(f"Loaded {len(results_df)} responses")
     
-    # # Evaluate responses
-    # evaluated_df = evaluate_responses(results_df)
-    # logger.info(f"Evaluated {len(evaluated_df)} responses")
-    # evaluated_df.to_csv(analysis_dir / f'evaluated_{args.response_type}.csv', index=False)
+    # Evaluate responses
+    evaluated_df = evaluate_responses(results_df)
+    logger.info(f"Evaluated {len(evaluated_df)} responses")
+    evaluated_df.to_csv(analysis_dir / f'evaluated_{args.response_type}.csv', index=False)
 
     # load evaluated responses
     evaluated_df = pd.read_csv(analysis_dir / f'evaluated_{args.response_type}.csv')
