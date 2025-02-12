@@ -74,8 +74,9 @@ def get_expected_files_mapping():
         "gpt-4o-mini-2024-07-18",
         "gpt-4o-2024-11-20",
         "claude-3-5-sonnet-20241022",
-        # "deepseek-r1",
+        "deepseek-r1",
         "Llama-3.1-8B",
+        "Llama-3.1-8B-conflict",
         "Llama-3.1-70B",
     ]
     
@@ -107,6 +108,7 @@ def get_expected_files_mapping():
         for dataset in datasets:
             for policy in policies:
                 filename = f"{dataset}_{model}_{policy}_responses.jsonl"
+                print(filename)
                 expected_files[filename] = {
                     'model': model,
                     'dataset': dataset,
