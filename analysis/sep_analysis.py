@@ -94,6 +94,24 @@ def metrics_computation(model, policy, conflict_name, inspect=False):
         }
 
 
+# Function to get average between normal and reversed datasets
+def get_averaged_metric(df, model, policy, context_type='simple'):
+    if context_type == 'simple':
+        datasets = ['conflicting_instructions', 'conflicting_instructions_reversed']
+    else:
+        datasets = ['conflicting_instructions_rich_context', 'conflicting_instructions_rich_context_reversed']
+    
+    values = []
+    for dataset in datasets:
+        try:
+            value = df[(df['model'] == model) & 
+                        (df['policy'] == policy) & 
+                        (df['dataset'] == dataset)]['primary_constraint_met']
+            values.append(value)
+        except:
+            continue
+    
+    return np.mean(values) if values else np.nan
 
 def table1():
     """Generate Table 1 comparing model performance across different policies."""
@@ -148,24 +166,7 @@ def table1():
 
     policies = baseline_policies + separation_policies
 
-    # Function to get average between normal and reversed datasets
-    def get_averaged_metric(df, model, policy, context_type='simple'):
-        if context_type == 'simple':
-            datasets = ['conflicting_instructions', 'conflicting_instructions_reversed']
-        else:
-            datasets = ['conflicting_instructions_rich_context', 'conflicting_instructions_rich_context_reversed']
-        
-        values = []
-        for dataset in datasets:
-            try:
-                value = df[(df['model'] == model) & 
-                          (df['policy'] == policy) & 
-                          (df['dataset'] == dataset)]['primary_constraint_met']
-                values.append(value)
-            except:
-                continue
-        
-        return np.mean(values) if values else np.nan
+
 
     # Create the result table
     results = []
@@ -216,7 +217,7 @@ def inspect():
         print('-'*30)
         
 
-def table2(): # tendency analysis table -> plot
+def tablex(): # tendency analysis table -> plot
     """Generate Table 2 analyzing baseline_all_user performance by conflict type. (constraint preference)"""
 
 
@@ -283,9 +284,11 @@ def table2(): # tendency analysis table -> plot
 
 def draw_polar_plots(df, filename):
 
+    df = df.copy()
+
     # Remove the header row and reset the column names
     df.columns = df.iloc[0]
-    df = df[1:].reset_index(drop=True)
+    df = df.reset_index(drop=True)
 
     # Rename columns for better readability
     df.columns = ["Model", "Type", "Value1", "Value2", "Value3", "Value4"]
@@ -297,7 +300,7 @@ def draw_polar_plots(df, filename):
     def create_plot(df, n=None):
         # Create a copy of the dataframe to avoid modifying the original
         plot_df = df.copy()
-        
+    
         # Apply nth root transformation if specified
         if n is not None:
             numeric_columns = ["Value1", "Value2", "Value3", "Value4"]
@@ -476,6 +479,117 @@ def figure1():
 
 
 
+def table2():
+    
+    sep_policies = [
+        "basic_separation",
+    ]
+
+    guideline_policies = [
+        'unmarked_system_basic',
+        'marked_system_basic',
+        'unmarked_user_basic',
+        'marked_user_basic',
+        'unmarked_system_detailed',
+        'marked_system_detailed',
+        'unmarked_user_detailed',
+        'marked_user_detailed', 
+    ]
+
+    policies = sep_policies + guideline_policies
+
+    policy_mapping = {
+        'basic_separation': 'Basic Sep',
+        'unmarked_system_basic': 'USB',
+        'marked_system_basic': 'MSB',
+        'unmarked_user_basic': 'UUB',
+        'marked_user_basic': 'MUB',
+        'unmarked_system_detailed': 'USD',
+        'marked_system_detailed': 'MSD',
+        'unmarked_user_detailed': 'UUD',
+        'marked_user_detailed': 'MUD',
+    }
+
+
+
+    # Create the result table
+    results = []
+    for model in models:
+        row = {'Model': model}
+        for policy in policies:
+            # Simple context
+            row[f'{policy_mapping[policy]}'] = get_averaged_metric(df, model, policy, 'simple')
+            # Rich context
+            # row[f'{policy}_rich'] = get_averaged_metric(df, model, policy, 'rich')
+        results.append(row)
+
+    # Convert to DataFrame
+    result_df = pd.DataFrame(results)
+
+
+    # Round values to 3 decimal places
+    numeric_columns = result_df.columns.drop('Model')
+    result_df[numeric_columns] = result_df[numeric_columns].round(3)
+
+    # Save the results
+
+    filename = f'{tag}_o1_obedience_policies_comparison_simple'
+    result_df.to_csv(f'{output_dir}/{filename}.csv', index=False)
+
+    latex_table = csv_to_latex(result_df)
+    with open(f'{output_dir}/{filename}_latex', 'w') as f:
+        f.write(latex_table)
+
+
+def table3():
+    
+    policies = [
+        'unmarked_system_basic',
+        'marked_system_basic',
+        'unmarked_user_basic',
+        'marked_user_basic',
+    ]
+
+    policy_mapping = {
+        'unmarked_system_basic': 'Unmarked System',
+        'marked_system_basic': 'Marked System',
+        'unmarked_user_basic': 'Unmarked User',
+        'marked_user_basic': 'Marked User',
+    }
+    
+    # Create the result table
+    results = []
+    
+    # Group by model and conflict_name
+    for model in models:
+        # Get all conflict names for this model
+        conflict_names = df[df['model'] == model]['conflict_name'].unique()
+        for conflict_name in conflict_names:
+            row = {'model': model, 'Conflict Type': conflict_name_mapping[conflict_name]}
+
+            for policy in policies:
+                metrics_all = metrics_computation(model, policy, conflict_name)
+                # take only    'PES simple': simple_pes, 'INS simple': simple_ins, rename as PES and INS
+                metrics_simple = {}
+                metrics_simple[f'{policy_mapping[policy]} PES'] = metrics_all['PES simple']
+                metrics_simple[f'{policy_mapping[policy]} INS'] = metrics_all['INS simple']
+                row.update(metrics_simple)
+            results.append(row)
+
+    # Convert to DataFrame
+    result_df = pd.DataFrame(results)
+
+    filename = f'{tag}_radar_plot_policies_comparison_simple'
+    # draw_polar_plots(result_df, filename)
+
+    result_df.to_csv(f'{output_dir}/{filename}.csv', index=False)
+    
+
+
+
+
 if __name__ == "__main__":
-    table1()
-    figure1()
+    # table1()
+    # figure1()
+    # table2()
+    table3()

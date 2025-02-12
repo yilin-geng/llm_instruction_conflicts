@@ -1,4 +1,4 @@
-qwen2.5-7b-instruct,Case,0.1875,0.845,0.15499999999999997,0.77
+model,Conflict Type,PES simple,INS simple,PES rich,INS rich
 qwen2.5-7b-instruct,Case,0.1875,0.845,0.15499999999999997,0.77
 qwen2.5-7b-instruct,Keyword Usage,0.1725,0.745,0.18500000000000005,0.9
 qwen2.5-7b-instruct,Keyword Frequency,0.49,0.5900000000000001,0.40750000000000003,0.555
