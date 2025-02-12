@@ -1,0 +1,15 @@
+Validation Summary - 20250212_115330
+Fill mode: disabled
+--------------------------------------------------
+
+Missing files (0/52):
+
+--------------------------------------------------
+
+Files with problems (1):
+
+File: conflicting_instructions_reversed_Llama-3.1-8B-conflict_baseline_all_user_responses.jsonl
+Empty responses: 1/600 (0.17%)
+Empty response indices: [402]
+Processed response problems: 1 empty, 0 invalid JSON out of 600 (0.17%)
+Problem indices and types: [(402, 'missing')]
