@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+import seaborn as sns
 
 # df = pd.read_csv('analysis/conflict_level_summary_response.csv')
 # tag = 'raw'
@@ -28,6 +29,15 @@ models = [
     "Llama-3.1-8B",
     "Llama-3.1-70B",
 ]
+
+model_mapping = {
+    'gpt-4o-mini-2024-07-18': 'GPT4o-mini',
+    'gpt-4o-2024-11-20': 'GPT4o',
+    'claude-3-5-sonnet-20241022': 'Claude',
+    'Llama-3.1-8B': 'Llama-8B',
+    'Llama-3.1-70B': 'Llama-70B',
+    'qwen2.5-7b-instruct': 'Qwen'
+}
 
 output_dir = 'analysis/plots'
 
@@ -216,69 +226,6 @@ def inspect():
         print(metrics)
         print('-'*30)
         
-
-def tablex(): # tendency analysis table -> plot
-    """Generate Table 2 analyzing baseline_all_user performance by conflict type. (constraint preference)"""
-
-
-    policy = "baseline_all_user"
-    
-    # Create the result table
-    results = []
-    
-    # Group by model and conflict_name
-    for model in models:
-        # Get all conflict names for this model
-        conflict_names = df[df['model'] == model]['conflict_name'].unique()
-        
-        for conflict_name in conflict_names:
-            row = {'model': model, 'Conflict Type': conflict_name_mapping[conflict_name]}
-
-            
-            def get_values(dataset):
-                base = df[(df['model'] == model) & 
-                         (df['policy'] == policy) & 
-                         (df['conflict_name'] == conflict_name) &
-                         (df['dataset'] == dataset)]
-                return (base['primary_constraint_met'].values[0],
-                       base['secondary_constraint_met'].values[0])
-
-            # Get values for each dataset
-            normal_simple = get_values('conflicting_instructions')
-            reversed_simple = get_values('conflicting_instructions_reversed') 
-            normal_rich = get_values('conflicting_instructions_rich_context')
-            reversed_rich = get_values('conflicting_instructions_rich_context_reversed')
-
-            # Calculate metrics
-            simple_constraintA = (normal_simple[0] + reversed_simple[1])
-            simple_constraintB = (normal_simple[1] + reversed_simple[0])
-            rich_constraintA = (normal_rich[0] + reversed_rich[1])
-            rich_constraintB = (normal_rich[1] + reversed_rich[0])
-
-            simple_leading = (normal_simple[0] + reversed_simple[0])
-            simple_trailing = (normal_simple[1] + reversed_simple[1])
-            rich_leading = (normal_rich[0] + reversed_rich[0])
-            rich_trailing = (normal_rich[1] + reversed_rich[1])
-            
-            row.update({
-                'Sim. Pos.': f"{((simple_leading - simple_trailing)/2):.3f}",
-                'Sim. Sem.': f"{((simple_constraintA - simple_constraintB)/2):.3f}",
-                'Rich Pos.': f"{((rich_leading - rich_trailing)/2):.3f}",
-                'Rich Sem.': f"{((rich_constraintA - rich_constraintB)/2):.3f}"
-            })
-
-
-            
-            results.append(row)
-
-    # Convert to DataFrame
-    result_df = pd.DataFrame(results).round(3)
-
-    # Save the results
-    result_df.to_csv(f'{output_dir}/table2_{tag}.csv', index=False)
-    latex_table = csv_to_latex(result_df)
-    with open(f'{output_dir}/table2_latex_{tag}', 'w') as f:
-        f.write(latex_table)
 
 
 
@@ -583,13 +530,311 @@ def table3():
     # draw_polar_plots(result_df, filename)
 
     result_df.to_csv(f'{output_dir}/{filename}.csv', index=False)
+
+
+
+def table_tendency():
+    """Generate plot analyzing baseline_all_user performance by conflict type (constraint preference)"""
+    policy = "baseline_all_user"
     
+    # Create the result table
+    results = []
+    
+    # Define tendency directions for each conflict type
+    tendency_mapping = {
+        'Case': 'Uppercase ← → Lowercase',
+        'Keyword Usage': 'Include keyword ← → Avoid keyword',
+        'Keyword Frequency': '>5 occurrences ← → <2 occurrences',
+        'Language': 'English ← → French',
+        'Sentence Count': '>10 sentences ← → <5 sentences',
+        'Word Length': '>300 words ← → <50 words'
+    }
+    
+    model_mapping = {
+        'gpt-4o-mini-2024-07-18': 'GPT4o-mini',
+        'gpt-4o-2024-11-20': 'GPT4o',
+        'claude-3-5-sonnet-20241022': 'Claude',
+        'Llama-3.1-8B': 'Llama-8B',
+        'Llama-3.1-70B': 'Llama-70B',
+        'qwen2.5-7b-instruct': 'Qwen'
+    }
+    
+    # Group by model and conflict_name
+    for model in models:
+        # Get all conflict names for this model
+        conflict_names = df[df['model'] == model]['conflict_name'].unique()
+        
+        for conflict_name in conflict_names:
+            def get_values(dataset):
+                base = df[(df['model'] == model) & 
+                         (df['policy'] == policy) & 
+                         (df['conflict_name'] == conflict_name) &
+                         (df['dataset'] == dataset)]
+                return (base['primary_constraint_met'].values[0],
+                       base['secondary_constraint_met'].values[0])
+
+            # Get values for each dataset
+            normal_simple = get_values('conflicting_instructions')
+            reversed_simple = get_values('conflicting_instructions_reversed')
+
+            # Calculate bias as average difference between primary and secondary constraints
+            # Positive means tendency towards first constraint, negative towards second
+            bias = ((normal_simple[0] + reversed_simple[1]) - 
+                   (normal_simple[1] + reversed_simple[0])) / 2
+
+            results.append({
+                'model': model,
+                'model_display': model_mapping[model],
+                'conflict_type': conflict_name_mapping[conflict_name],
+                'bias': bias
+            })
+
+    # Convert to DataFrame
+    result_df = pd.DataFrame(results)
+
+    # Create plot
+    plt.figure(figsize=(10, 12))
+    
+    # Get unique models and conflict types
+    unique_models = models
+    unique_conflicts = list(conflict_name_mapping.values())
+    
+    # Create subplot for each conflict type
+    fig, axes = plt.subplots(nrows=len(unique_conflicts), ncols=1, figsize=(8, 16))
+    
+    for idx, conflict in enumerate(unique_conflicts):
+        ax = axes[idx]
+        
+        # Get data for this conflict
+        conflict_data = result_df[result_df['conflict_type'] == conflict]
+        
+        # Create horizontal bar plot
+        y_pos = np.arange(len(unique_models))
+        bars = ax.barh(y_pos, conflict_data['bias'].values, 
+                      color=["#007ACC" if x > 0 else "#FF6B6B" for x in conflict_data['bias'].values],
+                      height=0.6)
+        
+        # Customize plot
+        ax.set_yticks(y_pos)
+        ax.set_yticklabels(conflict_data['model_display'].values)
+        ax.axvline(0, color='black', linewidth=1)
+        ax.set_title(tendency_mapping[conflict], pad=20)  # Increased padding for longer titles
+        ax.set_xlim(-1, 1)  # Set consistent scale
+        
+        # Add grid
+        ax.grid(True, axis='x', linestyle='--', alpha=0.7)
+        
+        # Add x-axis label
+        ax.set_xlabel('Bias', labelpad=10)
+        
+    plt.tight_layout()
+    
+    # Save plots
+    filename = f'{tag}_tendency_analysis'
+    plt.savefig(f"{output_dir}/{filename}.pdf", format='pdf', bbox_inches='tight')
+    plt.close()
+    
+    # Save raw data
+    result_df.to_csv(f"{output_dir}/{filename}.csv", index=False)
 
 
+def conflict_recognition_analysis():
+    """Analyze conflict recognition performance across models, policies, and conflict types."""
+
+    model_mapping = {
+        'gpt-4o-mini-2024-07-18': 'GPT4o-mini',
+        'gpt-4o-2024-11-20': 'GPT4o',
+        'claude-3-5-sonnet-20241022': 'Claude',
+        'Llama-3.1-8B': 'Llama-8B',
+        'Llama-3.1-70B': 'Llama-70B',
+        'qwen2.5-7b-instruct': 'Qwen'
+    }
+    
+    # Group policies by type
+    baseline_policies = [
+        "constraint_following_baseline",
+        "baseline_all_user"
+    ]
+
+    separation_policies = [
+        "basic_separation",
+        "task_specified_separation",
+        "emphasized_separation"
+    ]
+
+    guideline_policies = [
+        'unmarked_system_basic',
+        'marked_system_basic',
+        'unmarked_user_basic',
+        'marked_user_basic',
+    ]
+
+    policies = baseline_policies + separation_policies + guideline_policies
+
+    # Create result tables for different analyses
+    policy_results = []
+    conflict_results = []
+    model_results = []
+
+    # 1. Analysis by policy and model
+    for model in models:
+        for policy in policies:
+            # Get recognition rates for simple and rich contexts
+            simple_recognition = df[
+                (df['model'] == model) & 
+                (df['policy'] == policy) & 
+                (df['dataset'].isin(['conflicting_instructions', 'conflicting_instructions_reversed']))
+            ]['conflict_recognized'].mean()
+
+            rich_recognition = df[
+                (df['model'] == model) & 
+                (df['policy'] == policy) & 
+                (df['dataset'].isin(['conflicting_instructions_rich_context', 'conflicting_instructions_rich_context_reversed']))
+            ]['conflict_recognized'].mean()
+
+            policy_results.append({
+                'model': model,
+                'policy': policy,
+                'simple_recognition': simple_recognition,
+                'rich_recognition': rich_recognition,
+                'average_recognition': (simple_recognition + rich_recognition) / 2
+            })
+
+    # 2. Analysis by conflict type and model
+    for model in models:
+        for conflict_name in df['conflict_name'].unique():
+            # Get recognition rates across all policies
+            recognition_rate = df[
+                (df['model'] == model) & 
+                (df['conflict_name'] == conflict_name)
+            ]['conflict_recognized'].mean()
+
+            conflict_results.append({
+                'model': model,
+                'conflict_type': conflict_name_mapping[conflict_name],
+                'recognition_rate': recognition_rate
+            })
+
+    # 3. Overall model performance
+    for model in models:
+        overall_recognition = df[df['model'] == model]['conflict_recognized'].mean()
+        baseline_recognition = df[
+            (df['model'] == model) & 
+            (df['policy'].isin(baseline_policies))
+        ]['conflict_recognized'].mean()
+        separation_recognition = df[
+            (df['model'] == model) & 
+            (df['policy'].isin(separation_policies))
+        ]['conflict_recognized'].mean()
+        guideline_recognition = df[
+            (df['model'] == model) & 
+            (df['policy'].isin(guideline_policies))
+        ]['conflict_recognized'].mean()
+
+        model_results.append({
+            'model': model,
+            'overall_recognition': overall_recognition,
+            'baseline_recognition': baseline_recognition,
+            'separation_recognition': separation_recognition,
+            'guideline_recognition': guideline_recognition
+        })
+
+    # Convert to DataFrames
+    policy_df = pd.DataFrame(policy_results)
+    conflict_df = pd.DataFrame(conflict_results)
+    model_df = pd.DataFrame(model_results)
+
+    # Save results
+    filename_base = f'{tag}_conflict_recognition'
+    policy_df.to_csv(f'{output_dir}/{filename_base}_by_policy.csv', index=False)
+    conflict_df.to_csv(f'{output_dir}/{filename_base}_by_conflict.csv', index=False)
+    model_df.to_csv(f'{output_dir}/{filename_base}_by_model.csv', index=False)
+
+    # Generate LaTeX tables
+    policy_latex = csv_to_latex(policy_df)
+    conflict_latex = csv_to_latex(conflict_df)
+    model_latex = csv_to_latex(model_df)
+
+    with open(f'{output_dir}/{filename_base}_by_policy_latex', 'w') as f:
+        f.write(policy_latex)
+    with open(f'{output_dir}/{filename_base}_by_conflict_latex', 'w') as f:
+        f.write(conflict_latex)
+    with open(f'{output_dir}/{filename_base}_by_model_latex', 'w') as f:
+        f.write(model_latex)
+
+    # Create visualization for conflict recognition by type
+    plt.figure(figsize=(12, 6))
+    for model in models:
+        model_data = conflict_df[conflict_df['model'] == model]
+        plt.plot(model_data['conflict_type'], model_data['recognition_rate'], 
+                marker='o', label=model, linewidth=2)
+
+    plt.xticks(rotation=45, ha='right')
+    plt.ylabel('Conflict Recognition Rate')
+    plt.title('Conflict Recognition Rate by Conflict Type and Model')
+    plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left')
+    plt.tight_layout()
+    plt.savefig(f'{output_dir}/{filename_base}_by_conflict.pdf', bbox_inches='tight')
+    plt.close()
+
+    # Create heatmap visualization for conflict recognition by type and model
+    plt.figure(figsize=(12, 6))
+    pivot_data = conflict_df.pivot(index='model', columns='conflict_type', values='recognition_rate')
+    
+    sns.heatmap(pivot_data, 
+                annot=True,  # Show numbers in cells
+                fmt='.2f',   # Format numbers to 2 decimal places
+                cmap='YlOrRd',  # Yellow to Orange to Red colormap
+                vmin=0, 
+                vmax=1,
+                cbar_kws={'label': 'Conflict Recognition Rate'})
+    
+    plt.title('Conflict Recognition Rate by Model and Conflict Type')
+    plt.ylabel('Model')
+    plt.xlabel('Conflict Type')
+    plt.xticks(rotation=45, ha='right')
+    plt.tight_layout()
+    plt.savefig(f'{output_dir}/{filename_base}_by_conflict_heatmap.pdf', bbox_inches='tight')
+    plt.close()
+
+    # Create grouped bar plot for representative policies by model
+    plt.figure(figsize=(12, 6))
+    x = np.arange(len(models))
+    width = 0.25  # Width of bars
+
+    # Get data for representative policies
+    baseline_data = df[
+        (df['policy'] == 'baseline_all_user')
+    ]['conflict_recognized'].groupby(df['model']).mean()
+
+    separation_data = df[
+        (df['policy'] == 'basic_separation')
+    ]['conflict_recognized'].groupby(df['model']).mean()
+
+    guideline_data = df[
+        (df['policy'] == 'marked_user_basic')
+    ]['conflict_recognized'].groupby(df['model']).mean()
+
+    # Plot bars
+    plt.bar(x - width, baseline_data, width, label='Baseline (baseline_all_user)')
+    plt.bar(x, separation_data, width, label='Separation (basic_separation)')
+    plt.bar(x + width, guideline_data, width, label='Guideline (marked_user_basic)')
+
+    plt.xlabel('Model')
+    plt.ylabel('Recognition Rate')
+    plt.title('Conflict Recognition Rate by Model and Representative Policy')
+    plt.xticks(x, [model_mapping[m] for m in models], rotation=45, ha='right')
+    plt.legend()
+    plt.grid(True, axis='y', linestyle='--', alpha=0.7)
+    plt.tight_layout()
+    plt.savefig(f'{output_dir}/{filename_base}_by_policy_type.pdf', bbox_inches='tight')
+    plt.close()
 
 
 if __name__ == "__main__":
     # table1()
     # figure1()
     # table2()
-    table3()
+    # table3()
+    # table_tendency()
+    conflict_recognition_analysis()

@@ -1,0 +1,60 @@
+\begin{tabular}{llrrr}
+\toprule
+model & policy & simple_recognition & rich_recognition & average_recognition \\
+\midrule
+qwen2.5-7b-instruct & constraint_following_baseline & 0.001 & 0.002 & 0.001 \\
+qwen2.5-7b-instruct & baseline_all_user & 0.068 & 0.022 & 0.045 \\
+qwen2.5-7b-instruct & basic_separation & 0.001 & 0.004 & 0.002 \\
+qwen2.5-7b-instruct & task_specified_separation & 0.005 & 0.008 & 0.006 \\
+qwen2.5-7b-instruct & emphasized_separation & 0.006 & 0.008 & 0.007 \\
+qwen2.5-7b-instruct & unmarked_system_basic & 0.088 & 0.020 & 0.054 \\
+qwen2.5-7b-instruct & marked_system_basic & 0.201 & 0.023 & 0.112 \\
+qwen2.5-7b-instruct & unmarked_user_basic & 0.176 & 0.058 & 0.117 \\
+qwen2.5-7b-instruct & marked_user_basic & 0.345 & 0.093 & 0.219 \\
+gpt-4o-mini-2024-07-18 & constraint_following_baseline & 0.000 & 0.002 & 0.001 \\
+gpt-4o-mini-2024-07-18 & baseline_all_user & 0.007 & 0.012 & 0.010 \\
+gpt-4o-mini-2024-07-18 & basic_separation & 0.022 & 0.042 & 0.032 \\
+gpt-4o-mini-2024-07-18 & task_specified_separation & 0.002 & 0.036 & 0.019 \\
+gpt-4o-mini-2024-07-18 & emphasized_separation & 0.021 & 0.089 & 0.055 \\
+gpt-4o-mini-2024-07-18 & unmarked_system_basic & 0.023 & 0.020 & 0.022 \\
+gpt-4o-mini-2024-07-18 & marked_system_basic & 0.001 & 0.002 & 0.002 \\
+gpt-4o-mini-2024-07-18 & unmarked_user_basic & 0.035 & 0.025 & 0.030 \\
+gpt-4o-mini-2024-07-18 & marked_user_basic & 0.007 & 0.003 & 0.005 \\
+gpt-4o-2024-11-20 & constraint_following_baseline & 0.002 & 0.002 & 0.002 \\
+gpt-4o-2024-11-20 & baseline_all_user & 0.151 & 0.167 & 0.159 \\
+gpt-4o-2024-11-20 & basic_separation & 0.120 & 0.187 & 0.154 \\
+gpt-4o-2024-11-20 & task_specified_separation & 0.104 & 0.190 & 0.147 \\
+gpt-4o-2024-11-20 & emphasized_separation & 0.241 & 0.214 & 0.228 \\
+gpt-4o-2024-11-20 & unmarked_system_basic & 0.254 & 0.303 & 0.279 \\
+gpt-4o-2024-11-20 & marked_system_basic & 0.233 & 0.329 & 0.281 \\
+gpt-4o-2024-11-20 & unmarked_user_basic & 0.327 & 0.282 & 0.304 \\
+gpt-4o-2024-11-20 & marked_user_basic & 0.217 & 0.397 & 0.307 \\
+claude-3-5-sonnet-20241022 & constraint_following_baseline & 0.001 & 0.007 & 0.004 \\
+claude-3-5-sonnet-20241022 & baseline_all_user & 0.176 & 0.150 & 0.163 \\
+claude-3-5-sonnet-20241022 & basic_separation & 0.027 & 0.070 & 0.048 \\
+claude-3-5-sonnet-20241022 & task_specified_separation & 0.006 & 0.037 & 0.021 \\
+claude-3-5-sonnet-20241022 & emphasized_separation & 0.146 & 0.121 & 0.133 \\
+claude-3-5-sonnet-20241022 & unmarked_system_basic & 0.142 & 0.103 & 0.123 \\
+claude-3-5-sonnet-20241022 & marked_system_basic & 0.073 & 0.058 & 0.066 \\
+claude-3-5-sonnet-20241022 & unmarked_user_basic & 0.092 & 0.098 & 0.095 \\
+claude-3-5-sonnet-20241022 & marked_user_basic & 0.018 & 0.024 & 0.021 \\
+Llama-3.1-8B & constraint_following_baseline & 0.050 & 0.085 & 0.068 \\
+Llama-3.1-8B & baseline_all_user & 0.278 & 0.212 & 0.245 \\
+Llama-3.1-8B & basic_separation & 0.159 & 0.231 & 0.195 \\
+Llama-3.1-8B & task_specified_separation & 0.098 & 0.145 & 0.122 \\
+Llama-3.1-8B & emphasized_separation & 0.224 & 0.298 & 0.261 \\
+Llama-3.1-8B & unmarked_system_basic & 0.245 & 0.216 & 0.230 \\
+Llama-3.1-8B & marked_system_basic & 0.642 & 0.445 & 0.543 \\
+Llama-3.1-8B & unmarked_user_basic & 0.507 & 0.312 & 0.409 \\
+Llama-3.1-8B & marked_user_basic & 0.633 & 0.579 & 0.606 \\
+Llama-3.1-70B & constraint_following_baseline & 0.008 & 0.018 & 0.013 \\
+Llama-3.1-70B & baseline_all_user & 0.309 & 0.237 & 0.273 \\
+Llama-3.1-70B & basic_separation & 0.203 & 0.193 & 0.198 \\
+Llama-3.1-70B & task_specified_separation & 0.062 & 0.088 & 0.075 \\
+Llama-3.1-70B & emphasized_separation & 0.365 & 0.260 & 0.312 \\
+Llama-3.1-70B & unmarked_system_basic & 0.327 & 0.288 & 0.307 \\
+Llama-3.1-70B & marked_system_basic & 0.311 & 0.378 & 0.344 \\
+Llama-3.1-70B & unmarked_user_basic & 0.403 & 0.283 & 0.343 \\
+Llama-3.1-70B & marked_user_basic & 0.231 & 0.310 & 0.270 \\
+\bottomrule
+\end{tabular}
