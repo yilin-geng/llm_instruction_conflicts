@@ -1,0 +1,7 @@
+model,constraint_following_baseline_simple,constraint_following_baseline_rich,basic_separation_simple,basic_separation_rich,task_specified_separation_simple,task_specified_separation_rich,emphasized_separation_simple,emphasized_separation_rich,model_average
+qwen2.5-7b-instruct,0.864,0.825,0.101,0.089,0.091,0.088,0.118,0.087,0.096
+gpt-4o-mini-2024-07-18,0.854,0.851,0.427,0.418,0.542,0.43,0.494,0.436,0.458
+gpt-4o-2024-11-20,0.908,0.857,0.47,0.358,0.313,0.264,0.638,0.407,0.408
+claude-3-5-sonnet-20241022,0.842,0.796,0.203,0.41,0.145,0.237,0.326,0.475,0.299
+Llama-3.1-8B,0.803,0.748,0.067,0.108,0.066,0.073,0.108,0.182,0.101
+Llama-3.1-70B,0.899,0.842,0.142,0.178,0.049,0.043,0.317,0.253,0.164
