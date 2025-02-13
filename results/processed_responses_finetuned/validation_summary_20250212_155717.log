@@ -1,0 +1,27 @@
+Validation Summary - 20250212_155717
+Fill mode: disabled
+--------------------------------------------------
+
+Missing files (0/52):
+
+--------------------------------------------------
+
+Files with problems (3):
+
+File: conflicting_instructions_reversed_Llama-3.1-8B-conflict_baseline_all_user_responses.jsonl
+Empty responses: 1/600 (0.17%)
+Empty response indices: [402]
+Processed response problems: 0 empty, 0 invalid JSON out of 600 (0.00%)
+Problem indices and types: []
+
+File: conflicting_instructions_reversed_Llama-3.1-8B-conflict_basic_separation_responses.jsonl
+Empty responses: 0/600 (0.00%)
+Empty response indices: []
+Processed response problems: 0 empty, 1 invalid JSON out of 600 (0.17%)
+Problem indices and types: [(527, 'invalid_json')]
+
+File: conflicting_instructions_rich_context_reversed_Llama-3.1-8B-conflict_constraint_following_baseline_responses.jsonl
+Empty responses: 0/600 (0.00%)
+Empty response indices: []
+Processed response problems: 0 empty, 1 invalid JSON out of 600 (0.17%)
+Problem indices and types: [(148, 'invalid_json')]
