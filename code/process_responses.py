@@ -164,6 +164,8 @@ def main():
     output_dir = Path(args.output_dir)
     if not target_dir.exists():
         raise ValueError(f"Target directory does not exist: {target_dir}")
+    if not output_dir.exists():
+        output_dir.mkdir(exist_ok=True, parents=True)
     
     llm_call_fn = get_llm_call_fn(model="gpt-4o-mini-2024-07-18")
     

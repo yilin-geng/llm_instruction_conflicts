@@ -8,6 +8,9 @@ import seaborn as sns
 
 
 df = pd.read_csv('analysis/conflict_level_summary_processed_response.csv')
+output_index = 0
+# df_finetuned = pd.read_csv('analysis/conflict_level_summary_processed_response_finetuned.csv')
+df_finetuned = pd.read_csv('analysis/conflict_level_summary_processed_response_test_only_merged.csv')
 tag = 'processed'
 
 
@@ -27,6 +30,7 @@ models = [
     "gpt-4o-2024-11-20",
     "claude-3-5-sonnet-20241022",
     "Llama-3.1-8B",
+    # "Llama-3.1-8B-conflict"
     "Llama-3.1-70B",
 ]
 
@@ -52,16 +56,22 @@ def csv_to_latex(df):
     
     
 
-def metrics_computation(model, policy, conflict_name, inspect=False):
+def metrics_computation(model, policy, conflict_name, inspect=False, is_finetuned=False):
     """Compute Priority Effectiveness Score (PES) and Instruction Neutrality Score (INS)"""
     
     def get_values(dataset):
-                base = df[(df['model'] == model) & 
-                         (df['policy'] == policy) & 
-                         (df['conflict_name'] == conflict_name) &
-                         (df['dataset'] == dataset)]
-                return (base['primary_constraint_met'].values[0],
-                       base['secondary_constraint_met'].values[0])
+        if is_finetuned:
+            base = df_finetuned[(df_finetuned['model'] == model) & 
+                                (df_finetuned['policy'] == policy) & 
+                                (df_finetuned['conflict_name'] == conflict_name) &
+                                (df_finetuned['dataset'] == dataset)]
+        else:
+            base = df[(df['model'] == model) & 
+                    (df['policy'] == policy) & 
+                    (df['conflict_name'] == conflict_name) &
+                    (df['dataset'] == dataset)]
+        return (base['primary_constraint_met'].values[0],
+                base['secondary_constraint_met'].values[0])
 
     # Get values for each dataset
     p_a_a, p_b_a = get_values('conflicting_instructions')
@@ -420,6 +430,57 @@ def figure1():
     result_df = pd.DataFrame(results)
 
     filename = f'{tag}_radar_plot_sep'
+    draw_polar_plots(result_df, filename)
+
+    result_df.to_csv(f'{output_dir}/{filename}.csv', index=False)
+
+def figure_2():
+    """Generate Figure2 analyzing finetuned separation performance by conflict type."""
+
+    
+    # Create the result table
+    results = []
+    
+    # Group by model and conflict_name
+    model_original = "Llama-3.1-8B"
+    model_finetuned = "Llama-3.1-8B-conflict"
+        # Get all conflict names for this model
+    conflict_names = df_finetuned[df_finetuned['model'] == model_finetuned]['conflict_name'].unique()
+    
+    for conflict_name in conflict_names:
+        row = {'model': "Finetuned", 'Conflict Type': conflict_name_mapping[conflict_name]}
+        policy = "basic_separation"
+        metrics = metrics_computation(model_finetuned, policy, conflict_name, is_finetuned=True)
+        row.update(metrics)
+        results.append(row)
+
+        row = {'model': "Original", 'Conflict Type': conflict_name_mapping[conflict_name]}
+        policy = "basic_separation"
+        metrics = metrics_computation(model_original, policy, conflict_name, is_finetuned=False)
+        row.update(metrics)
+        results.append(row)
+        mitigation_policies = [
+            "unmarked_system_basic",
+            "marked_system_basic", 
+            "unmarked_user_basic",
+            "marked_user_basic",
+            # "unmarked_system_detailed",
+            # "marked_system_detailed",
+            # "unmarked_user_detailed",
+            # "marked_user_detailed"
+        ]
+        for policy in mitigation_policies:
+            row = {'model': policy, 'Conflict Type': conflict_name_mapping[conflict_name]}
+            metrics = metrics_computation(model_original, policy, conflict_name, is_finetuned=False)
+            row.update(metrics)
+            results.append(row)
+
+
+
+    # Convert to DataFrame
+    result_df = pd.DataFrame(results)
+
+    filename = f'{tag}_radar_plot_sep_finetuned'
     draw_polar_plots(result_df, filename)
 
     result_df.to_csv(f'{output_dir}/{filename}.csv', index=False)
@@ -834,7 +895,8 @@ def conflict_recognition_analysis():
 if __name__ == "__main__":
     # table1()
     # figure1()
+    figure_2()
     # table2()
     # table3()
     # table_tendency()
-    conflict_recognition_analysis()
+    # conflict_recognition_analysis()

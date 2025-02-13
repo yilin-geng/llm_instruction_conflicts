@@ -1,0 +1,37 @@
+model,Conflict Type,PES simple,INS simple,PES rich,INS rich
+Finetuned,Keyword Frequency,0.9075,0.885,0.85,0.8700000000000001
+Original,Keyword Frequency,0.2025,0.825,0.22499999999999998,0.98
+unmarked_system_basic,Keyword Frequency,0.45499999999999996,0.3700000000000001,0.4925,0.6950000000000001
+marked_system_basic,Keyword Frequency,0.5700000000000001,0.41999999999999993,0.4475,0.635
+unmarked_user_basic,Keyword Frequency,0.5025,0.555,0.495,0.69
+marked_user_basic,Keyword Frequency,0.6575,0.5049999999999999,0.4475,0.7050000000000001
+Finetuned,Sentence Count,0.78,0.96,0.55,0.73
+Original,Sentence Count,0.175,0.97,0.195,0.78
+unmarked_system_basic,Sentence Count,0.3125,0.795,0.4475,0.41500000000000004
+marked_system_basic,Sentence Count,0.5549999999999999,0.83,0.4975,0.30499999999999994
+unmarked_user_basic,Sentence Count,0.28500000000000003,0.81,0.44000000000000006,0.33999999999999997
+marked_user_basic,Sentence Count,0.7,0.72,0.4425,0.28500000000000003
+Finetuned,Case,0.64,0.91,0.585,0.86
+Original,Case,0.2925,0.585,0.37,0.51
+unmarked_system_basic,Case,0.395,0.41000000000000003,0.4425,0.585
+marked_system_basic,Case,0.6175,0.855,0.39749999999999996,0.655
+unmarked_user_basic,Case,0.4125,0.43500000000000005,0.44999999999999996,0.6100000000000001
+marked_user_basic,Case,0.725,0.74,0.49,0.81
+Finetuned,Language,0.6225,0.255,0.5175000000000001,0.03500000000000003
+Original,Language,0.1775,0.7550000000000001,0.3675,0.895
+unmarked_system_basic,Language,0.53,0.67,0.51,0.7
+marked_system_basic,Language,0.665,0.99,0.5874999999999999,0.715
+unmarked_user_basic,Language,0.52,0.83,0.5125,0.815
+marked_user_basic,Language,0.8175,0.975,0.5425,0.7749999999999999
+Finetuned,Keyword Usage,0.8150000000000001,0.77,0.58,0.95
+Original,Keyword Usage,0.10750000000000004,0.905,0.14,0.83
+unmarked_system_basic,Keyword Usage,0.14500000000000002,0.8300000000000001,0.22249999999999998,0.865
+marked_system_basic,Keyword Usage,0.31500000000000006,0.78,0.21749999999999997,0.935
+unmarked_user_basic,Keyword Usage,0.17750000000000005,0.845,0.24,0.8500000000000001
+marked_user_basic,Keyword Usage,0.47250000000000003,0.4750000000000001,0.1875,0.965
+Finetuned,Word Length,0.565,0.81,0.4675,0.765
+Original,Word Length,0.1875,0.705,0.25749999999999995,0.5049999999999999
+unmarked_system_basic,Word Length,0.3275,0.625,0.4425,0.21499999999999997
+marked_system_basic,Word Length,0.485,0.5,0.4425,0.2549999999999999
+unmarked_user_basic,Word Length,0.35750000000000004,0.685,0.4475,0.275
+marked_user_basic,Word Length,0.49,0.3999999999999999,0.46,0.25

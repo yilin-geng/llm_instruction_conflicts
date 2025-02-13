@@ -12,19 +12,18 @@ from conflicts_dict import INSTRUCTION_CONFLICTS
 # TEST_CONFLICTS = ["num_sentence_conflict: 12_7", "keyword_frequency_conflict: often_6_3"]
 test_conflict_names = [
     [
-        "num_sentence_conflict: 12_7",
-        "keyword_frequency_conflict: often_6_3"
+        "num_sentence_conflict: 10_5",
+        "keyword_frequency_conflict: like_5_2"
     ],
     [
-        "language_conflict: it_es",
+        "language_conflict: en_fr",
         "case_conflict"
     ],
     [
-        "word_length_conflict: 100_30",
-        "keyword_forbidden_conflict: many_special"
+        "word_length_conflict: 300_50",
+        "keyword_forbidden_conflict: awesome_need"
     ]
 ]
-
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
@@ -32,16 +31,16 @@ logging.basicConfig(level=logging.INFO)
 def get_expected_files_mapping():
     """Generate mapping of all expected response files based on models, datasets, and policies."""
     models = [
-        "qwen2.5-7b-instruct",
-        "gpt-4o-mini-2024-07-18",
-        "gpt-4o-2024-11-20",
-        "claude-3-5-sonnet-20241022",
-        "Llama-3.1-8B",
-        "Llama-3.1-8B-conflict",
+        # "qwen2.5-7b-instruct",
+        # "gpt-4o-mini-2024-07-18",
+        # "gpt-4o-2024-11-20",
+        # "claude-3-5-sonnet-20241022",
+        # "Llama-3.1-8B",
+        # "Llama-3.1-8B-conflict",
         "Llama-3.1-8B-conflict_0",
         "Llama-3.1-8B-conflict_1",
         "Llama-3.1-8B-conflict_2",
-        "Llama-3.1-70B",
+        # "Llama-3.1-70B",
     ]
     
     datasets = [
@@ -166,7 +165,7 @@ def evaluate_responses(df: pd.DataFrame, test_set_only: bool = False, output_ind
             
         # Filter conflict data and responses if test_set_only is True
         if test_set_only:
-            print([data['conflict_name'] for data in conflict_data])
+            # print([data['conflict_name'] for data in conflict_data])
             test_indices = [i for i, data in enumerate(conflict_data) if data['conflict_name'] in test_conflict_names[output_index]]
             if not test_indices:  # Skip if no test conflicts found
                 raise ValueError(f"No test conflicts found for model {model}, dataset {dataset}, policy {policy_name}")
