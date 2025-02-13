@@ -1,5 +1,5 @@
 # Re-load the uploaded file since execution state was reset
-file_path = "basic_sep_no_filter.csv"
+file_path = "polar_plot_simple.csv"
 
 # Read the CSV into a DataFrame without preprocessing
 import pandas as pd
@@ -7,6 +7,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 df = pd.read_csv(file_path, header=None)
+
+if df.shape[1] == 4:
+    # add nan values to make it 6
+    df = pd.concat([df, pd.DataFrame(np.nan, index=range(df.shape[0]), columns=["Value3", "Value4"])], axis=1)
 
 
 # Remove the header row and reset the column names

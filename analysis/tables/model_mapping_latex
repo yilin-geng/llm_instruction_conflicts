@@ -1,0 +1,17 @@
+\begin{table}[h]
+\centering
+\begin{tabular}{ll}
+\toprule
+\textbf{Abbreviation} & \textbf{Model Version} \\
+\midrule
+Qwen & qwen2.5-7b-instruct \\
+Llama-8B & Llama-3.1-8B \\
+Llama-70B & Llama-3.1-70B \\
+Claude & claude-3-5-sonnet-20241022 \\
+GPT4o-mini & gpt-4o-mini-2024-07-18 \\
+GPT4o & gpt-4o-2024-11-20 \\
+\bottomrule
+\end{tabular}
+\caption{Model abbreviation mapping}
+\label{tab:model-mapping}
+\end{table}

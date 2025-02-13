@@ -1,0 +1,12 @@
+\begin{tabular}{lrrrr}
+\toprule
+Model & ECAR & R1 & R2 & R3 \\
+\midrule
+Qwen & 0.00 & 0.00 & 1.00 & 0.00 \\
+Llama-8B & 0.16 & 0.20 & 0.50 & 0.29 \\
+Llama-70B & 0.20 & 0.31 & 0.38 & 0.32 \\
+Claude & 0.03 & 0.50 & 0.31 & 0.19 \\
+GPT4o-mini & 0.02 & 0.46 & 0.00 & 0.54 \\
+GPT4o & 0.12 & 0.48 & 0.01 & 0.51 \\
+\bottomrule
+\end{tabular}
