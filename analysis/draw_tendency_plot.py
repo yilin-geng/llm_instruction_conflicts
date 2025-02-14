@@ -26,7 +26,7 @@ tendency_mapping = {
 }
 
 # Create subplot for each conflict type
-fig, axes = plt.subplots(nrows=len(tendency_mapping), ncols=1, figsize=(12, 18))
+fig, axes = plt.subplots(nrows=len(tendency_mapping), ncols=1, figsize=(10, 18))
 
 
 for idx, (conflict, tendency_label) in enumerate(tendency_mapping.items()):
