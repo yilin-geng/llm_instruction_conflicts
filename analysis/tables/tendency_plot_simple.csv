@@ -1,37 +1,37 @@
 Model,Conflict,CB
-Claude,Case,0.86
-Claude,Keyword Frequency,0.63
-Claude,Keyword Usage,0.38
-Claude,Language,-0.01
-Claude,Sentence Count,-0.14
-Claude,Word Length,-0.04
-GPT4o,Case,0.04
-GPT4o,Keyword Frequency,0.32
-GPT4o,Keyword Usage,0.78
-GPT4o,Language,-0.44
-GPT4o,Sentence Count,-0.73
-GPT4o,Word Length,0.43
-GPT4o-mini,Case,0.94
-GPT4o-mini,Keyword Frequency,0.46
-GPT4o-mini,Keyword Usage,0.42
-GPT4o-mini,Language,-0.01
-GPT4o-mini,Sentence Count,-0.71
-GPT4o-mini,Word Length,-0.87
-Llama-70B,Case,0.96
-Llama-70B,Keyword Frequency,-0.63
-Llama-70B,Keyword Usage,0.63
-Llama-70B,Language,-0.43
-Llama-70B,Sentence Count,-0.41
-Llama-70B,Word Length,-0.44
-Llama-8B,Case,0.89
-Llama-8B,Keyword Frequency,-0.83
-Llama-8B,Keyword Usage,0.19
-Llama-8B,Language,0.52
-Llama-8B,Sentence Count,-0.55
-Llama-8B,Word Length,-0.93
-Qwen,Case,0.65
-Qwen,Keyword Frequency,-0.2
-Qwen,Keyword Usage,0.15
-Qwen,Language,0.42
-Qwen,Sentence Count,-0.21
+Claude,Case,0.8621
+Claude,Keyword Frequency,0.6338
+Claude,Keyword Usage,0.3772
+Claude,Language,-0.0109
+Claude,Sentence Count,-0.1429
+Claude,Word Length,-0.0413
+GPT4o,Case,0.0435
+GPT4o,Keyword Frequency,0.3182
+GPT4o,Keyword Usage,0.7803
+GPT4o,Language,-0.4356
+GPT4o,Sentence Count,-0.7345
+GPT4o,Word Length,0.4343
+GPT4o-mini,Case,0.9441
+GPT4o-mini,Keyword Frequency,0.4583
+GPT4o-mini,Keyword Usage,0.4184
+GPT4o-mini,Language,-0.0051
+GPT4o-mini,Sentence Count,-0.7111
+GPT4o-mini,Word Length,-0.8737
+Llama-70B,Case,0.9597
+Llama-70B,Keyword Frequency,-0.6291
+Llama-70B,Keyword Usage,0.6271
+Llama-70B,Language,-0.4323
+Llama-70B,Sentence Count,-0.4135
+Llama-70B,Word Length,-0.4435
+Llama-8B,Case,0.8931
+Llama-8B,Keyword Frequency,-0.8312
+Llama-8B,Keyword Usage,0.1915
+Llama-8B,Language,0.5233
+Llama-8B,Sentence Count,-0.5455
+Llama-8B,Word Length,-0.9333
+Qwen,Case,0.6489
+Qwen,Keyword Frequency,-0.1971
+Qwen,Keyword Usage,0.1544
+Qwen,Language,0.4157
+Qwen,Sentence Count,-0.2083
 Qwen,Word Length,1.0

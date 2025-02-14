@@ -33,7 +33,7 @@ policy_mapping = {
     'unmarked_user_basic': 'User',
     'marked_user_basic': 'User-M',
     'constraint_following_baseline': 'IF.',
-    'baseline_all_user': 'No Pri.'
+    'baseline_all_user': 'NP.'
 }
 
 output_dir = 'analysis/tables'
@@ -80,7 +80,8 @@ def compute_priority_adherence_per_conflict(model, policy, conflict_name, contex
     R1 = (rates['R1_a'] + rates['R1_b'])/2
     R2 = (rates['R2_a'] + rates['R2_b'])/2
 
-    priority_adherence = R1/(R1+R2)
+    priority_adherence = R1/(R1+R2) # no penalty for R2
+    # priority_adherence = (R1-R2)/(R1+R2) # penalty for R2 but we need to normalize to 0-1 (too much explanation)
 
     # sanity check priority adherence is between 0 and 1
     assert priority_adherence >= 0 and priority_adherence <= 1
@@ -90,7 +91,7 @@ def compute_priority_adherence_per_conflict(model, policy, conflict_name, contex
 
 
 def compute_constraint_bias_per_conflict(model, policy, conflict_name, context_type='simple'):
-    policy = 'baseline_all_user' # override policy to baseline_all_user
+    # policy = 'baseline_all_user' # override policy to baseline_all_user
     rates = compute_rates_per_conflict(model, policy, conflict_name, context_type)
 
     Ra_raw = (rates['R1_a'] + rates['R2_b'])/2
@@ -130,9 +131,12 @@ def csv_to_latex(df, precision=1):
     latex_text = df.to_latex(index=False, float_format=lambda x: '{:.{precision}f}'.format(x, precision=precision))
     return latex_text
 
-def save_table(table_name, results_df, context_type='simple', precision=1):
+def save_table(table_name, results_df, context_type='simple', percentage_flag = True, precision=1):
     numeric_columns = results_df.select_dtypes(include=['float64', 'int64']).columns
-    results_df[numeric_columns] = 100 * results_df[numeric_columns].round(precision)
+    if percentage_flag:
+        results_df[numeric_columns] = (100 * results_df[numeric_columns]).round(precision)
+    else:
+        results_df[numeric_columns] = results_df[numeric_columns].round(precision)
     results_df.to_csv(f'{output_dir}/{table_name}_{context_type}.csv', index=False)
     latex_table = csv_to_latex(results_df)
     with open(f'{output_dir}/{table_name}_{context_type}_latex', 'w') as f:
@@ -232,7 +236,7 @@ def sep_does_not_work_table(table_name, context_type='simple'):
     models = model_mapping.keys()
     policies = ['constraint_following_baseline', 'basic_separation', 'task_specified_separation', 'emphasized_separation']
     results_df = create_model_policy_table_for_metric(models, policies, metric_function, context_type)
-    # add a average column that averages the values across rows excluding 'Model' and 'IF.'
+    # add a average column that averages the values across rows excluding 'Model' and 'IF.' and 'NP.'
     results_df['Ave.'] = results_df.drop(columns=['Model', 'IF.']).mean(axis=1)
     save_table(table_name, results_df, context_type)
 
@@ -240,7 +244,7 @@ def sep_does_not_work_table(table_name, context_type='simple'):
 def sep_does_not_work_table_concatenated(table_name):
     metric_function = compute_o1_obedience_rate_per_conflict
     models = model_mapping.keys()
-    policies = ['constraint_following_baseline', 'basic_separation', 'task_specified_separation', 'emphasized_separation']
+    policies = ['constraint_following_baseline',  'basic_separation', 'task_specified_separation', 'emphasized_separation']
     results_df_simple = create_model_policy_table_for_metric(models, policies, metric_function, 'simple')
     results_df_rich = create_model_policy_table_for_metric(models, policies, metric_function, 'rich')
     # add results_df_rich to the right of results_df_simple (rename columns)
@@ -280,17 +284,17 @@ def polar_plot_table(table_name, policy, context_type='simple'):
         '1-|CB|': compute_normalized_constraint_bias_per_conflict
     }
     results_df = create_model_conflict_metric_table_for_policy(models, policy, metric_functions, context_type)
-    save_table(table_name, results_df, context_type)
+    save_table(table_name, results_df, context_type, percentage_flag=False, precision=4)
 
 
 def tendency_plot_table(table_name, context_type='simple'):
     models = model_mapping.keys()
-    policy = "" # will be overridden by baseline_all_user
+    policy = "baseline_all_user" # might be overridden by baseline_all_user
     metric_functions = {
         'CB': compute_constraint_bias_per_conflict
     }
     results_df = create_model_conflict_metric_table_for_policy(models, policy, metric_functions, context_type)
-    save_table(table_name, results_df, context_type)
+    save_table(table_name, results_df, context_type, percentage_flag=False, precision=4)
 
         
 def conflict_acknowledgement_table(table_name, policy, context_type='simple'):
