@@ -1,37 +1,37 @@
 Model,Conflict,PAR,1-|CB|
-Claude,Case,0.0161,0.957
-Claude,Keyword Frequency,0.4759,0.2289
-Claude,Keyword Usage,0.3693,0.2159
-Claude,Language,0.3878,0.9082
-Claude,Sentence Count,0.1545,0.5854
-Claude,Word Length,0.0127,0.9554
-GPT4o,Case,0.9943,0.8966
-GPT4o,Keyword Frequency,0.2836,0.2388
-GPT4o,Keyword Usage,0.4869,0.0105
-GPT4o,Language,0.9688,0.9792
-GPT4o,Sentence Count,0.1589,0.6729
-GPT4o,Word Length,0.4419,0.0
-GPT4o-mini,Case,0.6743,0.3657
-GPT4o-mini,Keyword Frequency,0.523,0.0115
-GPT4o-mini,Keyword Usage,0.5333,0.0333
-GPT4o-mini,Language,0.9949,0.9846
-GPT4o-mini,Sentence Count,0.12,0.4
-GPT4o-mini,Word Length,0.0072,0.964
-Llama-70B,Case,0.2147,0.3926
-Llama-70B,Keyword Frequency,0.0284,0.9205
-Llama-70B,Keyword Usage,0.2663,0.4022
-Llama-70B,Language,0.434,0.805
-Llama-70B,Sentence Count,0.0667,0.9818
-Llama-70B,Word Length,0.0065,0.8312
-Llama-8B,Case,0.188,0.3759
-Llama-8B,Keyword Frequency,0.0657,0.7445
-Llama-8B,Keyword Usage,0.0242,0.8848
-Llama-8B,Language,0.1436,0.7293
-Llama-8B,Sentence Count,0.1037,0.9634
-Llama-8B,Word Length,0.0,0.528
-Qwen,Case,0.0301,0.7669
-Qwen,Keyword Frequency,0.4867,0.4533
-Qwen,Keyword Usage,0.0881,0.6792
-Qwen,Language,0.0,1.0
-Qwen,Sentence Count,0.0341,0.3182
+Claude,Case,0.0161,0.1379
+Claude,Keyword Frequency,0.4759,0.3662
+Claude,Keyword Usage,0.3693,0.6228
+Claude,Language,0.3878,0.9891
+Claude,Sentence Count,0.1545,0.8571
+Claude,Word Length,0.0127,0.9587
+GPT4o,Case,0.9943,0.9565
+GPT4o,Keyword Frequency,0.2836,0.6818
+GPT4o,Keyword Usage,0.4869,0.2197
+GPT4o,Language,0.9688,0.5644
+GPT4o,Sentence Count,0.1589,0.2655
+GPT4o,Word Length,0.4419,0.5657
+GPT4o-mini,Case,0.6743,0.0559
+GPT4o-mini,Keyword Frequency,0.523,0.5417
+GPT4o-mini,Keyword Usage,0.5333,0.5816
+GPT4o-mini,Language,0.9949,0.9949
+GPT4o-mini,Sentence Count,0.12,0.2889
+GPT4o-mini,Word Length,0.0072,0.1263
+Llama-70B,Case,0.2147,0.0403
+Llama-70B,Keyword Frequency,0.0284,0.3709
+Llama-70B,Keyword Usage,0.2663,0.3729
+Llama-70B,Language,0.434,0.5677
+Llama-70B,Sentence Count,0.0667,0.5865
+Llama-70B,Word Length,0.0065,0.5565
+Llama-8B,Case,0.188,0.1069
+Llama-8B,Keyword Frequency,0.0657,0.1688
+Llama-8B,Keyword Usage,0.0242,0.8085
+Llama-8B,Language,0.1436,0.4767
+Llama-8B,Sentence Count,0.1037,0.4545
+Llama-8B,Word Length,0.0,0.0667
+Qwen,Case,0.0301,0.3511
+Qwen,Keyword Frequency,0.4867,0.8029
+Qwen,Keyword Usage,0.0881,0.8456
+Qwen,Language,0.0,0.5843
+Qwen,Sentence Count,0.0341,0.7917
 Qwen,Word Length,0.2231,0.0

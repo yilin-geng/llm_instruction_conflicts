@@ -91,7 +91,7 @@ def compute_priority_adherence_per_conflict(model, policy, conflict_name, contex
 
 
 def compute_constraint_bias_per_conflict(model, policy, conflict_name, context_type='simple'):
-    # policy = 'baseline_all_user' # override policy to baseline_all_user
+    policy = 'baseline_all_user' # override policy to baseline_all_user
     rates = compute_rates_per_conflict(model, policy, conflict_name, context_type)
 
     Ra_raw = (rates['R1_a'] + rates['R2_b'])/2
