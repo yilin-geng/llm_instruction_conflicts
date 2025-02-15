@@ -192,11 +192,11 @@ async def main_async():
     # Split normal data into training and test
     finetuning_data_training_normal = [
         data for data in conflicting_data_normal 
-        if data["conflict_name"] not in ["num_sentence_conflict: 12_7", "keyword_frequency_conflict: often_6_3"]
+        if data["conflict_name"] not in test_conflict_names[output_index]
     ]
     finetuning_data_test_normal = [
         data for data in conflicting_data_normal 
-        if data["conflict_name"] in ["num_sentence_conflict: 12_7", "keyword_frequency_conflict: often_6_3"]
+        if data["conflict_name"] in test_conflict_names[output_index]
     ]
     
     conflicting_data_reversed = generate_conflicting_data(
