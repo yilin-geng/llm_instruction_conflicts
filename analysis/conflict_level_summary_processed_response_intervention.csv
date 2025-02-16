@@ -1,5 +1,4 @@
 model,policy,dataset,conflict_name,primary_constraint_met,secondary_constraint_met,none_constraint_met,conflict_recognized
-<<<<<<< HEAD
 Llama-3.1-8B-conflict,baseline_all_user,conflicting_instructions,keyword_frequency_conflict: like_5_2,0.8,0.04,0.16,0.0
 Llama-3.1-8B-conflict,baseline_all_user,conflicting_instructions,num_sentence_conflict: 10_5,0.86,0.01,0.13,0.01
 Llama-3.1-8B-conflict,baseline_all_user,conflicting_instructions_reversed,keyword_frequency_conflict: like_5_2,0.89,0.0,0.11,0.0
@@ -937,4 +936,3 @@ Llama-3.1-8B-conflict_2,unmarked_user_detailed,conflicting_instructions_rich_con
 Llama-3.1-8B-conflict_2,unmarked_user_detailed,conflicting_instructions_rich_context,word_length_conflict: 300_50,0.83,0.0,0.17,0.01
 Llama-3.1-8B-conflict_2,unmarked_user_detailed,conflicting_instructions_rich_context_reversed,keyword_forbidden_conflict: awesome_need,0.89,0.02,0.09,0.01
 Llama-3.1-8B-conflict_2,unmarked_user_detailed,conflicting_instructions_rich_context_reversed,word_length_conflict: 300_50,0.01,0.2,0.79,0.03
->>>>>>> 29d65e4fdad82a8c5eed2d416ca4e92565f1f944
