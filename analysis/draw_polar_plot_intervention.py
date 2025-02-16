@@ -20,13 +20,15 @@ def create_intervention_plots(df, output_dir='analysis/plots', filename='interve
         
         # Manually specify line breaks for multi-word labels
         label_mapping = {
-            'Factual Conflict': 'Factual\nConflict',
-            'Value Conflict': 'Value\nConflict',
-            'Action Conflict': 'Action\nConflict',
-            'Moral Conflict': 'Moral\nConflict'
+            'Keyword Frequency': 'Keyword\nFrequency',
+            'Keyword Usage': 'Keyword\nUsage',
+            'Sentence Count': 'Sentence\nCount',
+            'Word Length': 'Word\nLength',
+            'Case': 'Case',
+            'Language': 'Language'
         }
         
-        labels = [label_mapping[label] for label in labels]
+        labels = [label_mapping.get(label, label) for label in labels]
         angles = np.linspace(0, 2 * np.pi, len(labels), endpoint=False)
         
         # Apply square root transformation if n is specified
