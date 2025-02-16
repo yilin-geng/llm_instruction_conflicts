@@ -1,0 +1,24 @@
+\begin{tabular}{llrr}
+\toprule
+Model & Conflict & PAR & 1-|CB| \\
+\midrule
+Fintuned Llama-8B & Case & 0.9118 & 0.5122 \\
+Fintuned Llama-8B & Keyword Frequency & 0.9822 & 0.8837 \\
+Fintuned Llama-8B & Keyword Usage & 0.9038 & 0.8242 \\
+Fintuned Llama-8B & Language & 0.6244 & 1.0000 \\
+Fintuned Llama-8B & Sentence Count & 0.9375 & 0.7727 \\
+Fintuned Llama-8B & Word Length & 0.8095 & 0.0755 \\
+Llama-8B & Case & 0.1880 & 0.1069 \\
+Llama-8B & Keyword Frequency & 0.0657 & 0.1688 \\
+Llama-8B & Keyword Usage & 0.0242 & 0.8085 \\
+Llama-8B & Language & 0.1436 & 0.4767 \\
+Llama-8B & Sentence Count & 0.1037 & 0.4545 \\
+Llama-8B & Word Length & 0.0000 & 0.0667 \\
+Llama-8B-Prompting & Case & 0.9412 & 0.1069 \\
+Llama-8B-Prompting & Keyword Frequency & 0.6842 & 0.1688 \\
+Llama-8B-Prompting & Keyword Usage & 0.4693 & 0.8085 \\
+Llama-8B-Prompting & Language & 0.8848 & 0.4767 \\
+Llama-8B-Prompting & Sentence Count & 0.7667 & 0.4545 \\
+Llama-8B-Prompting & Word Length & 0.4863 & 0.0667 \\
+\bottomrule
+\end{tabular}
