@@ -2,12 +2,12 @@
 \toprule
 Model & Conflict & PAR & 1-|CB| \\
 \midrule
-Fintuned Llama-8B & Case & 0.9118 & 0.5122 \\
-Fintuned Llama-8B & Keyword Frequency & 0.9822 & 0.8837 \\
-Fintuned Llama-8B & Keyword Usage & 0.9038 & 0.8242 \\
-Fintuned Llama-8B & Language & 0.6244 & 1.0000 \\
-Fintuned Llama-8B & Sentence Count & 0.9375 & 0.7727 \\
-Fintuned Llama-8B & Word Length & 0.8095 & 0.0755 \\
+Fintuned Llama-8B & Case & 1.0000 & 0.3548 \\
+Fintuned Llama-8B & Keyword Frequency & 0.9882 & 0.9249 \\
+Fintuned Llama-8B & Keyword Usage & 0.4947 & 0.1059 \\
+Fintuned Llama-8B & Language & 0.9347 & 0.9798 \\
+Fintuned Llama-8B & Sentence Count & 0.8839 & 0.5496 \\
+Fintuned Llama-8B & Word Length & 1.0000 & 0.2326 \\
 Llama-8B & Case & 0.1880 & 0.1069 \\
 Llama-8B & Keyword Frequency & 0.0657 & 0.1688 \\
 Llama-8B & Keyword Usage & 0.0242 & 0.8085 \\

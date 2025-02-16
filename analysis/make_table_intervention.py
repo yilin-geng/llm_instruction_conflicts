@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 import os
 
-df = pd.read_csv('analysis/conflict_level_summary_processed_response_test_only_merged.csv')
+df = pd.read_csv('analysis/conflict_level_summary_processed_response_intervention.csv')
 tag = 'processed'
 
 conflict_name_mapping = {
