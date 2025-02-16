@@ -165,7 +165,7 @@ async def process_dataset_with_policies(
     save_conflicting_data(data_with_policies, output_file_with_policies)
 
 async def main_async():
-    output_index = 2
+    output_index = 1
     base_instructions_file = root_dir / 'data' / 'base_instructions_picked.csv'
     output_file_training_normal = root_dir / 'data' / 'finetuning_data' / f'finetuning_data_training_normal_{output_index}.jsonl'
     output_file_training_reversed = root_dir / 'data' / 'finetuning_data' / f'finetuning_data_training_reversed_{output_index}.jsonl'
@@ -181,6 +181,22 @@ async def main_async():
     if not base_instructions_file.exists():
         logger.error(f"Input file not found: {base_instructions_file}")
         return
+
+    test_conflict_names = [
+        [
+            "num_sentence_conflict: 12_7",
+            "keyword_frequency_conflict: often_6_3"
+        ],
+        [
+            "language_conflict: it_es",
+            "case_conflict"
+        ],
+        [
+            "word_length_conflict: 100_30",
+            "keyword_forbidden_conflict: many_special"
+        ]
+    ]
+
         
     # Generate normal conflicting data
     conflicting_data_normal = generate_conflicting_data(
@@ -204,21 +220,6 @@ async def main_async():
         flip_instructions=True, 
         conflict_dict=INSTRUCTION_CONFLICTS_FOR_FINETUNING
     )
-    test_conflict_names = [
-        [
-            "num_sentence_conflict: 12_7",
-            "keyword_frequency_conflict: often_6_3"
-        ],
-        [
-            "language_conflict: it_es",
-            "case_conflict"
-        ],
-        [
-            "word_length_conflict: 100_30",
-            "keyword_forbidden_conflict: many_special"
-        ]
-    ]
-
     
     # Split reversed data into training and test
     finetuning_data_training_reversed = [
