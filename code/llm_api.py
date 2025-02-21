@@ -10,6 +10,8 @@ from tenacity import (
     retry_if_exception_type
 )
 
+# You may implement your own LLM API wrapper here.
+
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 
