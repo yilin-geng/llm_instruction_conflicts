@@ -176,18 +176,12 @@ def save_experiment_log(policies: List[PriorityControlPolicy], models: List[str]
 
 def main():
     parser = argparse.ArgumentParser(description='Evaluate LLM models with different policies')
-    parser.add_argument('--model', type=str, default="Llama-3.1-8B",
-                        choices=list(model_name_mapping.keys()) + ["qwen2.5-7b-instruct", "gpt-4o-mini-2024-07-18", "gpt-4o-2024-11-20", "claude-3-5-sonnet-20241022", "deepseek-r1"],
-                        help='Model to evaluate (default: Llama-3.1-8B)')
-    parser.add_argument('--timestamp', type=str,
-                        default=datetime.now().strftime("%Y%m%d_%H%M%S"),
-                        help='Timestamp for the experiment (format: YYYYMMDD_HHMMSS)')
     parser.add_argument('--next-base-url', type=str,
                         default=NEXT_BASE_URL,
                         help='Base URL for the Next API')
     parser.add_argument('--temperature', type=float,
                         default=None,
-                        help='Temperature for LLM sampling (default: 0.6)')
+                        help='Temperature for LLM sampling')
     parser.add_argument('--max-requests-per-minute', type=int,
                         default=100,
                         help='Maximum requests per minute for the Next API (default: 100)')
@@ -196,12 +190,9 @@ def main():
     results_dir = root_dir / 'results'
     results_dir.mkdir(exist_ok=True)
     
-    # Use command line arguments
-    models = [args.model]
-    timestamp = args.timestamp
-    # timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    # timestamp = "20250205_110356" # 70B
-    # timestamp = "20250205_091309" # 8B
+
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+
     
     save_experiment_log(policies, models, data_paths, timestamp, results_dir)
     
