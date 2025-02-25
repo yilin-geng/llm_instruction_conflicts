@@ -9,8 +9,7 @@ from priority_control_policies import *
 from conflicts_dict import INSTRUCTION_CONFLICTS
 
 # Test set conflict names
-# TEST_CONFLICTS = ["num_sentence_conflict: 12_7", "keyword_frequency_conflict: often_6_3"]
-test_conflict_names = [
+test_conflict_names = [ #only used for finetune experiments
     [
         "num_sentence_conflict: 10_5",
         "keyword_frequency_conflict: like_5_2"
@@ -31,16 +30,17 @@ logging.basicConfig(level=logging.INFO)
 def get_expected_files_mapping():
     """Generate mapping of all expected response files based on models, datasets, and policies."""
     models = [
-        # "qwen2.5-7b-instruct",
-        # "gpt-4o-mini-2024-07-18",
-        # "gpt-4o-2024-11-20",
-        # "claude-3-5-sonnet-20241022",
-        # "Llama-3.1-8B",
-        # "Llama-3.1-8B-conflict",
-        "Llama-3.1-8B-conflict_0",
-        "Llama-3.1-8B-conflict_1",
-        "Llama-3.1-8B-conflict_2",
-        # "Llama-3.1-70B",
+        "qwen2.5-7b-instruct",
+        "gpt-4o-mini-2024-07-18",
+        "gpt-4o-2024-11-20",
+        "claude-3-5-sonnet-20241022",
+        "Llama-3.1-8B",
+        "Llama-3.1-70B",
+        # "Llama-3.1-8B-conflict", # for finetune experiments
+        # "Llama-3.1-8B-conflict_0",
+        # "Llama-3.1-8B-conflict_1",
+        # "Llama-3.1-8B-conflict_2",
+        
     ]
     
     datasets = [
@@ -224,7 +224,7 @@ def main():
                       help='Directory containing processed response files')
     parser.add_argument('--response_type', type=str, choices=['response', 'processed_response'],
                       default='processed_response', help='Which response to analyze')
-    parser.add_argument('--test_set_only', action='store_true',
+    parser.add_argument('--test_set_only', default=False, action='store_true',
                       help='Only evaluate responses for test set conflicts')
     parser.add_argument('--output_index', type=int, default=4,
                       help='Index of the output to analyze')
