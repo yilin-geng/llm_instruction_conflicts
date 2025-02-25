@@ -1,6 +1,6 @@
 # Control Illusion: The Failure of Instruction Hierarchies in Large Language Models
 
-This repository contains the code for the paper "Control Illusion: The Failure of Instruction Hierarchies in Large Language Models" (https://arxiv.org/abs/xxxxxxx)
+This repository contains the code for the paper "Control Illusion: The Failure of Instruction Hierarchies in Large Language Models" (http://arxiv.org/abs/2502.15851)
 
 ### Dataset Creation
 ```bash
