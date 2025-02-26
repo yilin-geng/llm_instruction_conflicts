@@ -16,6 +16,10 @@ logging.basicConfig(level=logging.INFO)
 root_dir = Path(__file__).parent.parent
 
 
+# NOTE
+# llama models were set up locally, to run them, make sure you set up the corresponding clients in llm_api.py
+# other models were using a third party API, you may modify to any other LLM service provider
+
 
 # Configuration flag
 USE_NEXT_CLIENT = True  # Set to True to use Next_Client, False to use llm_api (need sperate api keys for each model)
@@ -27,18 +31,9 @@ models = [
     "gpt-4o-mini-2024-07-18",
     "gpt-4o-2024-11-20",
     "claude-3-5-sonnet-20241022",
-    # "deepseek-r1"
-    "Llama-3.1-8B",
-    "Llama-3.1-70B",
+    "Llama-3.1-8B", #set up locally
+    "Llama-3.1-70B", #set up locally
 ]
-model_name_mapping = {
-    "Llama-3.1-8B": "meta-llama/Llama-3.1-8B-Instruct",
-    "Llama-3.1-70B": "meta-llama/Llama-3.1-70B-Instruct",
-    "Llama-3.1-8B-conflict": "Llama-3.1-8B-Instruct-conflict",
-    "Llama-3.1-8B-conflict_0": "Llama-3.1-8B-Instruct-conflict_0",
-    "Llama-3.1-8B-conflict_1": "Llama-3.1-8B-Instruct-conflict_1",
-    "Llama-3.1-8B-conflict_2": "Llama-3.1-8B-Instruct-conflict_2",
-}
 
 # Data paths to evaluate
 data_paths = [
@@ -74,8 +69,6 @@ def get_llm_call_fn(model: str, next_base_url: str = NEXT_BASE_URL, max_requests
             "NEXT_API_KEY": NEXT_API_KEY,
             "OPENAI_API_KEY": OPENAI_API_KEY,
         }
-        if model in model_name_mapping:
-            model = model_name_mapping[model]
         client = Next_Client(model=model, api_config=api_config, max_requests_per_minute=max_requests_per_minute)
         return client.multi_call
     else:
@@ -222,10 +215,6 @@ def main():
                 if len(responses) != len(messages):
                     logger.error(f"Mismatch between messages ({len(messages)}) and responses ({len(responses)})")
                     raise ValueError("Number of responses does not match number of messages")
-                
-                # # Process responses
-                # results = policy.evaluate_responses(evaluation_data, responses, 
-                #                                     is_reversed='reversed' in str(data_path))
                 
                 # Save responses
                 save_responses(model, policy.name, data_path, messages, responses, 

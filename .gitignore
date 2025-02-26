@@ -6,8 +6,13 @@ __pycache__/
 # API keys and sensitive files
 code/api_keys.py
 
-# archive directory
+# local directory
 archive/
+results/
+analysis/
+
+# JSONL files in data directory
+data/**/*.jsonl
 
 # C extensions
 *.so
@@ -175,3 +180,4 @@ cython_debug/
 .Trashes
 ehthumbs.db
 Thumbs.db
+

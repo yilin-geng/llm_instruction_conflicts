@@ -8,21 +8,12 @@ from typing import Dict, List
 from priority_control_policies import *
 from conflicts_dict import INSTRUCTION_CONFLICTS
 
-# Test set conflict names
-test_conflict_names = [ #only used for finetune experiments
-    [
-        "num_sentence_conflict: 10_5",
-        "keyword_frequency_conflict: like_5_2"
-    ],
-    [
-        "language_conflict: en_fr",
-        "case_conflict"
-    ],
-    [
-        "word_length_conflict: 300_50",
-        "keyword_forbidden_conflict: awesome_need"
-    ]
-]
+
+# NOTE
+# after you get your responses, you can run this script to analyze the responses
+# the analysis can be either applied to the raw responses or the processed responses (the processed responses are the responses after the LLM-as-a-judge)
+# 
+
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
@@ -36,11 +27,6 @@ def get_expected_files_mapping():
         "claude-3-5-sonnet-20241022",
         "Llama-3.1-8B",
         "Llama-3.1-70B",
-        # "Llama-3.1-8B-conflict", # for finetune experiments
-        # "Llama-3.1-8B-conflict_0",
-        # "Llama-3.1-8B-conflict_1",
-        # "Llama-3.1-8B-conflict_2",
-        
     ]
     
     datasets = [
@@ -163,23 +149,10 @@ def evaluate_responses(df: pd.DataFrame, test_set_only: bool = False, output_ind
         with open(data_path, 'r') as f:
             conflict_data = [json.loads(line) for line in f]
             
-        # Filter conflict data and responses if test_set_only is True
-        if test_set_only:
-            # print([data['conflict_name'] for data in conflict_data])
-            test_indices = [i for i, data in enumerate(conflict_data) if data['conflict_name'] in test_conflict_names[output_index]]
-            if not test_indices:  # Skip if no test conflicts found
-                raise ValueError(f"No test conflicts found for model {model}, dataset {dataset}, policy {policy_name}")
-            conflict_data = [conflict_data[i] for i in test_indices]
-            group = group.iloc[test_indices].reset_index(drop=True)
-            
         # Get policy and evaluate
         policy = policies[policy_name]
         is_reversed = 'reversed' in dataset
         evaluations = policy.evaluate_responses(conflict_data, group['response'].tolist(), is_reversed)
-
-        # Check evaluations length matches data length
-        expected_len = 200 if test_set_only else 600
-        assert len(evaluations) == expected_len, f"Expected {expected_len} evaluations for model {model}, got {len(evaluations)}"
 
         # Store results
         for idx, eval_result in enumerate(evaluations):
@@ -192,7 +165,7 @@ def evaluate_responses(df: pd.DataFrame, test_set_only: bool = False, output_ind
                 'both_constraint_met': eval_result.primary_constraint_met and eval_result.secondary_constraint_met,
                 'none_constraint_met': not eval_result.primary_constraint_met and not eval_result.secondary_constraint_met,
                 'conflict_name': eval_result.conflict_name,
-                'conflict_recognized': group['conflict_recognized'].iloc[idx]  # Match recognition with corresponding response TODO: double check
+                'conflict_recognized': group['conflict_recognized'].iloc[idx] 
             })
             
     return pd.DataFrame(evaluated_results)
@@ -220,38 +193,33 @@ def generate_summary(df: pd.DataFrame) -> pd.DataFrame:
 
 def main():
     parser = argparse.ArgumentParser(description='Analyze model responses')
-    parser.add_argument('--processed_dir', type=str, default='results/processed_responses',
+    parser.add_argument('--target_dir', type=str, default='results/processed_responses',
                       help='Directory containing processed response files')
     parser.add_argument('--response_type', type=str, choices=['response', 'processed_response'],
                       default='processed_response', help='Which response to analyze')
-    parser.add_argument('--test_set_only', default=False, action='store_true',
-                      help='Only evaluate responses for test set conflicts')
-    parser.add_argument('--output_index', type=int, default=4,
-                      help='Index of the output to analyze')
+
     args = parser.parse_args()
     
     root_dir = Path(__file__).parent.parent
-    processed_dir = root_dir / args.processed_dir
+    target_dir = root_dir / args.target_dir
     # Create analysis directory
     analysis_dir = root_dir / 'analysis'
     analysis_dir.mkdir(exist_ok=True)
     
     # Load responses
-    results_df = pd.DataFrame(load_response_files(processed_dir, args.response_type))
+    results_df = pd.DataFrame(load_response_files(target_dir, args.response_type))
     logger.info(f"Loaded {len(results_df)} responses")
     
     # Evaluate responses
-    evaluated_df = evaluate_responses(results_df, test_set_only=args.test_set_only, output_index=args.output_index)
+    evaluated_df = evaluate_responses(results_df)
     logger.info(f"Evaluated {len(evaluated_df)} responses")
     
-    # Add suffix to output files if test_set_only is True
-    suffix = f'_test_only_{args.output_index}' if args.test_set_only else ''
-    evaluated_df.to_csv(analysis_dir / f'evaluated_{args.response_type}{suffix}.csv', index=False)
+    evaluated_df.to_csv(analysis_dir / f'evaluated_{args.response_type}.csv', index=False)
 
     # Generate summary
     dataset_summary, conflict_summary = generate_summary(evaluated_df)
-    dataset_summary.to_csv(analysis_dir / f'dataset_level_summary_{args.response_type}{suffix}.csv')
-    conflict_summary.to_csv(analysis_dir / f'conflict_level_summary_{args.response_type}{suffix}.csv')
+    dataset_summary.to_csv(analysis_dir / f'dataset_level_summary_{args.response_type}.csv')
+    conflict_summary.to_csv(analysis_dir / f'conflict_level_summary_{args.response_type}.csv')
     
     logger.info(f"Analysis complete. Results saved to {analysis_dir}")
 

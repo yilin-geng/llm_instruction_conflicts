@@ -14,7 +14,9 @@
 # limitations under the License.
 
 # implementation from IFEVAL, https://github.com/EleutherAI/lm-evaluation-harness/tree/main/lm_eval/tasks/ifeval
-# errors are fixed
+
+# NOTE:
+# code from IFEVAL, errors are fixed
 
 """Library of instructions."""
 import collections

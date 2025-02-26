@@ -10,6 +10,13 @@ import argparse
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 
+
+# NOTE
+# LLM-as-a-judge, for recognizing the explicit conflict acknowledgment and remove them
+# once you run the get_responses.py, you can run this script to process the responses (pointing to the response directory)
+# target_dir: the directory containing the responses to process
+# output_dir: the directory to save the processed responses
+
 def get_llm_call_fn(model: str, max_requests_per_minute: int = 20):
     """Get appropriate LLM client based on configuration"""
     api_config = {
