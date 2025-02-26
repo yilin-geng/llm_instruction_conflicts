@@ -12,7 +12,7 @@ results/
 analysis/
 
 # JSONL files in data directory
-data/**/*.jsonl
+# data/**/*.jsonl
 
 # C extensions
 *.so
