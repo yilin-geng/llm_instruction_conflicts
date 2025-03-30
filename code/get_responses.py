@@ -22,15 +22,15 @@ root_dir = Path(__file__).parent.parent
 
 
 # Configuration flag
-USE_NEXT_CLIENT = True  # Set to True to use Next_Client, False to use llm_api (need sperate api keys for each model)
+USE_NEXT_CLIENT = False  # Set to False to use OpenAI_Client directly
 
 
 # Models to evaluate
 models = [
-    "qwen2.5-7b-instruct",
+    # "qwen2.5-7b-instruct",
     "gpt-4o-mini-2024-07-18",
     "gpt-4o-2024-11-20",
-    "claude-3-5-sonnet-20241022",
+    # "claude-3-5-sonnet-20241022",
     # "Llama-3.1-8B", #set up locally
     # "Llama-3.1-70B", #set up locally
 ]
@@ -73,13 +73,19 @@ def get_llm_call_fn(model: str, next_base_url: str = NEXT_BASE_URL, max_requests
         client = Next_Client(model=model, api_config=api_config, max_requests_per_minute=max_requests_per_minute)
         return client.multi_call
     else:
-        # TODO: Map models to their corresponding functions (MUST MODIFY IF NOT USING OPENAI_NEXT CLIENT)
-        model_map = {
-            "gpt-4o-2024-11-20": lambda x: batch_llm_call(x, get_completion_gpt4o),
-            # "llama-3.1-70b": lambda x: batch_llm_call(x, get_completion_llama3),
-            # Add corresponding model mappings for models added in llm_api.py
+        api_config = {
+        "OPENAI_API_KEY": OPENAI_API_KEY,
         }
-        return model_map.get(model, lambda x: batch_llm_call(x, get_completion_gpt4o))
+        client = OpenAI_Client(model=model, api_config=api_config, max_requests_per_minute=max_requests_per_minute)
+        return client.multi_call
+    # else:
+    #     # TODO: Map models to their corresponding functions (MUST MODIFY IF NOT USING OPENAI_NEXT CLIENT)
+    #     model_map = {
+    #         "gpt-4o-2024-11-20": lambda x: batch_llm_call(x, get_completion_gpt4o),
+    #         # "llama-3.1-70b": lambda x: batch_llm_call(x, get_completion_llama3),
+    #         # Add corresponding model mappings for models added in llm_api.py
+    #     }
+    #     return model_map.get(model, lambda x: batch_llm_call(x, get_completion_gpt4o))
 
 def load_data(data_path: Path) -> List[Dict]:
     """Load evaluation data from jsonl file."""
