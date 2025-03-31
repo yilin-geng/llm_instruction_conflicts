@@ -1,0 +1,17 @@
+Experiment Configuration
+======================
+
+Timestamp: 20250331_093628
+
+Policies:
+- constraint_following_baseline_system
+
+Models:
+- Llama-3.1-70B
+
+Input Data:
+- /mbz/users/haonan.li/src_mhl/instruction_conflicts/data/conflicting_instructions.jsonl
+- /mbz/users/haonan.li/src_mhl/instruction_conflicts/data/conflicting_instructions_reversed.jsonl
+- /mbz/users/haonan.li/src_mhl/instruction_conflicts/data/conflicting_instructions_rich_context.jsonl
+- /mbz/users/haonan.li/src_mhl/instruction_conflicts/data/conflicting_instructions_rich_context_reversed.jsonl
+
