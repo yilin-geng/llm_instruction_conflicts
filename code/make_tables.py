@@ -33,7 +33,8 @@ policy_mapping = {
     'unmarked_user_basic': 'User',
     'marked_user_basic': 'User-M',
     'constraint_following_baseline': 'IF.',
-    'baseline_all_user': 'NP.'
+    'baseline_all_user': 'NP.',
+    'constraint_following_baseline_system': 'IFS.'
 }
 
 output_dir = 'analysis/tables'
@@ -343,6 +344,13 @@ def conflict_acknowledgement_table(table_name, policy, context_type='simple'):
     # Save table
     save_table(table_name, results_df, context_type)
 
+def added_baseline_table(table_name, context_type='simple'):
+    metric_function = compute_o1_obedience_rate_per_conflict
+    models = model_mapping.keys()
+    policies = ['constraint_following_baseline_system']
+    results_df = create_model_policy_table_for_metric(models, policies, metric_function, context_type)
+    save_table(table_name, results_df, context_type)
+
 def main():
     os.makedirs(output_dir, exist_ok=True)
     model_mapping_latex()
@@ -363,7 +371,11 @@ def main():
     conflict_acknowledgement_table('conflict_acknowledgement_basic_separation', 'basic_separation', 'rich')
     conflict_acknowledgement_table('conflict_acknowledgement_marked_user_basic', 'marked_user_basic', 'rich')
 if __name__ == '__main__':
-    main()
+    # main()
+    os.makedirs(output_dir, exist_ok=True)
+    added_baseline_table('system_instruction_following_baseline', context_type='simple')
+    added_baseline_table('system_instruction_following_baseline', context_type='rich')
+
 
 
 

@@ -27,37 +27,37 @@ USE_NEXT_CLIENT = False  # Set to False to use OpenAI_Client directly
 
 # Models to evaluate
 models = [
-    # "qwen2.5-7b-instruct",
+    "qwen2.5-7b-instruct",
     "gpt-4o-mini-2024-07-18",
     "gpt-4o-2024-11-20",
-    # "claude-3-5-sonnet-20241022",
-    # "Llama-3.1-8B", #set up locally
-    # "Llama-3.1-70B", #set up locally
+    "claude-3-5-sonnet-20241022",
+    "Llama-3.1-8B", #set up locally
+    "Llama-3.1-70B", #set up locally
 ]
 
 # Data paths to evaluate
 data_paths = [
     root_dir / 'data' / 'conflicting_instructions.jsonl',
     root_dir / 'data' / 'conflicting_instructions_reversed.jsonl',
-    # root_dir / 'data' / 'conflicting_instructions_rich_context.jsonl',
-    # root_dir / 'data' / 'conflicting_instructions_rich_context_reversed.jsonl',
+    root_dir / 'data' / 'conflicting_instructions_rich_context.jsonl',
+    root_dir / 'data' / 'conflicting_instructions_rich_context_reversed.jsonl',
 ]
 
 # Initialize policies
 policies = [
-    # ConstraintFollowingBaseline("constraint_following_baseline"),
-    # BaselineAllUserPolicy("baseline_all_user"),
-    # BasicSeparationPolicy("basic_separation"),
-    # TaskSpecifiedSeparationPolicy("task_specified_separation"), 
-    # EmphasizedSeparationPolicy("emphasized_separation"),
-    # UnmarkedSystemPolicyBasic("unmarked_system_basic"),
-    # MarkedSystemPolicyBasic("marked_system_basic"),
-    # UnmarkedUserPolicyBasic("unmarked_user_basic"),
-    # MarkedUserPolicyBasic("marked_user_basic"),
-    # UnmarkedSystemPolicyDetailed("unmarked_system_detailed"),
-    # MarkedSystemPolicyDetailed("marked_system_detailed"),
-    # UnmarkedUserPolicyDetailed("unmarked_user_detailed"),
-    # MarkedUserPolicyDetailed("marked_user_detailed"),
+    ConstraintFollowingBaseline("constraint_following_baseline"),
+    BaselineAllUserPolicy("baseline_all_user"),
+    BasicSeparationPolicy("basic_separation"),
+    TaskSpecifiedSeparationPolicy("task_specified_separation"), 
+    EmphasizedSeparationPolicy("emphasized_separation"),
+    UnmarkedSystemPolicyBasic("unmarked_system_basic"),
+    MarkedSystemPolicyBasic("marked_system_basic"),
+    UnmarkedUserPolicyBasic("unmarked_user_basic"),
+    MarkedUserPolicyBasic("marked_user_basic"),
+    UnmarkedSystemPolicyDetailed("unmarked_system_detailed"),
+    MarkedSystemPolicyDetailed("marked_system_detailed"),
+    UnmarkedUserPolicyDetailed("unmarked_user_detailed"),
+    MarkedUserPolicyDetailed("marked_user_detailed"),
     ConstraintFollowingBaselineSystem("constraint_following_baseline_system"),
 ]
 
