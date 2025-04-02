@@ -370,11 +370,11 @@ def main():
     conflict_acknowledgement_table('conflict_acknowledgement_baseline_all_user', 'baseline_all_user', 'rich')
     conflict_acknowledgement_table('conflict_acknowledgement_basic_separation', 'basic_separation', 'rich')
     conflict_acknowledgement_table('conflict_acknowledgement_marked_user_basic', 'marked_user_basic', 'rich')
-if __name__ == '__main__':
-    # main()
-    os.makedirs(output_dir, exist_ok=True)
     added_baseline_table('system_instruction_following_baseline', context_type='simple')
     added_baseline_table('system_instruction_following_baseline', context_type='rich')
+if __name__ == '__main__':
+    main()
+    
 
 
 
