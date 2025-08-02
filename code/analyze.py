@@ -38,6 +38,7 @@ def get_expected_files_mapping():
     
     policies = [
         "constraint_following_baseline",
+        "constraint_following_baseline_system",
         "baseline_all_user",
         "basic_separation",
         "task_specified_separation",
@@ -130,6 +131,7 @@ def evaluate_responses(df: pd.DataFrame, test_set_only: bool = False, output_ind
     # Initialize policies
     policies = {
         "constraint_following_baseline": ConstraintFollowingBaseline("constraint_following_baseline"),
+        "constraint_following_baseline_system": ConstraintFollowingBaselineSystem("constraint_following_baseline_system"),
         "baseline_all_user": BaselineAllUserPolicy("baseline_all_user"),
         "basic_separation": BasicSeparationPolicy("basic_separation"),
         "task_specified_separation": TaskSpecifiedSeparationPolicy("task_specified_separation"),

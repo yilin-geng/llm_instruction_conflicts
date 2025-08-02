@@ -23,12 +23,14 @@ python code/process_responses.py --target_dir {response_directory} --output_dir 
 ```
 
 ### Evaluation and Analysis
-```bash
-python code/analyze.py --processed_dir {response_directory} --response_type response
-```
 
+On raw LLM responses:
 ```bash
-python code/analyze.py --processed_dir {processed_directory} --response_type processed_response
+python code/analyze.py --target_dir {response_directory} --response_type response
+```
+On processed LLM responses
+```bash
+python code/analyze.py --target_dir {processed_directory} --response_type processed_response
 ```
 
 ```bash

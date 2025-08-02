@@ -165,7 +165,7 @@ def main():
 
     parser = argparse.ArgumentParser()
     parser.add_argument("--target_dir", type=str, required=True)
-    parser.add_argument("--output_dir", type=str, required=True)
+    parser.add_argument("--output_dir", type=str, required=True, default=results_dir / f'processed_responses')
     args = parser.parse_args()
     target_dir = Path(args.target_dir)
     output_dir = Path(args.output_dir)
