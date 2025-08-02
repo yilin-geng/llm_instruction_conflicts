@@ -10,6 +10,7 @@ code/api_keys.py
 archive/
 results/
 analysis/
+analysis_aaai/
 
 # JSONL files in data directory
 # data/**/*.jsonl

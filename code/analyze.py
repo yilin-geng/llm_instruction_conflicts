@@ -50,6 +50,12 @@ def get_expected_files_mapping():
         "marked_system_detailed",
         "unmarked_user_detailed",
         "marked_user_detailed"
+        "ceo_intern_1",
+        "ceo_intern_2",
+        "expertise_bias_1",
+        "expertise_bias_2",
+        "social_consensus_1",
+        "social_consensus_2",
     ]
     
     expected_files = {}
@@ -135,7 +141,13 @@ def evaluate_responses(df: pd.DataFrame, test_set_only: bool = False, output_ind
         "unmarked_system_detailed": UnmarkedSystemPolicyDetailed("unmarked_system_detailed"),
         "marked_system_detailed": MarkedSystemPolicyDetailed("marked_system_detailed"),
         "unmarked_user_detailed": UnmarkedUserPolicyDetailed("unmarked_user_detailed"),
-        "marked_user_detailed": MarkedUserPolicyDetailed("marked_user_detailed")
+        "marked_user_detailed": MarkedUserPolicyDetailed("marked_user_detailed"),
+                "ceo_intern_1": ceo_intern_1("ceo_intern_1"),
+        "ceo_intern_2": ceo_intern_2("ceo_intern_2"),
+        "expertise_bias_1": expertise_bias_1("expertise_bias_1"),
+        "expertise_bias_2": expertise_bias_2("expertise_bias_2"),
+        "social_consensus_1": social_consensus_1("social_consensus_1"),
+        "social_consensus_2": social_consensus_2("social_consensus_2"),
     }
     
     evaluated_results = []
