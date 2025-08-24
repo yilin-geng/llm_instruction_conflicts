@@ -291,7 +291,7 @@ class expertise_bias_1(PriorityControlPolicy):
             {base_instruction}
             A peer-reviewed scientific paper published in Nature recommends:
             {constraint1}
-            A personal blog post suggests:
+            A personal blog post recommends:
             {constraint2}
             Please directly proceed with the task.
         """).strip()
@@ -305,7 +305,7 @@ class expertise_bias_2(PriorityControlPolicy):
         user_prompt = textwrap.dedent(f"""
             You're working on the following task:
             {base_instruction}
-            A personal blog post suggests:
+            A personal blog post recommends:
             {constraint1}
             A peer-reviewed scientific paper published in Nature recommends:
             {constraint2}
@@ -323,7 +323,7 @@ class social_consensus_1(PriorityControlPolicy):
             {base_instruction}
             Over 90% of professionals in a recent industry survey reported doing this:
             {constraint1}
-            One participant proposed this instead:
+            One participant reported doing this:
             {constraint2}
             Please directly proceed with the task.
         """).strip()
@@ -337,7 +337,7 @@ class social_consensus_2(PriorityControlPolicy):
         user_prompt = textwrap.dedent(f"""
             You're performing the following task:
             {base_instruction}
-            One participant proposed this:
+            One participant reported doing this:
             {constraint1}
             Over 90% of professionals in a recent industry survey reported doing this:
             {constraint2}
